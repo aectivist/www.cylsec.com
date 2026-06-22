@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Confirm your account</title>
+</head>
+<body>
+    <h2>Welcome to CYLVERN Security, {{ user.username }}!</h2>
+    <p>Please confirm your email address by clicking the link below:</p>
+    <p><a href="{{ confirm_url }}">{{ confirm_url }}</a></p>
+    <p>If you did not create this account, please ignore this email.</p>
+    <p>This link will expire in 1 hour.</p>
+</body>
+</html>

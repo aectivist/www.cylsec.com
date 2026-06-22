@@ -1,0 +1,22 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block admin_content %}
+<div class="panel" style="max-width:500px;margin:auto;">
+    <h2 class="section-title">{{ title }}</h2>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.name.label }}<br>
+            {{ form.name(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.description.label }}<br>
+            {{ form.description(class="form-control", rows=3) }}
+        </div>
+        {{ form.submit(class="btn-primary") }}
+        <a href="{{ url_for('admin.list_categories') }}" class="btn-secondary" style="margin-left:10px;">Cancel</a>
+    </form>
+</div>
+{% endblock %}

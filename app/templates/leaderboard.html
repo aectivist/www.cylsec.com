@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block hero %}{% endblock %}
+{% block title %}Leaderboard – CYLVERN SECURITY{% endblock %}
+
+{% block content %}
+<div class="panel">
+    <h2 class="section-title">Top Hunters</h2>
+    <div class="leaderboard-list">
+        {% for user in top %}
+            <div class="lb-entry">
+                <span class="lb-rank">#{{ loop.index }}</span>
+                <span class="lb-name">{{ user.username }}</span>
+                <span class="lb-level">Level {{ (user.xp // 100) + 1 }}</span>
+                <span class="lb-rank-display">
+                    <span class="rank-color" data-rank="{{ user.get_rank() }}">{{ user.get_rank() }}</span>
+                </span>
+                <span class="lb-xp">{{ user.xp }} XP</span>
+            </div>
+        {% else %}
+            <p>No hunters yet. Be the first!</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

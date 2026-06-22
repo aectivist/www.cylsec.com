@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{# Remove the CYLVERN logo and title from admin pages #}
+{% block hero %}{% endblock %}
+
+{# Admin navigation bar #}
+{% block content %}
+<div class="admin-nav" style="display:flex; gap:15px; margin-bottom:5px; margin-top: 25px; flex-wrap:wrap;">
+    <a href="{{ url_for('admin.dashboard') }}" class="btn-secondary" style="padding:0.5rem 1rem; font-size:0.8rem;">← Admin Dashboard</a>
+    <a href="{{ url_for('main.index') }}" class="btn-secondary" style="padding:0.5rem 1rem; font-size:0.8rem;">← Main Site</a>
+    <button onclick="window.history.back();" class="btn-secondary" style="padding:0.5rem 1rem; font-size:0.8rem;">← Back</button>
+</div>
+{% block admin_content %}{% endblock %}
+{% endblock %}

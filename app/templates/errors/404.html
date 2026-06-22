@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block hero %}{% endblock %}
+
+{% block title %}404 Not Found – CYLVERN SECURITY{% endblock %}
+
+{% block content %}
+<div class="panel" style="max-width:600px;margin:60px auto;text-align:center;">
+    <div style="font-size:6rem;color:var(--purple);text-shadow:0 0 30px var(--purple);">404</div>
+    <h2 style="color:#fff;margin:20px 0;">Page Not Found</h2>
+    <p style="color:#aaa;">The dungeon you are looking for does not exist or has been moved.</p>
+    <p style="color:#777;margin-top:10px;">Check the URL or return to the archives.</p>
+    <div style="margin-top:30px;">
+        <a href="{{ url_for('main.index') }}" class="btn-primary">Return to Home</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block hero %}{% endblock %}
+{% block title %}{{ category.name }} – CYLVERN SECURITY{% endblock %}
+
+{% block content %}
+<div class="panel">
+    <h2 class="section-title">{{ category.name }} Dungeons</h2>
+    <div class="vuln-grid">
+        {% for challenge in challenges %}
+            <a href="{{ url_for('challenges.view_challenge', challenge_id=challenge.id) }}" class="vuln-card">
+                <div class="vuln-name">{{ challenge.title }}</div>
+                <div class="rank">Difficulty: {{ challenge.difficulty }}</div>
+                <div class="reward">+{{ challenge.points }} XP</div>
+            </a>
+        {% else %}
+            <p>No challenges in this dungeon yet.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

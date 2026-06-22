@@ -1,0 +1,18 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block admin_content %}
+<div class="panel" style="max-width:700px;margin:auto;">
+    <h2 class="section-title">System Settings</h2>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.system_log_message.label }}<br>
+            {{ form.system_log_message(class="form-control", rows=4, placeholder="Enter the system log message") }}
+        </div>
+        {{ form.submit(class="btn-primary") }}
+        <a href="{{ url_for('admin.dashboard') }}" class="btn-secondary" style="margin-left:10px;">Cancel</a>
+    </form>
+</div>
+{% endblock %}
