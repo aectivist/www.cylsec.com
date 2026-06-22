@@ -13,21 +13,34 @@ def archives():
 
 @challenges_bp.route('/archives/<int:category_id>')
 @login_required
+<<<<<<< HEAD
 def category_detail(category_id):              # ✅ parameter added
+=======
+def category_detail(category_id):
+>>>>>>> cde75ce499f633f714bacaa69f5e4a118840f2ca
     category = Category.query.get_or_404(category_id)
     challenges = Challenge.query.filter_by(category_id=category_id, is_active=True).all()
     return render_template('category.html', category=category, challenges=challenges)
 
 @challenges_bp.route('/challenge/<int:challenge_id>')
 @login_required
+<<<<<<< HEAD
 def view_challenge(challenge_id):              # ✅ parameter added
+=======
+def view_challenge(challenge_id):
+>>>>>>> cde75ce499f633f714bacaa69f5e4a118840f2ca
     chal = Challenge.query.get_or_404(challenge_id)
     return render_template('challenge_detail.html', chal=chal)
 
 @challenges_bp.route('/challenge/<int:challenge_id>/submit', methods=['POST'])
 @login_required
+<<<<<<< HEAD
 @limiter.limit("10 per minute")
 def submit_flag(challenge_id):                 # ✅ parameter added
+=======
+@limiter.limit("10 per minute")   # rate limit flag submissions
+def submit_flag(challenge_id):
+>>>>>>> cde75ce499f633f714bacaa69f5e4a118840f2ca
     chal = Challenge.query.get_or_404(challenge_id)
     user_flag = request.form.get('flag', '').strip()
     if user_flag == chal.flag:
