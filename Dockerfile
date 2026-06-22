@@ -26,9 +26,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the project
 COPY . .
 
-# Copy the entrypoint script before switching user
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+# Copy entrypoint script with executable permission
+COPY --chmod=755 entrypoint.sh /entrypoint.sh
 
 # Create a non-root user and set ownership
 RUN adduser --disabled-password --gecos '' appuser && chown -R appuser:appuser /app
