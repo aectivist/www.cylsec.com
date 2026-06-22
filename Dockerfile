@@ -26,19 +26,16 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the project
 COPY . .
 
-# Create a non-root user
-RUN adduser --disabled-password --gecos '' appuser && chown -R appuser:appuser /app
-USER appuser
-
-# Copy the entrypoint script
+# Copy the entrypoint script before switching user
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# Use the entrypoint script
-ENTRYPOINT ["/entrypoint.sh"]
+# Create a non-root user and set ownership
+RUN adduser --disabled-password --gecos '' appuser && chown -R appuser:appuser /app
+USER appuser
 
 # Expose port
 EXPOSE 8000
 
-# Run with Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "run:app"]
+# Use the entrypoint script
+ENTRYPOINT ["/entrypoint.sh"]
