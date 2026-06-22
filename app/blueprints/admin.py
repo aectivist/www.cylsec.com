@@ -104,7 +104,7 @@ def enable_2fa():
     uri = totp.provisioning_uri(name=current_user.email, issuer_name="CYLVERN Security")
     img = qrcode.make(uri)
     buffered = io.BytesIO()
-    img.save(buffered, format="PNG")
+    img.save(buffered, "PNG")
     img_str = base64.b64encode(buffered.getvalue()).decode()
     return render_template('admin/enable_2fa.html', secret=secret, qr_code=img_str)
 
