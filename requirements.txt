@@ -6,8 +6,6 @@ Flask-Migrate==4.0.4
 Flask-WTF==1.1.1
 Flask-Mail==0.9.1
 Flask-Limiter==3.5.0
-psycopg2-binary==2.9.9
-
 # Authentication & Security
 Werkzeug==2.2.3
 email-validator==2.0.0
@@ -17,6 +15,8 @@ qrcode==7.4.2
 
 # Utilities
 python-dotenv==1.0.0
+psycopg2-binary==2.9.9
+redis==5.0.1
 
 # Production WSGI server
 gunicorn==21.2.0
