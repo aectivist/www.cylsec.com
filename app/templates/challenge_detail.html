@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block hero %}{% endblock %}
+{% block title %}{{ chal.title }} – CYLVERN SECURITY{% endblock %}
+
+{% block content %}
+<div class="panel">
+    <h2 class="section-title">{{ chal.title }}</h2>
+    <div class="challenge-info">
+        <p><strong>Category:</strong> {{ chal.category.name }}</p>
+        <p><strong>Difficulty:</strong> {{ chal.difficulty }}</p>
+        <p><strong>Points:</strong> {{ chal.points }}</p>
+        <p><strong>Type:</strong> {{ chal.type|capitalize }}</p>
+        <p><strong>Description:</strong></p>
+        <p>{{ chal.description|safe }}</p>
+
+        <!-- Type-specific action -->
+        <div class="challenge-action">
+            {% if chal.type == 'web' and chal.challenge_url %}
+                <a href="{{ chal.challenge_url }}" target="_blank" class="btn-primary">Launch Web App</a>
+            {% elif chal.type == 'pwn' and chal.challenge_url %}
+                <div class="netcat-box">
+                    <p>Connect using:</p>
+                    <code>{{ chal.challenge_url }}</code>
+                </div>
+                {% if chal.file_url %}
+                    <a href="{{ chal.file_url }}" class="btn-secondary">Download Binary</a>
+                {% endif %}
+            {% elif chal.type in ['forensics', 'rev', 'crypto', 'osint'] and chal.file_url %}
+                <a href="{{ chal.file_url }}" class="btn-primary">Download File(s)</a>
+            {% else %}
+                <p class="text-muted">No external resources provided.</p>
+            {% endif %}
+        </div>
+
+        <!-- Flag submission -->
+        <div class="flag-submit">
+            <form method="POST" action="{{ url_for('challenges.submit_flag', challenge_id=chal.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="form-group">
+                    <label for="flag">Enter Flag:</label>
+                    <input type="text" id="flag" name="flag" class="form-control" placeholder="FLAG{...}" required>
+                </div>
+                <button type="submit" class="btn-primary">Submit Flag</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.challenge-action { margin: 20px 0; }
+.netcat-box { background: rgba(0,0,0,.3); padding: 15px; border-radius: 8px; margin: 10px 0; }
+.netcat-box code { color: #7c4dff; font-size: 1.1rem; }
+.flag-submit { margin-top: 30px; border-top: 1px solid rgba(255,255,255,.1); padding-top: 20px; }
+.text-muted { color: #aaa; }
+</style>
+{% endblock %}

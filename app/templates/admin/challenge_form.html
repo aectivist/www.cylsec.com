@@ -1,0 +1,55 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block admin_content %}
+<div class="panel" style="max-width:700px;margin:auto;">
+    <h2 class="section-title">{{ title }}</h2>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.category_id.label }}<br>
+            {{ form.category_id(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.title.label }}<br>
+            {{ form.title(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.description.label }}<br>
+            {{ form.description(class="form-control", rows=4) }}
+        </div>
+        <div class="form-group">
+            {{ form.difficulty.label }}<br>
+            {{ form.difficulty(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.points.label }}<br>
+            {{ form.points(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.flag.label }}<br>
+            {{ form.flag(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.is_active() }} {{ form.is_active.label }}
+        </div>
+        <hr style="border-color:rgba(255,255,255,.1);margin:20px 0;">
+        <h3>Modular Settings</h3>
+        <div class="form-group">
+            {{ form.type.label }}<br>
+            {{ form.type(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.file_url.label }}<br>
+            {{ form.file_url(class="form-control", placeholder="e.g. /static/files/challenge.zip") }}
+        </div>
+        <div class="form-group">
+            {{ form.challenge_url.label }}<br>
+            {{ form.challenge_url(class="form-control", placeholder="e.g. https://web-challenge.com or nc 1.2.3.4 1337") }}
+        </div>
+        {{ form.submit(class="btn-primary") }}
+        <a href="{{ url_for('admin.list_challenges') }}" class="btn-secondary" style="margin-left:10px;">Cancel</a>
+    </form>
+</div>
+{% endblock %}

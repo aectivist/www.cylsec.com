@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Enable 2FA – CYLVERN SECURITY{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <h1>CYLVERN SECURITY</h1>
+        <h2>Enable Two-Factor Authentication</h2>
+        <p style="color:#aaa;text-align:center;">Scan the QR code with Authy or Google Authenticator.</p>
+        <div style="text-align:center;margin:20px 0;">
+            <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code" style="background:white;padding:10px;border-radius:8px;">
+        </div>
+        <p style="color:#aaa;text-align:center;font-size:0.8rem;">Secret: <strong style="color:#fff;">{{ secret }}</strong></p>
+        <form method="POST" action="{{ url_for('admin.verify_2fa') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label for="code">Enter 6‑digit code from your app</label>
+                <input type="text" id="code" name="code" class="form-control" placeholder="123456" maxlength="6" required>
+            </div>
+            <button type="submit" class="btn-primary">Verify and Enable</button>
+        </form>
+        <p><a href="{{ url_for('admin.dashboard') }}">Cancel</a></p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block admin_content %}
+<div class="panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <h2 class="section-title">Categories</h2>
+        <a href="{{ url_for('admin.add_category') }}" class="btn-primary">+ Add Category</a>
+    </div>
+    <table style="width:100%;border-collapse:collapse;margin-top:20px;">
+        <thead>
+            <tr style="border-bottom:1px solid rgba(255,255,255,.1);">
+                <th>ID</th>
+                <th>Name</th>
+                <th>Challenges</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for cat in categories %}
+            <tr style="border-bottom:1px solid rgba(255,255,255,.05);">
+                <td>{{ cat.id }}</td>
+                <td>{{ cat.name }}</td>
+                <td>{{ cat.challenges|length }}</td>
+                <td>
+                    <a href="{{ url_for('admin.edit_category', category_id=cat.id) }}" class="btn-secondary" style="padding:0.3rem 1rem;font-size:0.8rem;">Edit</a>
+                    <form method="POST" action="{{ url_for('admin.delete_category', category_id=cat.id) }}" style="display:inline;" class="delete-form" data-confirm="Delete this category? All challenges in it will be lost?">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn-danger" style="padding:0.3rem 1rem;font-size:0.8rem;">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% if not categories %}
+        <p style="margin-top:1rem;color:#aaa;">No categories yet.</p>
+    {% endif %}
+</div>
+<style>
+.btn-danger{background:#dc3545;color:white;border:none;border-radius:20px;cursor:pointer;}
+.btn-danger:hover{background:#c82333;}
+</style>
+{% endblock %}

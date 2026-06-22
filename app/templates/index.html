@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Home – CYLVERN SECURITY{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <!-- Left: Hunter Status -->
+    <div class="side">
+        <div class="panel">
+            <h2 class="section-title">Hunter Status</h2>
+            {% if current_user.is_authenticated %}
+                <div class="stat">
+                    <span class="hunter-name">
+                        <i class="fas fa-user-astronaut"></i>
+                        <span id="usernameDisplay">{{ current_user.username }}</span>
+                        <i class="fas fa-pen" id="editUsernameBtn" style="cursor:pointer; margin-left:8px; color:#7c4dff; font-size:0.9rem;" title="Edit username"></i>
+                    </span>
+                    <form id="editUsernameForm" method="POST" action="{{ url_for('auth.update_username') }}" style="display:none; margin-top:5px;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <input type="text" name="new_username" value="{{ current_user.username }}" style="background:rgba(0,0,0,0.7); color:white; border:1px solid #7c4dff; border-radius:4px; padding:4px 8px; flex:1;" minlength="3" required>
+                            <button type="submit" class="btn-secondary" style="padding:0.2rem 0.8rem; font-size:0.8rem;">Save</button>
+                            <button type="button" id="cancelEditUsername" class="btn-secondary" style="padding:0.2rem 0.8rem; font-size:0.8rem;">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="stat">Rank: <span class="rank-color" data-rank="{{ current_user.get_rank() }}" style="font-weight: bold;">{{ current_user.get_rank() }}</span></div>
+                <div class="stat">XP: {{ current_user.xp }}</div>
+                <div class="stat">Flags: {{ current_user.solves|length }}</div>
+                <div class="progress">
+                    <div class="progress-bar" id="xpProgress" style="width: 0%;"></div>
+                </div>
+
+                <!-- Account Settings -->
+                <div style="margin-top:20px;border-top:1px solid rgba(255,255,255,.1);padding-top:15px;">
+                    <h4 style="color:var(--purple);font-size:1rem;margin-bottom:8px;">Account Settings</h4>
+                    <div style="display:flex;flex-direction:column;gap:8px;">
+                        <!-- Change Password (sends reset link to email) -->
+                        <form method="POST" action="{{ url_for('auth.send_password_reset') }}" style="display:inline;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn-secondary" style="padding:0.3rem 1rem;font-size:0.8rem;width:100%;">Change Password</button>
+                        </form>
+                        
+                        <!-- Change Email (OTP flow) -->
+                        <form method="POST" action="{{ url_for('auth.send_otp') }}" style="display:inline;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="purpose" value="email_change">
+                            <button type="submit" class="btn-secondary" style="padding:0.3rem 1rem;font-size:0.8rem;width:100%;">Change Email</button>
+                        </form>
+                        
+                        <!-- Delete Account (OTP + password) -->
+                        <form method="POST" action="{{ url_for('auth.send_otp') }}" style="display:inline;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="purpose" value="account_delete">
+                            <button type="submit" class="btn-danger" style="padding:0.3rem 1rem;font-size:0.8rem;width:100%;">Delete Account</button>
+                        </form>
+                    </div>
+                </div>
+            {% else %}
+                <div class="stat">Rank: Unregistered</div>
+                <div class="stat">XP: ???</div>
+                <div class="stat">Flags: ???</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Center: Vulnerability Dungeons -->
+    <div class="panel">
+        <h2 class="section-title">Random Dungeons</h2>
+        <div class="vuln-grid">
+            {% for challenge in random_challenges %}
+                <a href="{{ url_for('challenges.view_challenge', challenge_id=challenge.id) }}" class="vuln-card">
+                    <div class="vuln-name">{{ challenge.title }}</div>
+                    <div class="rank">{{ challenge.category.name }} • {{ challenge.difficulty }}</div>
+                    <div class="reward">+{{ challenge.points }} XP</div>
+                </a>
+            {% else %}
+                <p style="grid-column:1/-1;text-align:center;color:#aaa;">No active challenges yet. Check back soon!</p>
+            {% endfor %}
+        </div>
+        <div style="text-align:center;margin-top:25px;">
+            <a href="{{ url_for('challenges.archives') }}" class="btn-primary">View All Challenges</a>
+        </div>
+    </div>
+
+    <!-- Right: Flag Vault + System Log -->
+    <div class="side">
+        <!-- Flag Vault (moved from left) -->
+        <div class="panel">
+            <h2 class="section-title">Flag Vault</h2>
+            <ul class="flags">
+                {% if current_user.is_authenticated and current_user.solves %}
+                    {% for solve in current_user.solves[:5] %}
+                        <li>🏴 {{ solve.challenge.title }}</li>
+                    {% endfor %}
+                {% else %}
+                    <li>No artifacts discovered.</li>
+                {% endif %}
+            </ul>
+        </div>
+        <!-- System Log -->
+        <div class="panel">
+            <h2 class="section-title">System Log</h2>
+            <p>{{ categories|length }} Categories Available</p>
+            <br>
+            <p>{{ setting_system_log or 'Capture all flags to unlock S-Rank content.' }}</p>
+        </div>
+    </div>
+</div>
+
+<!-- FAQ Section -->
+<section class="faq" id="faq">
+    <h2 class="section-title">FAQ</h2>
+    <details>
+        <summary>What is Cylvern Security?</summary>
+        <p>Cylvern Security lorem ipsum.</p>
+    </details>
+    <details>
+        <summary>Question?</summary>
+        <p>lorem ipsum.</p>
+    </details>
+    <details>
+        <summary>Question?</summary>
+        <p>loremipsum.</p>
+    </details>
+</section>
+{% endblock %}

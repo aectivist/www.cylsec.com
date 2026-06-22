@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block hero %}{% endblock %}
+
+{% block title %}403 Forbidden – CYLVERN SECURITY{% endblock %}
+
+{% block content %}
+<div class="panel" style="max-width:600px;margin:60px auto;text-align:center;">
+    <div style="font-size:6rem;color:var(--purple);text-shadow:0 0 30px var(--purple);">403</div>
+    <h2 style="color:#fff;margin:20px 0;">ACCESS DENIED</h2>
+    <p style="color:#aaa;">You do not have permission to view this page.</p>
+    <p style="color:#777;margin-top:10px;">This incident has been logged.</p>
+    <div style="margin-top:30px;">
+        <a href="{{ url_for('main.index') }}" class="btn-primary">Return to Home</a>
+    </div>
+</div>
+{% endblock %}

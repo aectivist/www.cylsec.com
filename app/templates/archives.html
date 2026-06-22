@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block hero %}{% endblock %}
+{% block title %}Archives – CYLVERN SECURITY{% endblock %}
+
+{% block content %}
+<div class="panel">
+    <h2 class="section-title">Challenge Archives</h2>
+    <div class="vuln-grid">
+        {% for category in categories %}
+            <a href="{{ url_for('challenges.category_detail', category_id=category.id) }}" class="vuln-card">
+                <div class="vuln-name">{{ category.name }}</div>
+                <div class="rank">{{ category.challenges|length }} Challenges</div>
+                <div class="reward">Enter</div>
+            </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,103 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+.env
+.env.local
+*.db
+*.sqlite3
+instance/
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+.venv/
+
+# Environment variables (sensitive data)
+.env
+.env.local
+.env.*.local
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+instance/
+*.db-shm
+*.db-wal
+
+# Flask / Werkzeug logs
+*.log
+logs/
+
+# Migration files (if you use Flask-Migrate, keep migrations, but sometimes you want to ignore)
+# Uncomment if you want to ignore migration files:
+# migrations/
+
+# IDE / Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-workspace
+*.sublime-project
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Docker
+.dockerignore
+
+# Render / deployment files
+render.yaml
+docker-compose.override.yml
+
+# Secrets and credentials
+*.pem
+*.key
+*.crt
+*.p12
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Python package cache
+.pip-cache/

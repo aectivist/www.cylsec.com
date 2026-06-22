@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block hero %}{% endblock %}
+
+{% block title %}Login – CYLVERN SECURITY{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <h1>CYLVERN SECURITY</h1>
+        <h2>Login</h2>
+        <form method="POST" action="{{ url_for('auth.login') }}">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.username.label }}
+                {{ form.username(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.password.label }}
+                {{ form.password(class="form-control") }}
+            </div>
+            {{ form.submit(class="btn-primary") }}
+        </form>
+        <p>New Hunter? <a href="{{ url_for('auth.register') }}">Register</a></p>
+        <p style="text-align:center;margin-top:1rem;">
+            <a href="{{ url_for('auth.forgot_password') }}" style="color:var(--purple);">Forgot your password?</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

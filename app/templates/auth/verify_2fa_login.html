@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block hero %}{% endblock %}
+{% block title %}2FA Verification – CYLVERN SECURITY{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <h1>CYLVERN SECURITY</h1>
+        <h2>Two‑Factor Authentication</h2>
+        <p style="color:#aaa;text-align:center;">Enter the 6‑digit code from your authenticator app.</p>
+        <form method="POST" action="{{ url_for('auth.two_factor_login_verification') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label for="code">Code</label>
+                <input type="text" id="code" name="code" class="form-control" placeholder="123456" maxlength="6" required>
+            </div>
+            <button type="submit" class="btn-primary">Verify</button>
+        </form>
+        <p><a href="{{ url_for('auth.login') }}">Back to Login</a></p>
+    </div>
+</div>
+{% endblock %}
