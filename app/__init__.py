@@ -118,4 +118,4 @@ Traceback:
             app.logger.error(f"Failed to send admin alert email: {mail_error}")
         return render_template('errors/500.html'), 500
 
-    return app
+    return app 
