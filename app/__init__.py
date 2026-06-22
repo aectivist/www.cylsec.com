@@ -48,13 +48,13 @@ def create_app(config_class=Config):
     from app.blueprints.auth import auth_bp
     from app.blueprints.challenges import challenges_bp
     from app.blueprints.admin import admin_bp
-    from app.blueprints.dungeon import dungeon_bp
+    #from app.blueprints.dungeon import dungeon_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(challenges_bp, url_prefix='/challenges')
     app.register_blueprint(admin_bp, url_prefix='/admin')
-    app.register_blueprint(dungeon_bp)
+    #app.register_blueprint(dungeon_bp)
 
     @app.context_processor
     def inject_subtitle():
