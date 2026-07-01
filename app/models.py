@@ -35,7 +35,7 @@ class User(UserMixin, db.Model):
             return 'S-Rank Hero'
         elif self.xp >= 5000:
             return 'A-Rank Hunter'
-        elif self.xp >= 2000:
+        elif self.xp >= 1000:
             return 'B-Rank Defender'
         elif self.xp >= 500:
             return 'C-Rank Savant'
