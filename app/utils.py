@@ -2,6 +2,8 @@ from flask import current_app, render_template, url_for
 from flask_mail import Message
 from itsdangerous import URLSafeTimedSerializer
 from app import mail
+import re
+import secrets
 
 def generate_confirmation_token(email):
     serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
@@ -102,3 +104,41 @@ def send_otp_email(user, purpose, otp):
     mail.send(msg)
 
 # Also ensure you have the other token functions for registration, etc.
+
+def is_strong_password(password: str) -> bool:
+    """Return True if the password meets strength requirements.
+
+    Requirements: at least 12 characters, includes upper, lower, digit, and symbol.
+    """
+    if not password:
+        return False
+    if len(password) < 12:
+        return False
+    if not re.search(r'[A-Z]', password):
+        return False
+    if not re.search(r'[a-z]', password):
+        return False
+    if not re.search(r'[0-9]', password):
+        return False
+    if not re.search(r'[^A-Za-z0-9]', password):
+        return False
+    return True
+
+def generate_secure_password(length=20):
+    return secrets.token_urlsafe(length)[:length]
+
+
+from urllib.parse import urlparse, urljoin
+from flask import request
+
+def is_safe_url(target):
+    """Return True if `target` is a safe URL to redirect to (same host).
+
+    Prevents open redirect vulnerabilities by ensuring the netloc matches
+    the current request host.
+    """
+    if not target:
+        return False
+    ref_url = urlparse(request.host_url)
+    test_url = urlparse(urljoin(request.host_url, target))
+    return (test_url.scheme in ('http', 'https') and ref_url.netloc == test_url.netloc)

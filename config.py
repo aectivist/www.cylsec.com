@@ -1,12 +1,28 @@
 import os
+import secrets
 from dotenv import load_dotenv
 
 load_dotenv()
 
+
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key'
+    # Require an explicit SECRET_KEY in production. For development, generate
+    # a temporary secure key so sessions aren't trivially guessable.
+    SECRET_KEY = os.environ.get('SECRET_KEY')
+    if not SECRET_KEY:
+        if os.environ.get('FLASK_ENV') == 'production' or os.environ.get('ENV') == 'production':
+            raise RuntimeError('SECRET_KEY must be set in the environment for production deployments')
+        SECRET_KEY = secrets.token_hex(32)
+
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///cylvern.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    # Cookie / session security defaults (can be overridden by env vars)
+    SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'true').lower() in ['true', '1', 'yes']
+    SESSION_COOKIE_HTTPONLY = os.environ.get('SESSION_COOKIE_HTTPONLY', 'true').lower() in ['true', '1', 'yes']
+    REMEMBER_COOKIE_SECURE = os.environ.get('REMEMBER_COOKIE_SECURE', 'true').lower() in ['true', '1', 'yes']
+    REMEMBER_COOKIE_HTTPONLY = os.environ.get('REMEMBER_COOKIE_HTTPONLY', 'true').lower() in ['true', '1', 'yes']
+    SESSION_COOKIE_SAMESITE = os.environ.get('SESSION_COOKIE_SAMESITE', 'Lax')
 
     # Zoho Mail SMTP
     MAIL_SERVER = os.environ.get('MAIL_SERVER') or 'smtp.zoho.com'

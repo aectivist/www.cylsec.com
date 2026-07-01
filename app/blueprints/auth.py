@@ -16,6 +16,7 @@ from app.utils import (
     generate_otp,
     send_otp_email
 )
+from app.utils import is_safe_url
 import pyotp
 
 auth_bp = Blueprint('auth', __name__)
@@ -37,11 +38,14 @@ def login():
             if user.totp_secret:
                 # Store user id temporarily and redirect to 2FA verification
                 session['pending_2fa_user_id'] = user.id
-                session['pending_2fa_redirect'] = request.args.get('next') or url_for('main.index')
+                raw_next = request.args.get('next')
+                session['pending_2fa_redirect'] = raw_next if is_safe_url(raw_next) else url_for('main.index')
                 return redirect(url_for('auth.two_factor_login_verification'))
-            # No 2FA, log in directly
+            # No 2FA, log in directly. Clear session first to mitigate session fixation.
+            session.clear()
             login_user(user)
-            next_page = request.args.get('next')
+            raw_next = request.args.get('next')
+            next_page = raw_next if is_safe_url(raw_next) else url_for('main.index')
             return redirect(next_page or url_for('main.index'))
         flash('Invalid username or password.', 'danger')
     return render_template('login.html', form=form)
@@ -66,7 +70,8 @@ def two_factor_login_verification():
             return render_template('auth/verify_2fa_login.html')
         totp = pyotp.TOTP(user.totp_secret)
         if totp.verify(code):
-            # Code is correct – log the user in
+            # Code is correct – log the user in. Clear session first to mitigate session fixation.
+            session.clear()
             login_user(user)
             session.pop('pending_2fa_user_id', None)
             session.pop('pending_2fa_redirect', None)

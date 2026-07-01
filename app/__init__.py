@@ -32,6 +32,22 @@ def create_app(config_class=Config):
     app = Flask(__name__, template_folder='templates')
     app.config.from_object(config_class)
 
+    # Enforce some HTTP security headers
+    @app.after_request
+    def set_security_headers(response):
+        # Prevent clickjacking
+        response.headers.setdefault('X-Frame-Options', 'SAMEORIGIN')
+        # Prevent content type sniffing
+        response.headers.setdefault('X-Content-Type-Options', 'nosniff')
+        # Basic XSS protection
+        response.headers.setdefault('X-XSS-Protection', '1; mode=block')
+        # HSTS for HTTPS-only (only add when behind TLS/ production)
+        if app.config.get('SESSION_COOKIE_SECURE'):
+            response.headers.setdefault('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload')
+        # Basic Content Security Policy — tune per app needs
+        response.headers.setdefault('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;")
+        return response
+
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
