@@ -1,4 +1,5 @@
 # Byte-compiled / optimized / DLL files
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
@@ -21,15 +22,6 @@ wheels/
 .installed.cfg
 *.egg
 
-<<<<<<< HEAD
-.env
-.env.local
-*.db
-*.sqlite3
-instance/
-
-=======
->>>>>>> cde75ce499f633f714bacaa69f5e4a118840f2ca
 # Virtual environments
 venv/
 env/
