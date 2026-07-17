@@ -126,12 +126,21 @@ class AlertForm(FlaskForm):
 
 
 class InquiryForm(FlaskForm):
-    name         = StringField('Full Name',     validators=[DataRequired(), Length(max=120)])
-    org          = StringField('Organisation',  validators=[Optional(), Length(max=120)])
-    email        = StringField('Email Address', validators=[DataRequired(), Email(), Length(max=120)])
-    inquiry_type = StringField('Inquiry Type',  validators=[DataRequired()])
-    message      = TextAreaField('Message',     validators=[DataRequired(), Length(min=20, max=3000)])
-    submit       = SubmitField('Send Inquiry')
+    name    = StringField('Full Name',            validators=[DataRequired(), Length(max=120)])
+    email   = StringField('Email Address',        validators=[DataRequired(), Email(), Length(max=120)])
+    company = StringField('Company / Organisation', validators=[Optional(), Length(max=120)])
+    service = SelectField('Service of Interest',  validators=[Optional()], choices=[
+        ('', '— Select a service —'),
+        ('pentest',    'Penetration Testing'),
+        ('vuln-assess','Vulnerability Assessment'),
+        ('red-team',   'Red Team Exercise'),
+        ('incident',   'Incident Response'),
+        ('compliance', 'Security Compliance'),
+        ('training',   'Security Training'),
+        ('other',      'Other / General Enquiry'),
+    ])
+    message = TextAreaField('Message',            validators=[DataRequired(), Length(min=20, max=3000)])
+    submit  = SubmitField('Send Enquiry')
 
 # ── DB migration + seed ───────────────────────────────────────────────────────
 def _migrate_db():
@@ -202,9 +211,9 @@ def business():
     if form.validate_on_submit():
         inq = Inquiry(
             name=form.name.data.strip(),
-            org=form.org.data.strip() if form.org.data else None,
+            org=form.company.data.strip() if form.company.data else None,
             email=form.email.data.strip().lower(),
-            inquiry_type=form.inquiry_type.data,
+            inquiry_type=form.service.data or '',
             message=form.message.data.strip(),
         )
         db.session.add(inq)

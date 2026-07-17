@@ -7,13 +7,7 @@ User=root
 WorkingDirectory=/root/www.cylsec.com/CTF
 Environment="PATH=/root/www.cylsec.com/CTF/venv/bin"
 EnvironmentFile=/root/www.cylsec.com/CTF/.env
-ExecStart=/root/www.cylsec.com/CTF/venv/bin/gunicorn \
-    --bind 127.0.0.1:5000 \
-    --workers 2 \
-    --timeout 120 \
-    --access-logfile /var/log/cylvern-ctf.access.log \
-    --error-logfile /var/log/cylvern-ctf.error.log \
-    "app:create_app()"
+ExecStart=/bin/bash /root/www.cylsec.com/CTF/entrypoint.sh
 Restart=always
 RestartSec=5
 
