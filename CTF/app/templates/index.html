@@ -66,7 +66,7 @@
           </div>
         {% else %}
         <div style="text-align:center;padding:48px 24px;">
-          <div style="font-size:2.2rem;margin-bottom:10px;">🚧</div>
+          <i class="fas fa-tools" style="font-size:2rem;color:var(--muted);display:block;margin-bottom:10px;"></i>
           <p style="color:var(--muted);font-size:.88rem;">No challenges yet — check back soon.</p>
         </div>
         {% endif %}
@@ -82,11 +82,12 @@
       <div class="panel" style="padding:18px;margin-bottom:0;">
         {% if top_users %}
         <div style="display:flex;flex-direction:column;gap:12px;">
-          {% set medals = ['🥇','🥈','🥉'] %}
+          {% set medal_icons = ['fas fa-trophy','fas fa-medal','fas fa-award'] %}
+          {% set medal_colors = ['#FFD700','#C0C0C0','#CD7F32'] %}
           {% for user in top_users %}
           <div class="lb-card{% if current_user.is_authenticated and user.id == current_user.id %} lb-card-you{% endif %}">
             <div class="lb-card-left">
-              <span class="lb-medal">{{ medals[loop.index0] }}</span>
+              <span class="lb-medal"><i class="{{ medal_icons[loop.index0] }}" style="color:{{ medal_colors[loop.index0] }};font-size:1.1rem;"></i></span>
               <div>
                 <div class="lb-card-name">{{ user.username }}</div>
                 <div class="lb-card-rank rank-color" data-rank="{{ user.get_rank() }}">{{ user.get_rank() }}</div>

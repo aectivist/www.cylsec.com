@@ -26,11 +26,11 @@ def confirm_token(token, expiration=3600):
 
 
 def _send_mail(msg):
-    """Attempt to send mail. Silently logs and returns False on any failure."""
+    """Attempt to send mail. Returns False when suppressed or on any failure."""
     try:
         if current_app.config.get('MAIL_SUPPRESS_SEND'):
             current_app.logger.info(f'[mail suppressed] to={msg.recipients} subject={msg.subject}')
-            return True
+            return False  # treat suppression as "not sent" so callers can auto-confirm
         mail.send(msg)
         return True
     except Exception as e:

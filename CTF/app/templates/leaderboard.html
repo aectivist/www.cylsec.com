@@ -26,7 +26,9 @@
         {% for user in users %}
         <tr style="border-bottom:1px solid rgba(255,255,255,.03);transition:background .15s;{% if current_user.is_authenticated and user.id == current_user.id %}background:rgba(124,77,255,.08);{% endif %}">
           <td style="padding:11px 16px;font-size:.88rem;color:var(--muted);">
-            {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉
+            {% if loop.index == 1 %}<i class="fas fa-trophy" style="color:#FFD700;"></i>
+            {% elif loop.index == 2 %}<i class="fas fa-medal" style="color:#C0C0C0;"></i>
+            {% elif loop.index == 3 %}<i class="fas fa-award" style="color:#CD7F32;"></i>
             {% else %}{{ loop.index }}{% endif %}
           </td>
           <td style="padding:11px 16px;">
@@ -46,7 +48,7 @@
     </table>
     {% else %}
     <div style="text-align:center;padding:56px 24px;">
-      <div style="font-size:2.2rem;margin-bottom:12px;">🏆</div>
+      <i class="fas fa-trophy" style="font-size:2.2rem;color:var(--muted);display:block;margin-bottom:12px;"></i>
       <p style="color:var(--muted);font-size:.9rem;">No hunters yet — be the first to register!</p>
     </div>
     {% endif %}

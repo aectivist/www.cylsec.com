@@ -4,34 +4,67 @@
 
 {% block content %}
 <div style="min-height:70vh;display:flex;align-items:center;justify-content:center;padding:40px 16px;">
-  <div class="panel" style="width:100%;max-width:400px;padding:36px;">
+  <div class="panel" style="width:100%;max-width:440px;padding:36px;">
     <h2 style="font-family:'Orbitron',sans-serif;font-size:1.1rem;text-align:center;margin-bottom:24px;">Create Account</h2>
     <form method="POST" novalidate>
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
       <div style="margin-bottom:16px;">
         <label style="display:block;font-size:.82rem;color:#aaa;margin-bottom:6px;">Username</label>
         <input type="text" name="username" class="form-control" autofocus required
                value="{{ form.username.data or '' }}">
         {% if form.username.errors %}<p style="color:#ff5252;font-size:.78rem;margin-top:4px;">{{ form.username.errors[0] }}</p>{% endif %}
       </div>
+
       <div style="margin-bottom:16px;">
         <label style="display:block;font-size:.82rem;color:#aaa;margin-bottom:6px;">Email</label>
         <input type="email" name="email" class="form-control" required
                value="{{ form.email.data or '' }}">
         {% if form.email.errors %}<p style="color:#ff5252;font-size:.78rem;margin-top:4px;">{{ form.email.errors[0] }}</p>{% endif %}
       </div>
+
       <div style="margin-bottom:16px;">
         <label style="display:block;font-size:.82rem;color:#aaa;margin-bottom:6px;">Password</label>
         <input type="password" name="password" class="form-control" required>
+        <p style="color:var(--muted);font-size:.75rem;margin-top:5px;">
+          <i class="fas fa-info-circle"></i>
+          Min 8 characters — must include uppercase, lowercase, and a number.
+        </p>
         {% if form.password.errors %}<p style="color:#ff5252;font-size:.78rem;margin-top:4px;">{{ form.password.errors[0] }}</p>{% endif %}
       </div>
+
       <div style="margin-bottom:24px;">
         <label style="display:block;font-size:.82rem;color:#aaa;margin-bottom:6px;">Confirm Password</label>
         <input type="password" name="confirm_password" class="form-control" required>
         {% if form.confirm_password.errors %}<p style="color:#ff5252;font-size:.78rem;margin-top:4px;">{{ form.confirm_password.errors[0] }}</p>{% endif %}
       </div>
+
+      {# ── Privacy / ToS consent ── #}
+      <div style="background:rgba(124,77,255,.06);border:1px solid rgba(124,77,255,.2);border-radius:10px;padding:16px;margin-bottom:22px;">
+        <p style="font-size:.8rem;color:var(--muted);margin-bottom:12px;line-height:1.55;">
+          <i class="fas fa-shield-alt" style="color:var(--purple);margin-right:5px;"></i>
+          By creating an account you agree that:
+        </p>
+        <ul style="font-size:.78rem;color:var(--muted);padding-left:18px;margin-bottom:14px;line-height:1.7;">
+          <li>You will only use this platform for lawful and educational purposes.</li>
+          <li>You will not attack infrastructure outside of designated challenge boundaries.</li>
+          <li>You will not share flags, spoilers, or writeups while a challenge is active.</li>
+          <li>Your email address will be stored and used only for account management.</li>
+          <li>Accounts found violating these rules will be permanently suspended.</li>
+        </ul>
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
+          <input type="checkbox" name="privacy_consent" id="privacy_consent"
+                 style="margin-top:3px;accent-color:var(--purple);" required>
+          <span style="font-size:.82rem;color:#ccc;line-height:1.5;">
+            I have read and agree to the
+            <a href="https://cylsec.com/vdp" target="_blank" style="color:var(--purple);">Terms of Service</a>
+            and acknowledge the data practices described above.
+          </span>
+        </label>
+      </div>
+
       <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">
-        <i class="fas fa-user-plus"></i> Register
+        <i class="fas fa-user-plus"></i> Create Account
       </button>
     </form>
     <p style="text-align:center;margin-top:20px;font-size:.85rem;color:#aaa;">

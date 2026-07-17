@@ -11,7 +11,7 @@ from app.utils import (
     send_registration_confirmation_email, confirm_token,
     send_password_reset_email, verify_reset_token,
     generate_otp, send_otp_email, is_safe_url,
-    generate_reset_token
+    generate_reset_token, is_strong_password
 )
 
 auth_bp = Blueprint('auth', __name__)
@@ -70,6 +70,15 @@ def register():
         return redirect(url_for('main.index'))
     form = RegistrationForm()
     if form.validate_on_submit():
+        # Privacy / ToS consent
+        if not request.form.get('privacy_consent'):
+            flash('You must accept the Privacy Policy and Terms of Service to register.', 'danger')
+            return render_template('register.html', form=form)
+        # Password strength
+        if not is_strong_password(form.password.data):
+            flash('Password must be at least 8 characters and include uppercase, lowercase, and a number.', 'danger')
+            return render_template('register.html', form=form)
+        # Duplicate checks
         if User.is_username_taken(form.username.data):
             flash('Username already taken.', 'danger')
             return render_template('register.html', form=form)
@@ -91,7 +100,7 @@ def register():
         else:
             user.confirmed = True
             db.session.commit()
-            flash('Registration successful! You may log in directly.', 'success')
+            flash('Registration successful! You can now log in.', 'success')
         return redirect(url_for('auth.login'))
     return render_template('register.html', form=form)
 
