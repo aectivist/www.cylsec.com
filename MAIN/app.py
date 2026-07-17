@@ -11,7 +11,7 @@ from flask_wtf.csrf import CSRFProtect
 from flask_login import (LoginManager, UserMixin,
                          login_user, logout_user,
                          login_required, current_user)
-from wtforms import StringField, PasswordField, TextAreaField, BooleanField, SubmitField
+from wtforms import StringField, PasswordField, TextAreaField, BooleanField, SubmitField, SelectField
 from wtforms.validators import DataRequired, Length, Email, Optional
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
@@ -129,7 +129,7 @@ class InquiryForm(FlaskForm):
     name    = StringField('Full Name',            validators=[DataRequired(), Length(max=120)])
     email   = StringField('Email Address',        validators=[DataRequired(), Email(), Length(max=120)])
     company = StringField('Company / Organisation', validators=[Optional(), Length(max=120)])
-    service = SelectField('Service of Interest',  validators=[Optional()], choices=[
+    service = SelectField('Service of Interest',  choices=[
         ('', '— Select a service —'),
         ('pentest',    'Penetration Testing'),
         ('vuln-assess','Vulnerability Assessment'),
