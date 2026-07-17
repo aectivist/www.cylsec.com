@@ -3,12 +3,12 @@
 
 {% block content %}
 <div style="padding:24px 0 80px;">
-  <div style="display:flex;gap:16px;align-items:center;margin-bottom:24px;flex-wrap:wrap;">
-    <a href="{{ url_for('admin.dashboard') }}" class="admin-nav-link {% if request.endpoint=='admin.dashboard' %}active{% endif %}"><i class="fas fa-gauge"></i> Dashboard</a>
-    <a href="{{ url_for('admin.list_challenges') }}" class="admin-nav-link {% if 'challenge' in request.endpoint %}active{% endif %}"><i class="fas fa-terminal"></i> Challenges</a>
-    <a href="{{ url_for('admin.list_categories') }}" class="admin-nav-link {% if 'categor' in request.endpoint %}active{% endif %}"><i class="fas fa-folder"></i> Categories</a>
-    <a href="{{ url_for('admin.list_users') }}" class="admin-nav-link {% if 'user' in request.endpoint %}active{% endif %}"><i class="fas fa-users"></i> Users</a>
-    <a href="{{ url_for('admin.settings') }}" class="admin-nav-link {% if request.endpoint=='admin.settings' %}active{% endif %}"><i class="fas fa-gear"></i> Settings</a>
+  <div class="admin-nav-bar">
+    <a href="{{ url_for('admin.dashboard') }}" class="admin-nav-link{% if request.endpoint=='admin.dashboard' %} active{% endif %}"><i class="fas fa-gauge"></i> Dashboard</a>
+    <a href="{{ url_for('admin.list_challenges') }}" class="admin-nav-link{% if request.endpoint in ('admin.list_challenges','admin.add_challenge','admin.edit_challenge') %} active{% endif %}"><i class="fas fa-terminal"></i> Challenges</a>
+    <a href="{{ url_for('admin.list_categories') }}" class="admin-nav-link{% if request.endpoint in ('admin.list_categories','admin.add_category','admin.edit_category') %} active{% endif %}"><i class="fas fa-folder"></i> Categories</a>
+    <a href="{{ url_for('admin.list_users') }}" class="admin-nav-link{% if request.endpoint in ('admin.list_users',) %} active{% endif %}"><i class="fas fa-users"></i> Users</a>
+    <a href="{{ url_for('admin.settings') }}" class="admin-nav-link{% if request.endpoint=='admin.settings' %} active{% endif %}"><i class="fas fa-gear"></i> Settings</a>
   </div>
   {% block admin_content %}{% endblock %}
 </div>
