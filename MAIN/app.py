@@ -1,6 +1,8 @@
 import os
+import io
+import base64
 from datetime import datetime
-from flask import Flask, render_template, redirect, url_for, request, flash, abort
+from flask import Flask, render_template, redirect, url_for, request, flash, abort, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import (LoginManager, UserMixin, login_user, logout_user,
                          login_required, current_user)
@@ -10,6 +12,8 @@ from wtforms import StringField, PasswordField, TextAreaField, BooleanField, Sel
 from wtforms.validators import DataRequired, Email, Length, Optional
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
+import pyotp
+import qrcode
 
 load_dotenv()
 
@@ -25,12 +29,22 @@ class AdminUser(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
+    totp_secret = db.Column(db.String(64), nullable=True)
+    totp_enabled = db.Column(db.Boolean, default=False, nullable=False)
 
     def set_password(self, pw):
         self.password_hash = generate_password_hash(pw)
 
     def check_password(self, pw):
         return check_password_hash(self.password_hash, pw)
+
+    def get_totp_uri(self):
+        return pyotp.totp.TOTP(self.totp_secret).provisioning_uri(
+            name=self.username, issuer_name='Cylvern Security'
+        )
+
+    def verify_totp(self, code):
+        return pyotp.TOTP(self.totp_secret).verify(code, valid_window=1)
 
 
 class Alert(db.Model):
@@ -59,6 +73,14 @@ class Inquiry(db.Model):
 class AdminLoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(max=80)])
     password = PasswordField('Password', validators=[DataRequired()])
+
+
+class TotpForm(FlaskForm):
+    code = StringField('Authenticator Code', validators=[DataRequired(), Length(min=6, max=6)])
+
+
+class TotpSetupForm(FlaskForm):
+    code = StringField('Verify Code', validators=[DataRequired(), Length(min=6, max=6)])
 
 
 class AlertForm(FlaskForm):
@@ -190,10 +212,69 @@ def create_app():
         if form.validate_on_submit():
             user = AdminUser.query.filter_by(username=form.username.data).first()
             if user and user.check_password(form.password.data):
+                if user.totp_enabled:
+                    # Store user id in session, redirect to 2FA step
+                    session['_2fa_user_id'] = user.id
+                    return redirect(url_for('admin_2fa_verify'))
                 login_user(user)
                 return redirect(url_for('admin_panel'))
             flash('Invalid credentials.', 'danger')
         return render_template('admin/login.html', form=form)
+
+    @app.route('/admin/2fa/verify', methods=['GET', 'POST'])
+    def admin_2fa_verify():
+        user_id = session.get('_2fa_user_id')
+        if not user_id:
+            return redirect(url_for('admin_login'))
+        user = AdminUser.query.get(user_id)
+        if not user:
+            session.pop('_2fa_user_id', None)
+            return redirect(url_for('admin_login'))
+        form = TotpForm()
+        if form.validate_on_submit():
+            if user.verify_totp(form.code.data):
+                session.pop('_2fa_user_id', None)
+                login_user(user)
+                return redirect(url_for('admin_panel'))
+            flash('Invalid authenticator code.', 'danger')
+        return render_template('admin/2fa_verify.html', form=form)
+
+    @app.route('/admin/2fa/setup', methods=['GET', 'POST'])
+    @login_required
+    def admin_2fa_setup():
+        user = current_user
+        form = TotpSetupForm()
+
+        # Generate a new secret if the user doesn't have one yet
+        if not user.totp_secret:
+            user.totp_secret = pyotp.random_base32()
+            db.session.commit()
+
+        if form.validate_on_submit():
+            if user.verify_totp(form.code.data):
+                user.totp_enabled = True
+                db.session.commit()
+                flash('Two-factor authentication enabled.', 'success')
+                return redirect(url_for('admin_panel'))
+            flash('Code incorrect — please try again.', 'danger')
+
+        # Build QR code as inline data URI
+        qr_img = qrcode.make(user.get_totp_uri())
+        buf = io.BytesIO()
+        qr_img.save(buf, format='PNG')
+        qr_b64 = base64.b64encode(buf.getvalue()).decode()
+
+        return render_template('admin/2fa_setup.html', form=form,
+                               qr_b64=qr_b64, secret=user.totp_secret)
+
+    @app.route('/admin/2fa/disable', methods=['POST'])
+    @login_required
+    def admin_2fa_disable():
+        current_user.totp_enabled = False
+        current_user.totp_secret = None
+        db.session.commit()
+        flash('Two-factor authentication disabled.', 'warning')
+        return redirect(url_for('admin_panel'))
 
     @app.route('/admin/logout')
     @login_required

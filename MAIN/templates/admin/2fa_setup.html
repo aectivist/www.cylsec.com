@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Set Up 2FA — Cylvern Security{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:60px;padding-bottom:80px;max-width:480px;">
+    <div class="panel" style="text-align:center;">
+        <span class="section-label"><i class="fas fa-shield-alt"></i> Security</span>
+        <h1 style="font-family:'Orbitron',sans-serif;font-size:1.2rem;color:var(--text);margin:12px 0 8px;">
+            Enable Two-Factor Authentication
+        </h1>
+        <p style="color:var(--muted);font-size:.88rem;margin-bottom:24px;">
+            Scan the QR code with <strong>Google Authenticator</strong>, <strong>Authy</strong>,
+            or any TOTP-compatible app, then enter the 6-digit code to confirm.
+        </p>
+
+        <img src="data:image/png;base64,{{ qr_b64 }}"
+             alt="2FA QR Code"
+             style="width:200px;height:200px;border:4px solid var(--border);border-radius:8px;margin-bottom:16px;">
+
+        <p style="font-size:.78rem;color:var(--muted);margin-bottom:24px;">
+            Can't scan? Enter this secret manually:<br>
+            <code style="font-size:.85rem;color:var(--text);letter-spacing:.1em;background:var(--surface);
+                         padding:4px 10px;border-radius:4px;display:inline-block;margin-top:6px;">{{ secret }}</code>
+        </p>
+
+        <form method="POST" action="{{ url_for('admin_2fa_setup') }}" style="text-align:left;">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.code.label }}
+                {{ form.code(class="form-control", placeholder="000000", autofocus=true,
+                             autocomplete="one-time-code", inputmode="numeric",
+                             style="letter-spacing:.3em;font-size:1.3rem;text-align:center;") }}
+                {% for e in form.code.errors %}<p class="field-error">{{ e }}</p>{% endfor %}
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">
+                <i class="fas fa-check-circle"></i> Verify &amp; Enable 2FA
+            </button>
+        </form>
+
+        <p style="margin-top:16px;">
+            <a href="{{ url_for('admin_panel') }}" style="color:var(--muted);font-size:.82rem;">
+                &larr; Cancel
+            </a>
+        </p>
+    </div>
+</div>
+{% endblock %}

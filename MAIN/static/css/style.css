@@ -353,6 +353,9 @@ select.form-control { appearance: none; cursor: pointer; }
 .badge-green { background: rgba(0,230,118,.1); border-color: rgba(0,230,118,.28); color: var(--green); }
 .badge-warn { background: rgba(255,171,64,.1); border-color: rgba(255,171,64,.28); color: var(--warn); }
 
+.logo {
+    max-width: 40px;
+}
 /* ── Process timeline ────────────────────────────────── */
 .timeline { display: flex; flex-direction: column; gap: 0; }
 .timeline-item { display: flex; gap: 20px; padding-bottom: 32px; position: relative; }
