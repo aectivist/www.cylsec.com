@@ -1,0 +1,16 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Admin — Enable 2FA{% endblock %}
+
+{% block admin_content %}
+<h2 class="section-title" style="margin-bottom:20px;">Enable Two-Factor Authentication</h2>
+<div class="panel" style="max-width:420px;text-align:center;">
+  <p style="color:var(--muted);font-size:.88rem;margin-bottom:16px;">Scan this QR code with your authenticator app:</p>
+  <img src="data:image/png;base64,{{ qr_b64 }}" alt="QR Code" style="width:180px;height:180px;border-radius:8px;margin-bottom:16px;">
+  <p style="color:var(--muted);font-size:.78rem;margin-bottom:20px;">Manual key: <code style="color:var(--purple);">{{ secret }}</code></p>
+  <form method="POST" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="text" name="token" class="form-control" placeholder="6-digit code" maxlength="6" autocomplete="one-time-code" style="text-align:center;letter-spacing:.2em;font-size:1.2rem;margin-bottom:12px;">
+    <button type="submit" class="btn-primary" style="width:100%;">Verify & Enable</button>
+  </form>
+</div>
+{% endblock %}

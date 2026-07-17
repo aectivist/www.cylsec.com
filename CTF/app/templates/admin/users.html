@@ -1,0 +1,63 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Admin — Users{% endblock %}
+
+{% block admin_content %}
+<div class="dash-section-head" style="margin-bottom:16px;">
+  <h2 class="section-title" style="margin:0;">Users</h2>
+  <span style="color:var(--muted);font-size:.82rem;">{{ users|length }} registered</span>
+</div>
+<div class="panel" style="padding:0;overflow:hidden;">
+  {% if users %}
+  <table style="width:100%;border-collapse:collapse;">
+    <thead>
+      <tr style="border-bottom:1px solid rgba(255,255,255,.07);">
+        <th style="padding:10px 16px;color:var(--muted);font-size:.72rem;font-weight:600;text-align:left;">Username</th>
+        <th style="padding:10px 16px;color:var(--muted);font-size:.72rem;font-weight:600;text-align:left;">Email</th>
+        <th style="padding:10px 16px;color:var(--muted);font-size:.72rem;font-weight:600;text-align:left;">Rank</th>
+        <th style="padding:10px 16px;color:var(--muted);font-size:.72rem;font-weight:600;text-align:center;">Role</th>
+        <th style="padding:10px 16px;color:var(--muted);font-size:.72rem;font-weight:600;text-align:center;">XP</th>
+        <th style="padding:10px 16px;color:var(--muted);font-size:.72rem;font-weight:600;text-align:right;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+      <tr style="border-bottom:1px solid rgba(255,255,255,.03);">
+        <td style="padding:10px 16px;font-size:.88rem;color:#fff;font-weight:600;">{{ user.username }}</td>
+        <td style="padding:10px 16px;font-size:.8rem;color:var(--muted);">{{ user.email }}</td>
+        <td style="padding:10px 16px;">
+          <span class="rank-color" data-rank="{{ user.get_rank() }}" style="font-size:.78rem;">{{ user.get_rank() }}</span>
+        </td>
+        <td style="padding:10px 16px;text-align:center;">
+          <form method="POST" action="{{ url_for('admin.set_role', user_id=user.id) }}" style="display:inline;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <select name="role" onchange="this.form.submit()" style="background:#111;border:1px solid #333;color:#fff;border-radius:6px;padding:2px 6px;font-size:.75rem;">
+              <option value="user" {% if user.role=='user' %}selected{% endif %}>User</option>
+              <option value="maker" {% if user.role=='maker' %}selected{% endif %}>Maker</option>
+              <option value="admin" {% if user.role=='admin' %}selected{% endif %}>Admin</option>
+            </select>
+          </form>
+        </td>
+        <td style="padding:10px 16px;text-align:center;">
+          <form method="POST" action="{{ url_for('admin.update_xp', user_id=user.id) }}" style="display:flex;align-items:center;gap:4px;justify-content:center;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="number" name="xp" value="{{ user.xp }}" style="width:64px;background:#111;border:1px solid #333;color:#fff;border-radius:6px;padding:2px 6px;font-size:.78rem;text-align:center;">
+            <button type="submit" style="background:none;border:none;color:var(--purple);cursor:pointer;font-size:.75rem;"><i class="fas fa-check"></i></button>
+          </form>
+        </td>
+        <td style="padding:10px 16px;text-align:right;">
+          {% if user.id != current_user.id %}
+          <form method="POST" action="{{ url_for('admin.delete_user', user_id=user.id) }}" style="display:inline;" onsubmit="return confirm('Delete {{ user.username }}?')">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" style="background:none;border:none;color:var(--danger);font-size:.8rem;cursor:pointer;"><i class="fas fa-trash"></i></button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p style="padding:32px;text-align:center;color:var(--muted);">No users.</p>
+  {% endif %}
+</div>
+{% endblock %}

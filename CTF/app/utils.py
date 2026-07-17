@@ -26,27 +26,28 @@ def confirm_token(token, expiration=3600):
 
 
 def _send_mail(msg):
-    """Send a mail message. Raises on failure so callers can decide to suppress."""
-    if current_app.config.get('MAIL_SUPPRESS_SEND'):
-        current_app.logger.info(f'[mail suppressed] to={msg.recipients} subject={msg.subject}')
-        return
-    mail.send(msg)
+    """Attempt to send mail. Silently logs and returns False on any failure."""
+    try:
+        if current_app.config.get('MAIL_SUPPRESS_SEND'):
+            current_app.logger.info(f'[mail suppressed] to={msg.recipients} subject={msg.subject}')
+            return True
+        mail.send(msg)
+        return True
+    except Exception as e:
+        current_app.logger.warning(f'Mail send failed ({msg.subject}): {e}')
+        return False
 
 
 def send_confirmation_email(user_email, token):
-    try:
-        confirm_url = url_for('auth.confirm_email', token=token, _external=True)
-        msg = Message(
-            'Confirm Your Email – CYLVERN Security',
-            sender=current_app.config.get('MAIL_DEFAULT_SENDER'),
-            recipients=[user_email]
-        )
-        msg.body = f'Please confirm your email by visiting: {confirm_url}'
-        msg.html = render_template('email/confirm.html', confirm_url=confirm_url)
-        _send_mail(msg)
-    except Exception as e:
-        current_app.logger.warning(f'send_confirmation_email failed: {e}')
-        raise
+    confirm_url = url_for('auth.confirm_email', token=token, _external=True)
+    msg = Message(
+        'Confirm Your Email – CYLVERN Security',
+        sender=current_app.config.get('MAIL_DEFAULT_SENDER'),
+        recipients=[user_email]
+    )
+    msg.body = f'Please confirm your email by visiting: {confirm_url}'
+    msg.html = render_template('email/confirm.html', confirm_url=confirm_url)
+    return _send_mail(msg)
 
 
 def generate_reset_token(email):
@@ -64,19 +65,15 @@ def verify_reset_token(token, expiration=1800):
 
 
 def send_password_reset_email(user_email, token):
-    try:
-        reset_url = url_for('auth.reset_password', token=token, _external=True)
-        msg = Message(
-            'Reset Your Password – CYLVERN Security',
-            sender=current_app.config.get('MAIL_DEFAULT_SENDER'),
-            recipients=[user_email]
-        )
-        msg.body = f'Reset your password at: {reset_url}'
-        msg.html = render_template('email/reset.html', reset_url=reset_url)
-        _send_mail(msg)
-    except Exception as e:
-        current_app.logger.warning(f'send_password_reset_email failed: {e}')
-        raise
+    reset_url = url_for('auth.reset_password', token=token, _external=True)
+    msg = Message(
+        'Reset Your Password – CYLVERN Security',
+        sender=current_app.config.get('MAIL_DEFAULT_SENDER'),
+        recipients=[user_email]
+    )
+    msg.body = f'Reset your password at: {reset_url}'
+    msg.html = render_template('email/reset.html', reset_url=reset_url)
+    return _send_mail(msg)
 
 
 def generate_registration_token(email):
@@ -94,19 +91,15 @@ def verify_registration_token(token, expiration=86400):
 
 
 def send_registration_confirmation_email(user_email, token):
-    try:
-        confirm_url = url_for('auth.confirm_registration', token=token, _external=True)
-        msg = Message(
-            'Complete Your Registration – CYLVERN Security',
-            sender=current_app.config.get('MAIL_DEFAULT_SENDER'),
-            recipients=[user_email]
-        )
-        msg.body = f'Complete your registration at: {confirm_url}'
-        msg.html = render_template('email/confirm_registration.html', confirm_url=confirm_url)
-        _send_mail(msg)
-    except Exception as e:
-        current_app.logger.warning(f'send_registration_confirmation_email failed: {e}')
-        raise
+    confirm_url = url_for('auth.confirm_registration', token=token, _external=True)
+    msg = Message(
+        'Complete Your Registration – CYLVERN Security',
+        sender=current_app.config.get('MAIL_DEFAULT_SENDER'),
+        recipients=[user_email]
+    )
+    msg.body = f'Complete your registration at: {confirm_url}'
+    msg.html = render_template('email/confirm_registration.html', confirm_url=confirm_url)
+    return _send_mail(msg)
 
 
 def generate_otp():
@@ -114,18 +107,14 @@ def generate_otp():
 
 
 def send_otp_email(user_email, otp):
-    try:
-        msg = Message(
-            'Your OTP – CYLVERN Security',
-            sender=current_app.config.get('MAIL_DEFAULT_SENDER'),
-            recipients=[user_email]
-        )
-        msg.body = f'Your one-time password is: {otp}'
-        msg.html = render_template('email/otp.html', otp=otp)
-        _send_mail(msg)
-    except Exception as e:
-        current_app.logger.warning(f'send_otp_email failed: {e}')
-        raise
+    msg = Message(
+        'Your OTP – CYLVERN Security',
+        sender=current_app.config.get('MAIL_DEFAULT_SENDER'),
+        recipients=[user_email]
+    )
+    msg.body = f'Your one-time password is: {otp}'
+    msg.html = render_template('email/otp.html', otp=otp)
+    return _send_mail(msg)
 
 
 def is_strong_password(password):

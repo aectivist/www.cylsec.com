@@ -1,0 +1,67 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Admin — {{ title }}{% endblock %}
+
+{% block admin_content %}
+<div class="dash-section-head" style="margin-bottom:20px;">
+  <h2 class="section-title" style="margin:0;">{{ title }}</h2>
+  <a href="{{ url_for('admin.list_challenges') }}" class="dash-view-all"><i class="fas fa-arrow-left" style="font-size:.72rem;"></i> Back</a>
+</div>
+<div class="panel" style="max-width:720px;">
+  <form method="POST" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div class="admin-field" style="grid-column:1/-1;">
+        <label>Title</label>
+        {{ form.title(class='form-control', placeholder='Challenge title') }}
+        {% if form.title.errors %}<p class="admin-err">{{ form.title.errors[0] }}</p>{% endif %}
+      </div>
+      <div class="admin-field">
+        <label>Category</label>
+        {{ form.category_id(class='form-control') }}
+      </div>
+      <div class="admin-field">
+        <label>Type</label>
+        {{ form.type(class='form-control') }}
+      </div>
+      <div class="admin-field">
+        <label>Difficulty</label>
+        {{ form.difficulty(class='form-control') }}
+      </div>
+      <div class="admin-field">
+        <label>Points</label>
+        {{ form.points(class='form-control') }}
+        {% if form.points.errors %}<p class="admin-err">{{ form.points.errors[0] }}</p>{% endif %}
+      </div>
+      <div class="admin-field" style="grid-column:1/-1;">
+        <label>Flag</label>
+        {{ form.flag(class='form-control', placeholder='FLAG{...}') }}
+      </div>
+      <div class="admin-field" style="grid-column:1/-1;">
+        <label>Description</label>
+        {{ form.description(class='form-control', rows=5, style='height:auto;') }}
+        {% if form.description.errors %}<p class="admin-err">{{ form.description.errors[0] }}</p>{% endif %}
+      </div>
+      <div class="admin-field">
+        <label>File URL <span style="color:var(--muted);font-size:.75rem;">(optional)</span></label>
+        {{ form.file_url(class='form-control', placeholder='https://...') }}
+      </div>
+      <div class="admin-field">
+        <label>Challenge URL / Netcat <span style="color:var(--muted);font-size:.75rem;">(optional)</span></label>
+        {{ form.challenge_url(class='form-control', placeholder='nc host port') }}
+      </div>
+      <div class="admin-field">
+        <label>Docker Instance <span style="color:var(--muted);font-size:.75rem;">(optional)</span></label>
+        {{ form.instance_name(class='form-control') }}
+      </div>
+      <div class="admin-field" style="display:flex;align-items:center;gap:10px;padding-top:28px;">
+        {{ form.is_active() }}
+        <label for="{{ form.is_active.id }}" style="color:var(--text);font-size:.88rem;cursor:pointer;">Active (visible to users)</label>
+      </div>
+    </div>
+    <div style="margin-top:24px;display:flex;gap:12px;">
+      <button type="submit" class="btn-primary">{{ form.submit.label.text }}</button>
+      <a href="{{ url_for('admin.list_challenges') }}" class="btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

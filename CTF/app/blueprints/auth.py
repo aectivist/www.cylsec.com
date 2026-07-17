@@ -84,14 +84,14 @@ def register():
         )
         db.session.add(user)
         db.session.commit()
-        try:
-            token = generate_registration_token(user.email)
-            send_registration_confirmation_email(user.email, token)
+        token = generate_registration_token(user.email)
+        sent = send_registration_confirmation_email(user.email, token)
+        if sent:
             flash('Registration successful! Check your email to confirm your account.', 'success')
-        except Exception:
+        else:
             user.confirmed = True
             db.session.commit()
-            flash('Registration successful! (Email confirmation unavailable — you may log in directly.)', 'success')
+            flash('Registration successful! You may log in directly.', 'success')
         return redirect(url_for('auth.login'))
     return render_template('register.html', form=form)
 

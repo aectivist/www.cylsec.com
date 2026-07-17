@@ -1,0 +1,18 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Admin — Settings{% endblock %}
+
+{% block admin_content %}
+<h2 class="section-title" style="margin-bottom:20px;">Settings</h2>
+<div class="panel" style="max-width:600px;">
+  <form method="POST" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="admin-field">
+      <label>System Message <span style="color:var(--muted);font-size:.75rem;">(shown in logs)</span></label>
+      {{ form.system_log_message(class='form-control', rows=4, style='height:auto;') }}
+    </div>
+    <div style="margin-top:16px;">
+      <button type="submit" class="btn-primary">{{ form.submit.label.text }}</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

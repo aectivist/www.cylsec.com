@@ -1,0 +1,31 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Admin — {{ title }}{% endblock %}
+
+{% block admin_content %}
+<div class="dash-section-head" style="margin-bottom:20px;">
+  <h2 class="section-title" style="margin:0;">{{ title }}</h2>
+  <a href="{{ url_for('admin.list_categories') }}" class="dash-view-all"><i class="fas fa-arrow-left" style="font-size:.72rem;"></i> Back</a>
+</div>
+<div class="panel" style="max-width:480px;">
+  <form method="POST" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="admin-field">
+      <label>Name</label>
+      {{ form.name(class='form-control', placeholder='e.g. Web, Crypto') }}
+      {% if form.name.errors %}<p class="admin-err">{{ form.name.errors[0] }}</p>{% endif %}
+    </div>
+    <div class="admin-field" style="margin-top:14px;">
+      <label>Icon <span style="color:var(--muted);font-size:.75rem;">(emoji, e.g. 🌐)</span></label>
+      {{ form.icon(class='form-control', placeholder='🔒') }}
+    </div>
+    <div class="admin-field" style="margin-top:14px;">
+      <label>Description <span style="color:var(--muted);font-size:.75rem;">(optional)</span></label>
+      {{ form.description(class='form-control', rows=3, style='height:auto;') }}
+    </div>
+    <div style="margin-top:20px;display:flex;gap:12px;">
+      <button type="submit" class="btn-primary">{{ form.submit.label.text }}</button>
+      <a href="{{ url_for('admin.list_categories') }}" class="btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

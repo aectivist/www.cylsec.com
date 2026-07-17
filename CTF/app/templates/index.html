@@ -14,8 +14,8 @@
         <p class="dash-sub">Hack. Solve. Climb.</p>
       </div>
     </div>
-    {% if current_user.is_authenticated %}
     <div class="dash-stat-row">
+      {% if current_user.is_authenticated %}
       <div class="dash-stat">
         <span class="dash-stat-val">{{ current_user.xp }}</span>
         <span class="dash-stat-lbl">XP</span>
@@ -30,8 +30,16 @@
         <span class="dash-stat-val">{{ current_user.solves|length }}</span>
         <span class="dash-stat-lbl">SOLVES</span>
       </div>
+      {% else %}
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+        <p style="color:var(--muted);font-size:.82rem;margin:0;">Track your XP, rank, and solves.</p>
+        <div style="display:flex;gap:10px;">
+          <a href="{{ url_for('auth.login') }}" class="btn-secondary" style="padding:.4rem 1.1rem;font-size:.82rem;">Login</a>
+          <a href="{{ url_for('auth.register') }}" class="btn-primary" style="padding:.4rem 1.1rem;font-size:.82rem;">Register</a>
+        </div>
+      </div>
+      {% endif %}
     </div>
-    {% endif %}
   </div>
 
   {# ── 2-col grid ── #}

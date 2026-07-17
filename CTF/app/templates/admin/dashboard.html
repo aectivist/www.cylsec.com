@@ -1,0 +1,60 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Admin — Dashboard{% endblock %}
+
+{% block admin_content %}
+<h2 class="section-title" style="margin-bottom:20px;">Admin Dashboard</h2>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:32px;">
+  <div class="panel" style="text-align:center;padding:24px 16px;">
+    <div style="font-family:'Orbitron',sans-serif;font-size:2rem;color:var(--purple);">{{ users|length }}</div>
+    <div style="color:var(--muted);font-size:.8rem;margin-top:4px;">Users</div>
+  </div>
+  <div class="panel" style="text-align:center;padding:24px 16px;">
+    <div style="font-family:'Orbitron',sans-serif;font-size:2rem;color:var(--blue);">{{ challenges|length }}</div>
+    <div style="color:var(--muted);font-size:.8rem;margin-top:4px;">Challenges</div>
+  </div>
+  <div class="panel" style="text-align:center;padding:24px 16px;">
+    <div style="font-family:'Orbitron',sans-serif;font-size:2rem;color:var(--green);">{{ total_solves }}</div>
+    <div style="color:var(--muted);font-size:.8rem;margin-top:4px;">Solves</div>
+  </div>
+  <div class="panel" style="text-align:center;padding:24px 16px;">
+    <div style="font-family:'Orbitron',sans-serif;font-size:2rem;color:var(--warn);">{{ categories|length }}</div>
+    <div style="color:var(--muted);font-size:.8rem;margin-top:4px;">Categories</div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+  <div>
+    <div class="dash-section-head" style="margin-bottom:12px;">
+      <h3 class="section-title" style="margin:0;font-size:1rem;">Recent Users</h3>
+      <a href="{{ url_for('admin.list_users') }}" class="dash-view-all">All</a>
+    </div>
+    <div class="panel" style="padding:0;overflow:hidden;">
+      {% for user in users[:8] %}
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.04);">
+        <span style="font-size:.88rem;color:#fff;">{{ user.username }}</span>
+        <span class="rank-color" data-rank="{{ user.get_rank() }}" style="font-size:.75rem;">{{ user.get_rank() }}</span>
+      </div>
+      {% else %}
+      <p style="padding:16px;color:var(--muted);font-size:.85rem;">No users yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+  <div>
+    <div class="dash-section-head" style="margin-bottom:12px;">
+      <h3 class="section-title" style="margin:0;font-size:1rem;">Challenges</h3>
+      <a href="{{ url_for('admin.add_challenge') }}" class="dash-view-all"><i class="fas fa-plus" style="font-size:.7rem;"></i> Add</a>
+    </div>
+    <div class="panel" style="padding:0;overflow:hidden;">
+      {% for chal in challenges[:8] %}
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.04);">
+        <span style="font-size:.88rem;color:#fff;">{{ chal.title }}</span>
+        <span class="diff-badge diff-{{ chal.difficulty|lower }}">{{ chal.difficulty }}</span>
+      </div>
+      {% else %}
+      <p style="padding:16px;color:var(--muted);font-size:.85rem;">No challenges yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

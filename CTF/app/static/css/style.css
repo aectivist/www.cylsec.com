@@ -664,3 +664,16 @@ input[type="text"]:focus,input[type="password"]:focus,input[type="email"]:focus,
 /* ── hunter-name as link ── */
 a.hunter-name{text-decoration:none;}
 a.hunter-name:hover{color:var(--purple);}
+
+/* ── Admin panel ── */
+.admin-nav-link{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:6px 14px;border-radius:20px;font-size:.82rem;font-weight:600;
+    color:var(--muted);text-decoration:none;
+    border:1px solid rgba(255,255,255,.07);
+    transition:color .18s,border-color .18s,background .18s;
+}
+.admin-nav-link:hover{color:#fff;border-color:rgba(255,255,255,.18);}
+.admin-nav-link.active{color:var(--purple);border-color:rgba(124,77,255,.45);background:rgba(124,77,255,.08);}
+.admin-field label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:5px;font-weight:600;}
+.admin-err{color:var(--danger);font-size:.78rem;margin-top:4px;}

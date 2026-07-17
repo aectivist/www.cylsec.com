@@ -1,0 +1,49 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Admin — Challenges{% endblock %}
+
+{% block admin_content %}
+<div class="dash-section-head" style="margin-bottom:16px;">
+  <h2 class="section-title" style="margin:0;">Challenges</h2>
+  <a href="{{ url_for('admin.add_challenge') }}" class="btn-primary" style="padding:.45rem 1.2rem;font-size:.85rem;">
+    <i class="fas fa-plus"></i> Add Challenge
+  </a>
+</div>
+<div class="panel" style="padding:0;overflow:hidden;">
+  {% if challenges %}
+  <table style="width:100%;border-collapse:collapse;">
+    <thead>
+      <tr style="border-bottom:1px solid rgba(255,255,255,.07);">
+        <th style="padding:10px 16px;color:var(--muted);font-size:.72rem;font-weight:600;text-align:left;">Title</th>
+        <th style="padding:10px 16px;color:var(--muted);font-size:.72rem;font-weight:600;text-align:left;">Category</th>
+        <th style="padding:10px 16px;color:var(--muted);font-size:.72rem;font-weight:600;text-align:left;">Difficulty</th>
+        <th style="padding:10px 16px;color:var(--muted);font-size:.72rem;font-weight:600;text-align:center;">Points</th>
+        <th style="padding:10px 16px;color:var(--muted);font-size:.72rem;font-weight:600;text-align:center;">Active</th>
+        <th style="padding:10px 16px;color:var(--muted);font-size:.72rem;font-weight:600;text-align:right;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for chal in challenges %}
+      <tr style="border-bottom:1px solid rgba(255,255,255,.03);">
+        <td style="padding:11px 16px;font-size:.88rem;color:#fff;font-weight:600;">{{ chal.title }}</td>
+        <td style="padding:11px 16px;font-size:.82rem;color:var(--muted);">{{ chal.category.name if chal.category else '—' }}</td>
+        <td style="padding:11px 16px;"><span class="diff-badge diff-{{ chal.difficulty|lower }}">{{ chal.difficulty }}</span></td>
+        <td style="padding:11px 16px;text-align:center;font-size:.85rem;color:var(--blue);">{{ chal.points }}</td>
+        <td style="padding:11px 16px;text-align:center;font-size:.85rem;">
+          {% if chal.is_active %}<i class="fas fa-circle" style="color:var(--green);font-size:.65rem;"></i>{% else %}<i class="fas fa-circle" style="color:var(--muted);font-size:.65rem;"></i>{% endif %}
+        </td>
+        <td style="padding:11px 16px;text-align:right;">
+          <a href="{{ url_for('admin.edit_challenge', challenge_id=chal.id) }}" style="color:var(--blue);font-size:.82rem;text-decoration:none;margin-right:12px;"><i class="fas fa-pen"></i> Edit</a>
+          <form method="POST" action="{{ url_for('admin.delete_challenge', challenge_id=chal.id) }}" style="display:inline;" onsubmit="return confirm('Delete {{ chal.title }}?')">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" style="background:none;border:none;color:var(--danger);font-size:.82rem;cursor:pointer;"><i class="fas fa-trash"></i> Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div style="text-align:center;padding:48px;color:var(--muted);">No challenges yet. <a href="{{ url_for('admin.add_challenge') }}" style="color:var(--purple);">Add one</a></div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -3,76 +3,68 @@
 {% block hero %}{% endblock %}
 
 {% block content %}
-<div style="padding:28px 0 80px;">
+<div style="padding:28px 0 80px;max-width:760px;margin:0 auto;">
 
-  {# ── Profile header ── #}
-  <div class="profile-header panel">
-    <div class="profile-avatar">
+  {# ── Banner card ── #}
+  <div class="panel" style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:24px 28px;margin-bottom:20px;">
+    <div style="width:64px;height:64px;flex-shrink:0;background:rgba(124,77,255,.15);border:2px solid rgba(124,77,255,.35);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.6rem;color:var(--purple);">
       <i class="fas fa-user-astronaut"></i>
     </div>
-    <div class="profile-info">
-      <h1 class="profile-username">{{ user.username }}</h1>
-      <div class="profile-rank rank-color" data-rank="{{ user.get_rank() }}">{{ user.get_rank() }}</div>
-      <div class="profile-meta">
-        <span><i class="fas fa-calendar-alt"></i> Joined {{ user.created_at.strftime('%b %Y') }}</span>
+    <div style="flex:1 1 auto;min-width:0;">
+      <h1 style="font-family:'Orbitron',sans-serif;font-size:1.3rem;font-weight:800;color:#fff;margin-bottom:3px;">{{ user.username }}</h1>
+      <div class="rank-color" data-rank="{{ user.get_rank() }}" style="font-size:.85rem;font-weight:700;margin-bottom:6px;">{{ user.get_rank() }}</div>
+      <div style="display:flex;align-items:center;gap:12px;color:var(--muted);font-size:.78rem;flex-wrap:wrap;">
+        <span><i class="fas fa-calendar-alt" style="color:var(--purple);"></i> Joined {{ user.created_at.strftime('%b %Y') }}</span>
         {% if user.role != 'user' %}
-        <span class="profile-role-badge role-{{ user.role }}">{{ user.role|upper }}</span>
+        <span style="padding:1px 8px;border-radius:20px;font-size:.7rem;font-weight:700;
+          {% if user.role=='admin' %}background:rgba(124,77,255,.2);border:1px solid rgba(124,77,255,.4);color:var(--purple);
+          {% elif user.role=='maker' %}background:rgba(255,45,157,.12);border:1px solid rgba(255,45,157,.3);color:#fd2f9d;{% endif %}">
+          {{ user.role|upper }}
+        </span>
         {% endif %}
       </div>
     </div>
-    <div class="profile-stats-row">
-      <div class="profile-stat">
-        <span class="profile-stat-val">{{ user.xp }}</span>
-        <span class="profile-stat-lbl">XP</span>
+    <div style="display:flex;align-items:center;gap:20px;flex-shrink:0;">
+      <div style="text-align:center;">
+        <div style="font-family:'Orbitron',sans-serif;font-size:1.5rem;font-weight:700;color:var(--purple);line-height:1;">{{ user.xp }}</div>
+        <div style="font-size:.68rem;color:var(--muted);letter-spacing:.08em;font-weight:600;text-transform:uppercase;margin-top:3px;">XP</div>
       </div>
-      <div class="profile-stat-div"></div>
-      <div class="profile-stat">
-        <span class="profile-stat-val">{{ solved_challenges|length }}</span>
-        <span class="profile-stat-lbl">Solves</span>
-      </div>
-      <div class="profile-stat-div"></div>
-      <div class="profile-stat">
-        <span class="profile-stat-val">
-          #{{ (user.xp // 1 + 1) }}
-        </span>
-        <span class="profile-stat-lbl">Points</span>
+      <div style="width:1px;height:36px;background:rgba(255,255,255,.1);"></div>
+      <div style="text-align:center;">
+        <div style="font-family:'Orbitron',sans-serif;font-size:1.5rem;font-weight:700;color:var(--purple);line-height:1;">{{ solved_challenges|length }}</div>
+        <div style="font-size:.68rem;color:var(--muted);letter-spacing:.08em;font-weight:600;text-transform:uppercase;margin-top:3px;">Solves</div>
       </div>
     </div>
   </div>
 
   {# ── Solved challenges ── #}
-  <div style="margin-top:28px;">
-    <div class="dash-section-head" style="margin-bottom:16px;">
-      <h2 class="section-title" style="margin:0;">Solved Challenges</h2>
-      <span style="color:var(--muted);font-size:.85rem;">{{ solved_challenges|length }} solved</span>
-    </div>
-
-    {% if solved_challenges %}
-    <div class="panel" style="padding:0;overflow:hidden;">
-      {% for chal in solved_challenges %}
-      <a href="{{ url_for('challenges.view_challenge', challenge_id=chal.id) }}" class="chal-row">
-        <span class="chal-row-left">
-          <span class="chal-row-name">{{ chal.title }}</span>
-          <span class="chal-row-cat">{{ chal.category.name if chal.category else '' }}</span>
-        </span>
-        <span class="chal-row-right">
-          <span class="diff-badge diff-{{ chal.difficulty|lower }}">{{ chal.difficulty }}</span>
-          <span class="chal-row-pts"><i class="fas fa-star" style="font-size:.68rem;color:var(--warn);"></i> {{ chal.points }}</span>
-          <i class="fas fa-check-circle" style="color:var(--green);font-size:.9rem;"></i>
-        </span>
-      </a>
-      {% endfor %}
-    </div>
-    {% else %}
-    <div class="panel" style="text-align:center;padding:48px 24px;">
-      <div style="font-size:2.5rem;margin-bottom:14px;">🎯</div>
-      <p style="color:var(--muted);">No solves yet — head to
-        <a href="{{ url_for('challenges.archives') }}" style="color:var(--purple);">Challenges</a>
-        to get started.
-      </p>
-    </div>
-    {% endif %}
+  <div class="dash-section-head" style="margin-bottom:12px;">
+    <h2 class="section-title" style="margin:0;font-size:1.05rem;">Solved Challenges</h2>
+    <span style="color:var(--muted);font-size:.8rem;">{{ solved_challenges|length }} solved</span>
   </div>
+
+  {% if solved_challenges %}
+  <div class="panel" style="padding:0;overflow:hidden;">
+    {% for chal in solved_challenges %}
+    <a href="{{ url_for('challenges.view_challenge', challenge_id=chal.id) }}" class="chal-row">
+      <span class="chal-row-left">
+        <span class="chal-row-name">{{ chal.title }}</span>
+        <span class="chal-row-cat">{{ chal.category.name if chal.category else '—' }}</span>
+      </span>
+      <span class="chal-row-right">
+        <span class="diff-badge diff-{{ chal.difficulty|lower }}">{{ chal.difficulty }}</span>
+        <span class="chal-row-pts"><i class="fas fa-star" style="font-size:.65rem;color:var(--warn);"></i> {{ chal.points }}</span>
+        <i class="fas fa-check-circle" style="color:var(--green);font-size:.85rem;"></i>
+      </span>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="panel" style="text-align:center;padding:40px 24px;">
+    <div style="font-size:2rem;margin-bottom:10px;">🎯</div>
+    <p style="color:var(--muted);font-size:.88rem;">No solves yet — <a href="{{ url_for('challenges.archives') }}" style="color:var(--purple);">start a challenge</a>.</p>
+  </div>
+  {% endif %}
 
 </div>
 {% endblock %}
