@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Change Email — CYLVERN CTF{% endblock %}
+{% block hero %}{% endblock %}
+{% block content %}
+<div style="min-height:70vh;display:flex;align-items:center;justify-content:center;padding:40px 16px;">
+  <div class="panel" style="width:100%;max-width:380px;padding:36px;">
+    <h2 style="font-family:'Orbitron',sans-serif;font-size:1rem;margin-bottom:20px;">Change Email</h2>
+    <form method="POST" novalidate>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div style="margin-bottom:20px;">
+        <label style="display:block;font-size:.82rem;color:#aaa;margin-bottom:6px;">New Email Address</label>
+        <input type="email" name="email" class="form-control" autofocus required>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">Update Email</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

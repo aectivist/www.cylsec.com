@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Leaderboard — CYLVERN CTF{% endblock %}
+
+{% block content %}
+<h2 class="section-title" style="margin-bottom:24px;">Global Leaderboard</h2>
+<div class="panel">
+  {% if users %}
+  <table style="width:100%;border-collapse:collapse;">
+    <thead>
+      <tr style="border-bottom:1px solid #333;">
+        <th style="text-align:left;padding:12px;color:#aaa;font-size:.8rem;font-weight:600;">#</th>
+        <th style="text-align:left;padding:12px;color:#aaa;font-size:.8rem;font-weight:600;">Hunter</th>
+        <th style="text-align:left;padding:12px;color:#aaa;font-size:.8rem;font-weight:600;">Rank</th>
+        <th style="text-align:left;padding:12px;color:#aaa;font-size:.8rem;font-weight:600;">Solves</th>
+        <th style="text-align:right;padding:12px;color:#aaa;font-size:.8rem;font-weight:600;">XP</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+      <tr style="border-bottom:1px solid #1a1a2e;{% if current_user.is_authenticated and user.id == current_user.id %}background:rgba(124,77,255,.08);{% endif %}">
+        <td style="padding:12px;color:#666;font-size:.85rem;">
+          {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% else %}{{ loop.index }}{% endif %}
+        </td>
+        <td style="padding:12px;font-size:.9rem;font-weight:{% if current_user.is_authenticated and user.id == current_user.id %}700{% else %}400{% endif %};">
+          {{ user.username }}
+        </td>
+        <td style="padding:12px;font-size:.82rem;color:var(--purple);">{{ user.get_rank() }}</td>
+        <td style="padding:12px;font-size:.85rem;color:#aaa;">{{ user.solves|length }}</td>
+        <td style="padding:12px;text-align:right;font-family:'Orbitron',sans-serif;font-size:.85rem;color:#fff;">{{ user.xp }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p style="text-align:center;color:#aaa;padding:40px;">No hunters yet. Be the first to register!</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Delete Account — CYLVERN CTF{% endblock %}
+{% block hero %}{% endblock %}
+{% block content %}
+<div style="min-height:70vh;display:flex;align-items:center;justify-content:center;padding:40px 16px;">
+  <div class="panel" style="width:100%;max-width:380px;padding:36px;">
+    <h2 style="font-family:'Orbitron',sans-serif;font-size:1rem;margin-bottom:12px;color:#ff5252;">Delete Account</h2>
+    <p style="color:#aaa;font-size:.85rem;margin-bottom:24px;">This is permanent. Enter your password to confirm.</p>
+    <form method="POST" novalidate>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div style="margin-bottom:20px;">
+        <label style="display:block;font-size:.82rem;color:#aaa;margin-bottom:6px;">Password</label>
+        <input type="password" name="password" class="form-control" autofocus required>
+      </div>
+      <button type="submit" class="btn btn-danger" style="width:100%;justify-content:center;">
+        <i class="fas fa-trash"></i> Delete My Account
+      </button>
+    </form>
+    <p style="text-align:center;margin-top:16px;font-size:.82rem;">
+      <a href="{{ url_for('main.index') }}" style="color:#666;">Cancel</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

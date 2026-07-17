@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Login — CYLVERN CTF{% endblock %}
+{% block hero %}{% endblock %}
+
+{% block content %}
+<div style="min-height:70vh;display:flex;align-items:center;justify-content:center;padding:40px 16px;">
+  <div class="panel" style="width:100%;max-width:380px;padding:36px;">
+    <h2 style="font-family:'Orbitron',sans-serif;font-size:1.1rem;text-align:center;margin-bottom:24px;">Hunter Login</h2>
+    <form method="POST" novalidate>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div style="margin-bottom:16px;">
+        <label style="display:block;font-size:.82rem;color:#aaa;margin-bottom:6px;">Username</label>
+        <input type="text" name="username" class="form-control" autocomplete="username" autofocus required
+               value="{{ form.username.data or '' }}">
+        {% if form.username.errors %}<p style="color:#ff5252;font-size:.78rem;margin-top:4px;">{{ form.username.errors[0] }}</p>{% endif %}
+      </div>
+      <div style="margin-bottom:24px;">
+        <label style="display:block;font-size:.82rem;color:#aaa;margin-bottom:6px;">Password</label>
+        <input type="password" name="password" class="form-control" autocomplete="current-password" required>
+        {% if form.password.errors %}<p style="color:#ff5252;font-size:.78rem;margin-top:4px;">{{ form.password.errors[0] }}</p>{% endif %}
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">
+        <i class="fas fa-sign-in-alt"></i> Sign In
+      </button>
+    </form>
+    <p style="text-align:center;margin-top:20px;font-size:.85rem;color:#aaa;">
+      No account? <a href="{{ url_for('auth.register') }}" style="color:var(--purple);">Register</a>
+      &nbsp;·&nbsp;
+      <a href="{{ url_for('auth.forgot_password') }}" style="color:#666;">Forgot password?</a>
+    </p>
+  </div>
+</div>
+{% endblock %}
