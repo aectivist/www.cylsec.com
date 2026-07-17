@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}{{ page_name }} — Coming Soon — CYLVERN SECURITY{% endblock %}
+
+{% block content %}
+<div class="wip-wrap">
+  <div class="wip-icon"><i class="fas fa-hard-hat"></i></div>
+  <span class="section-label">Currently in Development</span>
+  <h1 class="hero-title" style="font-size:clamp(1.8rem,4vw,2.8rem);">
+    <span class="grad">{{ page_name }}</span>
+  </h1>
+  <p style="color:var(--text-muted);max-width:480px;text-align:center;line-height:1.7;">
+    This page is actively being built. Check back soon — or join our
+    <a href="https://discord.gg/gveJetDthV" style="color:var(--purple);font-weight:600;">Discord</a>
+    to get notified the moment it launches.
+  </p>
+  <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:12px;">
+    <a href="{{ url_for('index') }}" class="btn btn-outline"><i class="fas fa-home"></i> Back to Home</a>
+    <a href="https://discord.gg/gveJetDthV" class="btn btn-primary"><i class="fab fa-discord"></i> Join Discord</a>
+  </div>
+</div>
+{% endblock %}

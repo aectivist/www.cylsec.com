@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+{% block title %}CYLVERN SECURITY — Cybersecurity Education & Community{% endblock %}
+
+{% block content %}
+
+<!-- ═══ HERO ═══ -->
+<section class="hero" id="home">
+  <div class="container" style="position:relative;z-index:1;">
+    <span class="hero-eyebrow"><i class="fas fa-shield-alt"></i> Student-Focused Cybersecurity</span>
+
+    <h1 class="hero-title">
+      Hack. Learn. <span class="grad">Ascend.</span>
+    </h1>
+
+    <p class="hero-sub">
+      Cylvern Security is a community-driven organisation that builds real cybersecurity
+      skills through hands-on challenges, structured learning, and mentorship.
+    </p>
+
+    <div class="hero-cta">
+      <a href="{{ url_for('individuals') }}" class="btn btn-primary">
+        <i class="fas fa-user"></i> I'm an Individual
+      </a>
+      <a href="{{ url_for('business') }}" class="btn btn-outline">
+        <i class="fas fa-building"></i> Business Inquiry
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ STATS ═══ -->
+<section class="section-sm" style="background:var(--bg2);border-top:1px solid var(--border-soft);border-bottom:1px solid var(--border-soft);">
+  <div class="container">
+    <div class="stats-row">
+      <div class="stat-item card" style="border:none;background:none;">
+        <div class="stat-number">500+</div>
+        <div class="stat-label">Active Members</div>
+      </div>
+      <div class="stat-item card" style="border:none;background:none;">
+        <div class="stat-number">3</div>
+        <div class="stat-label">Learning Pathways</div>
+      </div>
+      <div class="stat-item card" style="border:none;background:none;">
+        <div class="stat-number">100%</div>
+        <div class="stat-label">Hands-On Learning</div>
+      </div>
+      <div class="stat-item card" style="border:none;background:none;">
+        <div class="stat-number">Free</div>
+        <div class="stat-label">Community Access</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ ABOUT ═══ -->
+<section class="section" id="about">
+  <div class="container">
+    <div class="service-row" style="gap:64px;align-items:flex-start;">
+      <div>
+        <span class="section-label">About Us</span>
+        <h2 class="section-title">What is <span style="color:var(--purple);">CYLVERN SECURITY?</span></h2>
+        <p style="color:var(--text-muted);line-height:1.8;margin-bottom:20px;">
+          CylSec is a student-focused cybersecurity organisation that provides structured,
+          hands-on learning experiences to help students develop foundational skills in
+          cybersecurity with real-world application.
+        </p>
+        <p style="color:var(--text-muted);line-height:1.8;margin-bottom:28px;">
+          We promote practical education through workshops, training sessions, and
+          community-based activities that support continuous skill development. Our
+          environment is designed to be accessible — beginners can learn safely, apply
+          concepts in real scenarios, and gradually build confidence.
+        </p>
+        <a href="{{ url_for('individuals') }}" class="btn btn-primary">
+          Join the Community <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+      <div class="service-graphic"><i class="fas fa-shield-virus"></i></div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══ MISSION + VISION ═══ -->
+<section class="section" id="mission">
+  <div class="container">
+    <div style="text-align:center;max-width:700px;margin:0 auto 56px;">
+      <span class="section-label">Purpose</span>
+      <h2 class="section-title">Our Mission &amp; Vision</h2>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+      <div class="card">
+        <div class="feature-icon"><i class="fas fa-bullseye"></i></div>
+        <h3>Mission</h3>
+        <p>
+          Cylvern Security's mission is to provide its members with the knowledge required
+          to secure all aspects of technology and the digital world.
+        </p>
+      </div>
+      <div class="card">
+        <div class="feature-icon" style="background:rgba(77,124,255,.15);border-color:rgba(77,124,255,.25);color:var(--blue);">
+          <i class="fas fa-eye"></i>
+        </div>
+        <h3>Vision</h3>
+        <p>
+          CYLSEC is dedicated to giving individuals the knowledge and skills necessary
+          to succeed in cybersecurity through education and community engagement.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══ CORE VALUES ═══ -->
+<section class="section" id="values">
+  <div class="container">
+    <div style="text-align:center;max-width:700px;margin:0 auto 48px;">
+      <span class="section-label">What We Stand For</span>
+      <h2 class="section-title">Core Values</h2>
+    </div>
+
+    <div class="values-grid">
+      <div class="value-card">
+        <div class="val-icon"><i class="fas fa-hands-helping"></i></div>
+        <h4>Support</h4>
+        <p>We encourage people to help and guide one another through every challenge.</p>
+      </div>
+      <div class="value-card">
+        <div class="val-icon"><i class="fas fa-book-open"></i></div>
+        <h4>Education</h4>
+        <p>Learning should be ongoing, hands-on, and available to everyone — not just experts.</p>
+      </div>
+      <div class="value-card">
+        <div class="val-icon"><i class="fas fa-balance-scale"></i></div>
+        <h4>Integrity</h4>
+        <p>Members are expected to apply their knowledge responsibly and ethically.</p>
+      </div>
+      <div class="value-card">
+        <div class="val-icon"><i class="fas fa-users"></i></div>
+        <h4>Teamwork</h4>
+        <p>We value collaboration, open communication, and shared growth across the community.</p>
+      </div>
+      <div class="value-card">
+        <div class="val-icon"><i class="fas fa-chart-line"></i></div>
+        <h4>Growth</h4>
+        <p>We promote skill and confidence development through real experience.</p>
+      </div>
+      <div class="value-card">
+        <div class="val-icon"><i class="fas fa-lightbulb"></i></div>
+        <h4>Innovation</h4>
+        <p>We embrace new tools, techniques, and ideas that push the field forward.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══ OFFERINGS PREVIEW ═══ -->
+<section class="section">
+  <div class="container">
+    <div style="text-align:center;max-width:700px;margin:0 auto 48px;">
+      <span class="section-label">What We Offer</span>
+      <h2 class="section-title">Three Ways to Grow</h2>
+      <p class="lead" style="margin:0 auto;">
+        Whether you're just starting out or looking to specialise, there's a pathway for you.
+      </p>
+    </div>
+
+    <div class="cards-grid">
+      <a href="{{ url_for('ctf_page') }}" class="card" style="text-decoration:none;color:inherit;">
+        <div class="feature-icon"><i class="fas fa-flag"></i></div>
+        <h3>CTF Platform</h3>
+        <p>
+          Solve real-world hacking challenges at your own pace. Earn XP, climb the leaderboard,
+          and prove your skills across web, pwn, forensics, crypto, and more.
+        </p>
+        <div class="mt-20" style="color:var(--purple);font-size:.88rem;font-weight:600;">
+          Coming soon <i class="fas fa-arrow-right"></i>
+        </div>
+      </a>
+
+      <a href="{{ url_for('academy_page') }}" class="card" style="text-decoration:none;color:inherit;">
+        <div class="feature-icon" style="background:rgba(77,124,255,.15);border-color:rgba(77,124,255,.25);color:var(--blue);">
+          <i class="fas fa-graduation-cap"></i>
+        </div>
+        <h3>Academy</h3>
+        <p>
+          Structured learning paths that take you from zero to proficient. Guided modules,
+          quizzes, and labs curated by community experts.
+        </p>
+        <div class="mt-20" style="color:var(--blue);font-size:.88rem;font-weight:600;">
+          Coming soon <i class="fas fa-arrow-right"></i>
+        </div>
+      </a>
+
+      <a href="{{ url_for('mentorship_page') }}" class="card" style="text-decoration:none;color:inherit;">
+        <div class="feature-icon" style="background:rgba(0,229,255,.1);border-color:rgba(0,229,255,.2);color:var(--accent);">
+          <i class="fas fa-handshake"></i>
+        </div>
+        <h3>Private Mentorship</h3>
+        <p>
+          One-on-one sessions with experienced members. Set goals, get feedback,
+          and accelerate your career or studies in cybersecurity.
+        </p>
+        <div class="mt-20" style="color:var(--accent);font-size:.88rem;font-weight:600;">
+          Coming soon <i class="fas fa-arrow-right"></i>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA STRIP ═══ -->
+<section class="section-sm" style="background:var(--bg2);border-top:1px solid var(--border-soft);">
+  <div class="container" style="text-align:center;">
+    <h2 class="section-title" style="margin-bottom:12px;">Ready to start your journey?</h2>
+    <p class="lead" style="margin:0 auto 32px;">
+      Join a growing community of cybersecurity learners and practitioners.
+    </p>
+    <div class="hero-cta">
+      <a href="{{ url_for('individuals') }}" class="btn btn-primary">
+        <i class="fas fa-rocket"></i> Get Started
+      </a>
+      <a href="{{ url_for('business') }}" class="btn btn-outline">
+        <i class="fas fa-envelope"></i> Contact Us
+      </a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

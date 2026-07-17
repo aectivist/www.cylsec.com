@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block hero %}{% endblock %}
+{% block title %}Launch – {{ challenge.title }} – CYLVERN SECURITY{% endblock %}
+
+{% block content %}
+<div class="launch-wrap">
+    <div class="panel launch-card">
+
+        {# ── Back link #}
+        <a href="{{ url_for('challenges.view_challenge', challenge_id=challenge.id) }}"
+           class="launch-back-link">
+            <i class="fas fa-arrow-left"></i> Back to challenge
+        </a>
+
+        {# ── Title #}
+        <div class="launch-icon-row">
+            <span class="launch-icon-bg"><i class="fas fa-rocket"></i></span>
+        </div>
+        <h2 class="section-title" style="text-align:center;margin-bottom:6px;">Launch Instance</h2>
+        <p class="launch-subtitle">{{ challenge.title }}</p>
+
+        {# ── Specs grid #}
+        <div class="launch-specs">
+            <div class="launch-spec">
+                <i class="fas fa-clock" style="color:var(--blue);"></i>
+                <span class="launch-spec-val">60 min</span>
+                <span class="launch-spec-lbl">Duration</span>
+            </div>
+            <div class="launch-spec">
+                <i class="fas fa-memory" style="color:var(--purple);"></i>
+                <span class="launch-spec-val">512 MB</span>
+                <span class="launch-spec-lbl">Memory</span>
+            </div>
+            <div class="launch-spec">
+                <i class="fas fa-microchip" style="color:var(--green);"></i>
+                <span class="launch-spec-val">1 Core</span>
+                <span class="launch-spec-lbl">CPU</span>
+            </div>
+            <div class="launch-spec">
+                <i class="fas fa-redo" style="color:var(--warn);"></i>
+                <span class="launch-spec-val">3×30m</span>
+                <span class="launch-spec-lbl">Extensions</span>
+            </div>
+        </div>
+
+        {# ── Warning notice #}
+        <div class="launch-notice">
+            <i class="fas fa-info-circle"></i>
+            <span>
+                Instances use shared server resources. Only one active instance per challenge is allowed.
+                Your instance will be automatically stopped after it expires.
+            </span>
+        </div>
+
+        {# ── Action buttons #}
+        <form method="POST"
+              action="{{ url_for('docker.launch_instance', challenge_id=challenge.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="launch-actions">
+                <button type="submit" class="btn-primary launch-confirm-btn">
+                    <i class="fas fa-rocket"></i> Confirm &amp; Launch
+                </button>
+                <a href="{{ url_for('challenges.view_challenge', challenge_id=challenge.id) }}"
+                   class="btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+
+    </div>
+</div>
+{% endblock %}
