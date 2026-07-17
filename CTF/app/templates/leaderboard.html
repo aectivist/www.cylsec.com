@@ -7,50 +7,47 @@
 
   <div class="dash-section-head" style="margin-bottom:20px;">
     <h2 class="section-title" style="margin:0;">Global Leaderboard</h2>
-    <span style="color:var(--muted);font-size:.85rem;">{{ users|length }} hunter{{ 's' if users|length != 1 }}</span>
+    <span style="color:var(--muted);font-size:.82rem;">{{ users|length }} hunter{{ 's' if users|length != 1 }}</span>
   </div>
 
   <div class="panel" style="padding:0;overflow:hidden;">
     {% if users %}
-    <table class="lb-table">
+    <table style="width:100%;border-collapse:collapse;">
       <thead>
-        <tr class="lb-thead-row">
-          <th class="lb-th" style="width:52px;">#</th>
-          <th class="lb-th">Hunter</th>
-          <th class="lb-th">Rank</th>
-          <th class="lb-th" style="text-align:center;">Solves</th>
-          <th class="lb-th" style="text-align:right;">XP</th>
+        <tr style="border-bottom:1px solid rgba(255,255,255,.07);">
+          <th style="padding:10px 16px;color:var(--muted);font-size:.72rem;font-weight:600;text-align:left;width:44px;">#</th>
+          <th style="padding:10px 16px;color:var(--muted);font-size:.72rem;font-weight:600;text-align:left;">Hunter</th>
+          <th style="padding:10px 16px;color:var(--muted);font-size:.72rem;font-weight:600;text-align:left;">Rank</th>
+          <th style="padding:10px 16px;color:var(--muted);font-size:.72rem;font-weight:600;text-align:center;">Solves</th>
+          <th style="padding:10px 16px;color:var(--muted);font-size:.72rem;font-weight:600;text-align:right;">XP</th>
         </tr>
       </thead>
       <tbody>
         {% for user in users %}
-        <tr class="lb-row{% if current_user.is_authenticated and user.id == current_user.id %} lb-row-you{% endif %}">
-          <td class="lb-pos">
-            {% if loop.index == 1 %}🥇
-            {% elif loop.index == 2 %}🥈
-            {% elif loop.index == 3 %}🥉
-            {% else %}<span style="color:var(--muted);">{{ loop.index }}</span>
-            {% endif %}
+        <tr style="border-bottom:1px solid rgba(255,255,255,.03);transition:background .15s;{% if current_user.is_authenticated and user.id == current_user.id %}background:rgba(124,77,255,.08);{% endif %}">
+          <td style="padding:11px 16px;font-size:.88rem;color:var(--muted);">
+            {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉
+            {% else %}{{ loop.index }}{% endif %}
           </td>
-          <td class="lb-name">
-            {{ user.username }}
+          <td style="padding:11px 16px;">
+            <span style="font-size:.9rem;font-weight:600;color:#fff;">{{ user.username }}</span>
             {% if current_user.is_authenticated and user.id == current_user.id %}
-            <span class="lb-you-badge">you</span>
+            <span style="margin-left:6px;padding:1px 6px;background:rgba(124,77,255,.2);border:1px solid rgba(124,77,255,.4);border-radius:20px;font-size:.65rem;color:var(--purple);font-weight:700;vertical-align:middle;">you</span>
             {% endif %}
           </td>
-          <td class="lb-rank-cell">
-            <span class="rank-color lb-rank-text" data-rank="{{ user.get_rank() }}">{{ user.get_rank() }}</span>
+          <td style="padding:11px 16px;">
+            <span class="rank-color" data-rank="{{ user.get_rank() }}" style="font-size:.82rem;font-weight:700;">{{ user.get_rank() }}</span>
           </td>
-          <td class="lb-solves">{{ user.solves|length }}</td>
-          <td class="lb-xp">{{ user.xp }}</td>
+          <td style="padding:11px 16px;text-align:center;font-size:.85rem;color:var(--muted);">{{ user.solves|length }}</td>
+          <td style="padding:11px 16px;text-align:right;font-family:'Orbitron',sans-serif;font-size:.82rem;font-weight:700;color:#fff;">{{ user.xp }}</td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
     {% else %}
-    <div style="text-align:center;padding:60px 24px;">
-      <div style="font-size:2.5rem;margin-bottom:14px;">🏆</div>
-      <p style="color:var(--muted);">No hunters yet. Be the first to register!</p>
+    <div style="text-align:center;padding:56px 24px;">
+      <div style="font-size:2.2rem;margin-bottom:12px;">🏆</div>
+      <p style="color:var(--muted);font-size:.9rem;">No hunters yet — be the first to register!</p>
     </div>
     {% endif %}
   </div>

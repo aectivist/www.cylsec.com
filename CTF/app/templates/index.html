@@ -5,7 +5,7 @@
 {% block content %}
 <div class="dash-wrap">
 
-  {# ── Header strip ── #}
+  {# ── Header — title only ── #}
   <div class="dash-header">
     <div class="dash-logo-row">
       <img src="{{ url_for('static', filename='images/logo.png') }}" alt="" class="dash-logo">
@@ -30,11 +30,6 @@
         <span class="dash-stat-val">{{ current_user.solves|length }}</span>
         <span class="dash-stat-lbl">SOLVES</span>
       </div>
-    </div>
-    {% else %}
-    <div style="display:flex;gap:12px;align-items:center;">
-      <a href="{{ url_for('auth.login') }}" class="btn-secondary" style="padding:.5rem 1.4rem;">Login</a>
-      <a href="{{ url_for('auth.register') }}" class="btn-primary" style="padding:.5rem 1.4rem;">Register</a>
     </div>
     {% endif %}
   </div>

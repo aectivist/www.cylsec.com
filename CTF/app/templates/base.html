@@ -31,8 +31,6 @@
             <a href="{{ url_for('main.index') }}">Dashboard</a>
             <a href="{{ url_for('challenges.archives') }}" id="challenges-link">Challenges</a>
             <a href="{{ url_for('main.leaderboard') }}">Leaderboard</a>
-            <a href="{{ url_for('main.index') }}#faq">FAQ</a>
-            <a href="#contacts">Contacts</a>
             <div class="nav-right">
                 {% if current_user.is_authenticated %}
                     <a href="{{ url_for('main.profile') }}" class="hunter-name">
