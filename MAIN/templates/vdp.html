@@ -1,0 +1,377 @@
+{% extends "base.html" %}
+{% block title %}Vulnerability Disclosure Policy — CYLVERN SECURITY{% endblock %}
+
+{% block content %}
+
+<!-- ═══ HERO ═══ -->
+<section class="hero" style="padding-bottom:60px;">
+  <div class="container" style="position:relative;z-index:1;">
+    <span class="hero-eyebrow"><i class="fas fa-bug"></i> Responsible Disclosure</span>
+    <h1 class="hero-title">
+      Vulnerability <span class="grad">Disclosure Policy</span>
+    </h1>
+    <p class="hero-sub">
+      We take the security of our platforms seriously. If you've found something,
+      we want to hear from you — and we'll treat you fairly.
+    </p>
+    <div class="hero-cta">
+      <a href="#report" class="btn btn-primary"><i class="fas fa-envelope"></i> Report a Vulnerability</a>
+      <a href="#scope" class="btn btn-outline"><i class="fas fa-crosshairs"></i> View Scope</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ INTRO STRIP ═══ -->
+<section class="section-sm" style="background:var(--bg2);border-top:1px solid var(--border-soft);border-bottom:1px solid var(--border-soft);">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;text-align:center;">
+      <div>
+        <div class="vdp-strip-icon"><i class="fas fa-shield-alt"></i></div>
+        <div style="font-weight:700;margin-bottom:4px;">Safe Harbour</div>
+        <div style="color:var(--text-muted);font-size:.88rem;">Good-faith researchers acting within this policy will not face legal action from CYLSEC.</div>
+      </div>
+      <div>
+        <div class="vdp-strip-icon"><i class="fas fa-bolt"></i></div>
+        <div style="font-weight:700;margin-bottom:4px;">Fast Response</div>
+        <div style="color:var(--text-muted);font-size:.88rem;">We commit to acknowledging all valid reports within <strong>5 business days</strong>.</div>
+      </div>
+      <div>
+        <div class="vdp-strip-icon"><i class="fas fa-trophy"></i></div>
+        <div style="font-weight:700;margin-bottom:4px;">Credit</div>
+        <div style="color:var(--text-muted);font-size:.88rem;">Reporters of valid findings are credited in our Hall of Fame with their consent.</div>
+      </div>
+      <div>
+        <div class="vdp-strip-icon"><i class="fas fa-times-circle"></i></div>
+        <div style="font-weight:700;margin-bottom:4px;">No Bounties (yet)</div>
+        <div style="color:var(--text-muted);font-size:.88rem;">CYLSEC is a student organisation. We currently offer recognition, not monetary rewards.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ POLICY BODY ═══ -->
+<section class="section">
+  <div class="container" style="max-width:860px;">
+
+    <!-- Overview -->
+    <div style="margin-bottom:56px;">
+      <span class="section-label">Overview</span>
+      <h2 class="section-title">Our Commitment</h2>
+      <p style="color:var(--text-muted);line-height:1.85;margin-bottom:16px;">
+        Cylvern Security (CYLSEC) operates online platforms including the CTF platform
+        at <strong>cylsec.com</strong>, our community Discord, and this marketing site. We recognise that
+        security researchers play an important role in identifying vulnerabilities that our
+        own team may have missed.
+      </p>
+      <p style="color:var(--text-muted);line-height:1.85;">
+        This Vulnerability Disclosure Policy (VDP) describes what systems are in scope,
+        what types of testing are permitted, how to submit a report, and what you can
+        expect from us in return. It is not a bug bounty programme — we cannot offer
+        financial rewards at this time — but we do promise to take every valid report
+        seriously and to recognise researchers who help make CYLSEC safer.
+      </p>
+    </div>
+
+    <hr class="divider" style="margin-bottom:56px;">
+
+    <!-- Scope -->
+    <div style="margin-bottom:56px;" id="scope">
+      <span class="section-label">Scope</span>
+      <h2 class="section-title">What's In Scope</h2>
+      <p style="color:var(--text-muted);line-height:1.85;margin-bottom:28px;">
+        Only the assets listed below are authorised for testing under this policy.
+        Testing any asset not listed here is <strong>out of scope</strong> and may violate
+        applicable law.
+      </p>
+
+      <div class="cards-grid" style="margin-bottom:32px;">
+        <div class="card">
+          <div class="feature-icon"><i class="fas fa-globe"></i></div>
+          <h3>cylsec.com</h3>
+          <p>The main marketing and information site. Web application vulnerabilities only — no infrastructure attacks.</p>
+          <div style="margin-top:14px;">
+            <span style="display:inline-block;background:rgba(0,230,118,.1);color:var(--green);border:1px solid rgba(0,230,118,.25);border-radius:20px;padding:3px 12px;font-size:.75rem;font-weight:700;">IN SCOPE</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="feature-icon" style="background:rgba(77,124,255,.15);color:var(--blue);border-color:rgba(77,124,255,.25);"><i class="fas fa-flag"></i></div>
+          <h3>CTF Platform</h3>
+          <p>
+            The CTF application at <strong>ctf.cylsec.com</strong> (auth, challenge submission, user accounts).
+            <br><br>
+            <strong>Note:</strong> Intentionally vulnerable CTF challenge instances are <em>excluded</em> — those are meant to be broken.
+          </p>
+          <div style="margin-top:14px;">
+            <span style="display:inline-block;background:rgba(0,230,118,.1);color:var(--green);border:1px solid rgba(0,230,118,.25);border-radius:20px;padding:3px 12px;font-size:.75rem;font-weight:700;">IN SCOPE</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="feature-icon" style="background:rgba(255,82,82,.1);color:var(--danger);border-color:rgba(255,82,82,.25);"><i class="fab fa-discord"></i></div>
+          <h3>Discord Server</h3>
+          <p>Our community Discord. Report phishing, impersonation, or bot abuse to us directly via Discord DM to an admin — do not test automated systems.</p>
+          <div style="margin-top:14px;">
+            <span style="display:inline-block;background:rgba(255,171,64,.1);color:var(--warn);border:1px solid rgba(255,171,64,.25);border-radius:20px;padding:3px 12px;font-size:.75rem;font-weight:700;">REPORT ONLY</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="border-color:rgba(255,82,82,.25);background:rgba(255,82,82,.04);">
+        <h3 style="color:var(--danger);margin-bottom:12px;"><i class="fas fa-ban" style="margin-right:8px;"></i>Out of Scope</h3>
+        <ul class="benefit-list" style="list-style:none;">
+          <li style="color:var(--text-muted);">
+            <span style="color:var(--danger);font-weight:700;flex-shrink:0;">✗</span>
+            CTF challenge instances — these are <em>intentionally</em> vulnerable; exploiting them is the challenge
+          </li>
+          <li style="color:var(--text-muted);">
+            <span style="color:var(--danger);font-weight:700;flex-shrink:0;">✗</span>
+            Third-party services we use (hosting providers, email services, CDNs, etc.)
+          </li>
+          <li style="color:var(--text-muted);">
+            <span style="color:var(--danger);font-weight:700;flex-shrink:0;">✗</span>
+            Physical infrastructure, office networks, or personal devices of CYLSEC members
+          </li>
+          <li style="color:var(--text-muted);">
+            <span style="color:var(--danger);font-weight:700;flex-shrink:0;">✗</span>
+            Social engineering or phishing attacks against CYLSEC staff or members
+          </li>
+          <li style="color:var(--text-muted);">
+            <span style="color:var(--danger);font-weight:700;flex-shrink:0;">✗</span>
+            Denial-of-service (DoS/DDoS) attacks of any kind
+          </li>
+          <li style="color:var(--text-muted);">
+            <span style="color:var(--danger);font-weight:700;flex-shrink:0;">✗</span>
+            Automated scanning that impacts platform availability for other users
+          </li>
+          <li style="color:var(--text-muted);">
+            <span style="color:var(--danger);font-weight:700;flex-shrink:0;">✗</span>
+            Accessing, modifying, or deleting data belonging to other users
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <hr class="divider" style="margin-bottom:56px;">
+
+    <!-- Rules of engagement -->
+    <div style="margin-bottom:56px;">
+      <span class="section-label">Rules of Engagement</span>
+      <h2 class="section-title">Responsible Testing Guidelines</h2>
+      <p style="color:var(--text-muted);line-height:1.85;margin-bottom:28px;">
+        To qualify for safe harbour under this policy you <strong>must</strong> adhere to all of the following:
+      </p>
+
+      <div class="cards-grid">
+        <div class="card">
+          <div class="feature-icon" style="background:rgba(0,230,118,.1);color:var(--green);border-color:rgba(0,230,118,.2);"><i class="fas fa-user-check"></i></div>
+          <h3>Use Your Own Account</h3>
+          <p>Only test against accounts you own or have explicit written permission to test. Never access another user's data.</p>
+        </div>
+        <div class="card">
+          <div class="feature-icon" style="background:rgba(0,230,118,.1);color:var(--green);border-color:rgba(0,230,118,.2);"><i class="fas fa-hand-paper"></i></div>
+          <h3>Minimal Footprint</h3>
+          <p>Use the minimum access needed to demonstrate the vulnerability. Stop immediately once impact is proven.</p>
+        </div>
+        <div class="card">
+          <div class="feature-icon" style="background:rgba(0,230,118,.1);color:var(--green);border-color:rgba(0,230,118,.2);"><i class="fas fa-lock"></i></div>
+          <h3>Keep It Confidential</h3>
+          <p>Do not disclose the vulnerability publicly until we've confirmed it is resolved, or 90 days have passed since your report — whichever comes first.</p>
+        </div>
+        <div class="card">
+          <div class="feature-icon" style="background:rgba(0,230,118,.1);color:var(--green);border-color:rgba(0,230,118,.2);"><i class="fas fa-database"></i></div>
+          <h3>No Data Exfiltration</h3>
+          <p>Do not exfiltrate, store, share, or retain any data you access during testing beyond what's needed to write the report.</p>
+        </div>
+        <div class="card">
+          <div class="feature-icon" style="background:rgba(0,230,118,.1);color:var(--green);border-color:rgba(0,230,118,.2);"><i class="fas fa-tachometer-alt"></i></div>
+          <h3>No Availability Impact</h3>
+          <p>Do not perform any test that degrades performance or availability of CYLSEC services for other users.</p>
+        </div>
+        <div class="card">
+          <div class="feature-icon" style="background:rgba(0,230,118,.1);color:var(--green);border-color:rgba(0,230,118,.2);"><i class="fas fa-file-alt"></i></div>
+          <h3>Report Clearly</h3>
+          <p>Provide enough detail for us to reproduce the issue: steps to reproduce, impact, affected URL, and any PoC code or screenshots.</p>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider" style="margin-bottom:56px;">
+
+    <!-- Vulnerability categories -->
+    <div style="margin-bottom:56px;">
+      <span class="section-label">Priority</span>
+      <h2 class="section-title">Vulnerability Categories</h2>
+      <p style="color:var(--text-muted);line-height:1.85;margin-bottom:28px;">
+        The table below describes the types of findings we are most interested in, grouped
+        by impact level. We review all valid submissions regardless of severity.
+      </p>
+
+      <div class="card" style="padding:0;overflow:hidden;">
+        <table style="width:100%;border-collapse:collapse;font-size:.9rem;">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border-soft);">
+              <th style="padding:14px 20px;text-align:left;color:var(--text-muted);font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;font-weight:600;">Severity</th>
+              <th style="padding:14px 20px;text-align:left;color:var(--text-muted);font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;font-weight:600;">Examples</th>
+              <th style="padding:14px 20px;text-align:left;color:var(--text-muted);font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;font-weight:600;">Response SLA</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border-soft);">
+              <td style="padding:14px 20px;">
+                <span style="background:rgba(255,82,82,.15);color:var(--danger);border:1px solid rgba(255,82,82,.3);border-radius:20px;padding:3px 12px;font-size:.78rem;font-weight:700;">Critical</span>
+              </td>
+              <td style="padding:14px 20px;color:var(--text-muted);">Remote code execution, authentication bypass, full account takeover, SQL injection with data access, privilege escalation to admin</td>
+              <td style="padding:14px 20px;color:var(--text-muted);">Acknowledged within 2 days, patch within 7 days</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-soft);">
+              <td style="padding:14px 20px;">
+                <span style="background:rgba(255,82,82,.08);color:#ff7043;border:1px solid rgba(255,112,67,.3);border-radius:20px;padding:3px 12px;font-size:.78rem;font-weight:700;">High</span>
+              </td>
+              <td style="padding:14px 20px;color:var(--text-muted);">Stored XSS, IDOR exposing other users' private data, broken access control, CSRF on sensitive actions, insecure direct object references</td>
+              <td style="padding:14px 20px;color:var(--text-muted);">Acknowledged within 3 days, patch within 14 days</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-soft);">
+              <td style="padding:14px 20px;">
+                <span style="background:rgba(255,171,64,.1);color:var(--warn);border:1px solid rgba(255,171,64,.3);border-radius:20px;padding:3px 12px;font-size:.78rem;font-weight:700;">Medium</span>
+              </td>
+              <td style="padding:14px 20px;color:var(--text-muted);">Reflected XSS, open redirect, session fixation, verbose error messages with sensitive info, missing security headers with demonstrable impact</td>
+              <td style="padding:14px 20px;color:var(--text-muted);">Acknowledged within 5 days, patch within 30 days</td>
+            </tr>
+            <tr>
+              <td style="padding:14px 20px;">
+                <span style="background:rgba(77,124,255,.1);color:var(--blue);border:1px solid rgba(77,124,255,.3);border-radius:20px;padding:3px 12px;font-size:.78rem;font-weight:700;">Low / Info</span>
+              </td>
+              <td style="padding:14px 20px;color:var(--text-muted);">Missing security headers (no impact), software version disclosure, rate-limiting issues, clickjacking without sensitive actions</td>
+              <td style="padding:14px 20px;color:var(--text-muted);">Acknowledged within 5 days, addressed at discretion</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <hr class="divider" style="margin-bottom:56px;">
+
+    <!-- Process -->
+    <div style="margin-bottom:56px;">
+      <span class="section-label">Process</span>
+      <h2 class="section-title">What Happens After You Report</h2>
+      <div style="display:flex;flex-direction:column;gap:0;position:relative;">
+
+        <!-- Timeline line -->
+        <div style="position:absolute;left:23px;top:32px;bottom:32px;width:2px;background:var(--border);z-index:0;"></div>
+
+        {% set steps = [
+          ('fa-paper-plane', 'purple', 'You submit a report', 'Send your report to security@cylsec.com with full reproduction steps, impact assessment, and any supporting screenshots or PoC.'),
+          ('fa-check-circle', 'blue', 'We acknowledge receipt', 'You receive a confirmation email within our SLA window. We assign an internal tracking ID and a severity estimate.'),
+          ('fa-search', 'accent', 'We investigate', 'Our team reproduces and verifies the issue. We may follow up with clarifying questions. You will be kept updated on progress.'),
+          ('fa-tools', 'green', 'We remediate', 'We develop and deploy a fix. For Critical and High findings we aim to patch on an accelerated timeline.'),
+          ('fa-trophy', 'purple', 'We close out', 'We notify you that the issue is resolved. With your consent, your name is added to our Hall of Fame. We share a brief post-mortem for Critical findings.')
+        ] %}
+
+        {% for icon, color, title, desc in steps %}
+        <div style="display:flex;gap:20px;align-items:flex-start;padding:20px 0;position:relative;z-index:1;">
+          <div style="width:46px;height:46px;border-radius:50%;background:{% if color == 'purple' %}rgba(124,77,255,.15){% elif color == 'blue' %}rgba(77,124,255,.15){% elif color == 'accent' %}rgba(0,229,255,.1){% else %}rgba(0,230,118,.1){% endif %};border:2px solid {% if color == 'purple' %}rgba(124,77,255,.4){% elif color == 'blue' %}rgba(77,124,255,.4){% elif color == 'accent' %}rgba(0,229,255,.3){% else %}rgba(0,230,118,.3){% endif %};display:flex;align-items:center;justify-content:center;flex-shrink:0;color:{% if color == 'purple' %}var(--purple){% elif color == 'blue' %}var(--blue){% elif color == 'accent' %}var(--accent){% else %}var(--green){% endif %};">
+            <i class="fas {{ icon }}"></i>
+          </div>
+          <div style="padding-top:10px;">
+            <div style="font-weight:700;margin-bottom:5px;">{{ title }}</div>
+            <div style="color:var(--text-muted);font-size:.9rem;line-height:1.7;">{{ desc }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <hr class="divider" style="margin-bottom:56px;">
+
+    <!-- Safe harbour -->
+    <div style="margin-bottom:56px;">
+      <span class="section-label">Legal</span>
+      <h2 class="section-title">Safe Harbour</h2>
+      <div class="card" style="border-color:rgba(0,230,118,.25);background:rgba(0,230,118,.04);">
+        <p style="color:var(--text-muted);line-height:1.85;margin-bottom:16px;">
+          CYLSEC will not pursue legal action against security researchers who discover
+          and report vulnerabilities in good faith, provided they comply with all
+          conditions of this policy.
+        </p>
+        <p style="color:var(--text-muted);line-height:1.85;margin-bottom:16px;">
+          "Good faith" means: you did not access data beyond what was necessary to
+          demonstrate the vulnerability, you did not degrade service availability, you
+          did not use the vulnerability for personal gain, and you reported it to us
+          promptly rather than disclosing it publicly or to a third party first.
+        </p>
+        <p style="color:var(--text-muted);line-height:1.85;">
+          This safe harbour applies only to the in-scope assets listed in this policy
+          and only for activities that comply with these guidelines. It does not
+          authorise unlawful access to systems belonging to third parties.
+        </p>
+      </div>
+    </div>
+
+    <hr class="divider" style="margin-bottom:56px;">
+
+    <!-- Hall of Fame -->
+    <div style="margin-bottom:56px;" id="hof">
+      <span class="section-label">Recognition</span>
+      <h2 class="section-title">Hall of Fame</h2>
+      <p style="color:var(--text-muted);line-height:1.85;margin-bottom:28px;">
+        We're grateful to every researcher who takes the time to help us improve.
+        Reporters of valid, in-scope findings are listed here with their consent.
+      </p>
+
+      <div class="card" style="text-align:center;padding:56px 24px;">
+        <div style="margin-bottom:16px;opacity:.4;font-size:3rem;color:var(--purple);"><i class="fas fa-trophy"></i></div>
+        <p style="color:var(--text-muted);font-size:.95rem;">
+          No findings have been reported yet.<br>
+          Be the first — <a href="#report" style="color:var(--purple);font-weight:600;">submit a report</a>.
+        </p>
+      </div>
+    </div>
+
+    <hr class="divider" style="margin-bottom:56px;">
+
+    <!-- Report form -->
+    <div id="report">
+      <span class="section-label">Submit</span>
+      <h2 class="section-title">Report a Vulnerability</h2>
+      <p style="color:var(--text-muted);line-height:1.85;margin-bottom:32px;">
+        Send your report directly to
+        <a href="mailto:security@cylsec.com" style="color:var(--purple);font-weight:600;">security@cylsec.com</a>
+        with the subject line <code style="background:rgba(124,77,255,.12);color:var(--purple);padding:2px 8px;border-radius:4px;">[VDP] &lt;brief description&gt;</code>.
+        Include the information below for the fastest resolution.
+      </p>
+
+      <div class="card" style="margin-bottom:28px;">
+        <h3 style="margin-bottom:16px;">What to Include in Your Report</h3>
+        <ul class="benefit-list">
+          <li>Affected URL, endpoint, or feature</li>
+          <li>Step-by-step reproduction instructions</li>
+          <li>Your assessment of severity and potential impact</li>
+          <li>Screenshots, HTTP request/response, or PoC code (as applicable)</li>
+          <li>Your preferred name or handle for Hall of Fame credit (optional)</li>
+          <li>Whether you'd like us to coordinate a public disclosure date</li>
+        </ul>
+      </div>
+
+      <!-- PGP key block -->
+      <div class="card" style="border-color:rgba(124,77,255,.3);">
+        <div style="display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
+          <div class="feature-icon" style="flex-shrink:0;"><i class="fas fa-key"></i></div>
+          <div style="flex:1;min-width:220px;">
+            <h3 style="margin-bottom:8px;">Encrypt Your Report (Optional)</h3>
+            <p style="color:var(--text-muted);font-size:.9rem;line-height:1.7;">
+              For sensitive findings, you may encrypt your email using our PGP key.
+              Contact us at
+              <a href="mailto:security@cylsec.com" style="color:var(--purple);">security@cylsec.com</a>
+              to request our public key, or look it up on
+              <a href="https://keys.openpgp.org" target="_blank" rel="noopener noreferrer" style="color:var(--purple);">keys.openpgp.org</a>
+              by searching for <code style="background:rgba(124,77,255,.12);color:var(--purple);padding:2px 8px;border-radius:4px;">security@cylsec.com</code>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /container -->
+</section>
+
+{% endblock %}

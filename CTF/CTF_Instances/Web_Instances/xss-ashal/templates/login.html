@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏜️ Sunken Kingdom of Ashal</title>
+    <style>
+        body {
+            background: #1a1a0a;
+            font-family: 'Courier New', monospace;
+            color: #d4c9a8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-image:
+                linear-gradient(rgba(100,80,50,0.3) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(100,80,50,0.3) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        .panel {
+            background: rgba(30,25,15,0.95);
+            border: 6px solid #b8953a;
+            padding: 40px;
+            box-shadow: 8px 8px 0 rgba(0,0,0,0.6);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 { color: #f0c850; text-shadow: 2px 2px 0 #5a3a1a; }
+        input, button {
+            background: #2a2010;
+            border: 4px solid #b8953a;
+            color: #d4c9a8;
+            padding: 10px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            width: 100%;
+            margin-bottom: 10px;
+            box-shadow: 4px 4px 0 rgba(0,0,0,0.4);
+        }
+        button {
+            background: #5a4a2a;
+            cursor: pointer;
+        }
+        button:hover { background: #7a5a3a; }
+        .subtitle { color: #b8953a; font-size: 0.8rem; }
+        .flash { padding: 8px; margin-bottom: 10px; background: #2a3a1a; border: 1px solid #4CAF50; color: #4CAF50; }
+    </style>
+</head>
+<body>
+    <div class="panel">
+        <h1>🏜️ Ashal</h1>
+        <p class="subtitle">Enter your hunter name to begin.</p>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, msg in messages %}
+                    <div class="flash">{{ msg }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form method="post">
+            <input type="text" name="username" placeholder="Hunter Name" required>
+            <button type="submit">Enter</button>
+        </form>
+    </div>
+</body>
+</html>

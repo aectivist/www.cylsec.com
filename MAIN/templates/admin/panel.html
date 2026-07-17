@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block title %}Admin Panel — CYLVERN SECURITY{% endblock %}
+
+{% block content %}
+<div class="admin-wrap">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:16px;">
+    <h1 style="font-family:'Orbitron',sans-serif;font-size:1.5rem;">
+      Admin Panel
+    </h1>
+    <form method="POST" action="{{ url_for('admin_logout') }}" style="margin:0;">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-danger-outline" style="padding:8px 18px;font-size:.85rem;">
+        <i class="fas fa-sign-out-alt"></i> Sign Out
+      </button>
+    </form>
+  </div>
+
+  <!-- ── Alert Management ── -->
+  <div class="card" style="margin-bottom:32px;">
+    <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:20px;">
+      <i class="fas fa-bell" style="color:var(--purple);margin-right:8px;"></i>Site Alert Banner
+    </h2>
+
+    <form method="POST" novalidate>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="form-group">
+        <label for="message">Alert Message <span style="color:var(--text-muted);font-weight:400;">(leave blank to clear)</span></label>
+        <input type="text" id="message" name="message" class="form-control"
+               maxlength="500" placeholder="e.g. Platform maintenance on Saturday 10pm UTC"
+               value="{{ form.message.data if form.message.data is not none else (alert.message or '') }}">
+      </div>
+
+      <div class="form-group">
+        <label>Level</label>
+        <div class="level-select-row" id="levelRow">
+          {% for lvl in ['info', 'warning', 'danger'] %}
+          <button type="button" class="level-opt {{ lvl }} {% if (form.level.data or alert.level) == lvl %}active{% endif %}"
+                  onclick="setLevel('{{ lvl }}')">
+            {{ lvl | capitalize }}
+          </button>
+          {% endfor %}
+        </div>
+        <input type="hidden" id="level" name="level"
+               value="{{ form.level.data or alert.level or 'info' }}">
+      </div>
+
+      <div class="form-group" style="display:flex;align-items:center;gap:10px;">
+        <input type="checkbox" id="is_active" name="is_active"
+               {% if form.is_active.data or (form.is_active.data is none and alert.is_active) %}checked{% endif %}
+               style="width:18px;height:18px;accent-color:var(--purple);">
+        <label for="is_active" style="margin:0;cursor:pointer;">Show alert to all visitors</label>
+      </div>
+
+      <!-- Live preview -->
+      <div id="alertPreview" class="alert-bar info alert-preview" style="border-radius:var(--radius-sm);margin-bottom:20px;display:none;">
+        <i class="fas fa-info-circle"></i>
+        <span id="previewText">Preview</span>
+      </div>
+
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-save"></i> Save Alert
+      </button>
+    </form>
+  </div>
+
+  <!-- ── Inquiries ── -->
+  <div class="card">
+    <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:20px;">
+      <i class="fas fa-inbox" style="color:var(--purple);margin-right:8px;"></i>
+      Business Inquiries
+      {% set unread = inquiries | selectattr('read', 'equalto', false) | list | length %}
+      {% if unread %}
+        <span style="background:var(--danger);color:#fff;font-size:.7rem;border-radius:20px;padding:2px 8px;margin-left:8px;">{{ unread }} new</span>
+      {% endif %}
+    </h2>
+
+    {% if inquiries %}
+    <div style="overflow-x:auto;">
+      <table class="inquiry-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Organisation</th>
+            <th>Email</th>
+            <th>Type</th>
+            <th>Received</th>
+            <th>Message (excerpt)</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for inq in inquiries %}
+          <tr>
+            <td>{{ inq.id }}</td>
+            <td class="{% if not inq.read %}unread{% endif %}">{{ inq.name }}</td>
+            <td>{{ inq.org or '—' }}</td>
+            <td><a href="mailto:{{ inq.email }}" style="color:var(--purple);">{{ inq.email }}</a></td>
+            <td><code style="font-size:.78rem;">{{ inq.inquiry_type }}</code></td>
+            <td style="white-space:nowrap;color:var(--text-muted);font-size:.82rem;">
+              {{ inq.submitted_at.strftime('%Y-%m-%d %H:%M') }}
+            </td>
+            <td style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.85rem;color:var(--text-muted);">
+              {{ inq.message[:120] }}{% if inq.message|length > 120 %}…{% endif %}
+            </td>
+            <td>
+              {% if not inq.read %}
+              <form method="POST" action="{{ url_for('mark_read', inquiry_id=inq.id) }}" style="margin:0;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-ghost" style="padding:5px 12px;font-size:.78rem;">
+                  Mark read
+                </button>
+              </form>
+              {% else %}
+              <span style="color:var(--text-muted);font-size:.8rem;">Read</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p style="color:var(--text-muted);">No inquiries yet.</p>
+    {% endif %}
+  </div>
+
+</div>
+
+<script>
+// Level selector
+function setLevel(lvl) {
+  document.getElementById('level').value = lvl;
+  document.querySelectorAll('.level-opt').forEach(b => {
+    b.classList.toggle('active', b.classList.contains(lvl));
+  });
+  updatePreview();
+}
+
+// Live alert preview
+const msgInput  = document.getElementById('message');
+const activeChk = document.getElementById('is_active');
+const preview   = document.getElementById('alertPreview');
+const previewTx = document.getElementById('previewText');
+
+function updatePreview() {
+  const msg  = msgInput.value.trim();
+  const lvl  = document.getElementById('level').value;
+  const show = activeChk.checked && msg;
+  preview.style.display = show ? 'flex' : 'none';
+  preview.className = `alert-bar ${lvl} alert-preview`;
+  previewTx.textContent = msg;
+  const icons = { info: 'fa-info-circle', warning: 'fa-exclamation-triangle', danger: 'fa-exclamation-circle' };
+  preview.querySelector('i').className = `fas ${icons[lvl] || 'fa-info-circle'}`;
+}
+
+msgInput.addEventListener('input', updatePreview);
+activeChk.addEventListener('change', updatePreview);
+updatePreview();
+</script>
+{% endblock %}

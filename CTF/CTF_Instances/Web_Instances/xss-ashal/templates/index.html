@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏜️ Sunken Kingdom of Ashal</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            background: #1a1a0a;
+            background-image:
+                linear-gradient(rgba(100,80,50,0.3) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(100,80,50,0.3) 1px, transparent 1px);
+            background-size: 24px 24px;
+            font-family: 'Courier New', monospace;
+            color: #d4c9a8;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            line-height: 1.8;
+        }
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 3px, rgba(0,0,0,0.15) 3px, rgba(0,0,0,0.15) 4px);
+            pointer-events: none;
+            z-index: 999;
+        }
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 800px; margin: 30px auto; padding: 20px; flex:1; width:100%;
+        }
+        .panel {
+            background: rgba(30,25,15,0.95);
+            border: 6px solid #b8953a;
+            padding: 30px;
+            box-shadow: 8px 8px 0 rgba(0,0,0,0.6);
+            position: relative;
+        }
+        .panel::before {
+            content: ''; position: absolute; top:-10px; left:-10px; right:-10px; bottom:-10px;
+            border: 2px solid #8a6a2a; pointer-events: none;
+        }
+        h1, h2 { color: #f0c850; text-shadow: 2px 2px 0 #5a3a1a; font-weight: normal; }
+        h1 { font-size: 2rem; }
+        input, textarea, button {
+            background: #2a2010; border: 4px solid #b8953a; color: #d4c9a8;
+            padding: 10px; font-family: inherit; font-size: 0.8rem;
+            box-shadow: 4px 4px 0 rgba(0,0,0,0.4); width: 100%; margin-bottom: 10px;
+        }
+        button {
+            background: #5a4a2a; cursor: pointer; width: auto; display: inline-block;
+        }
+        button:hover { background: #7a5a3a; transform: translate(-2px,-2px); box-shadow: 6px 6px 0 rgba(0,0,0,0.4); }
+        .flash { padding: 12px 18px; margin-bottom: 20px; border: 4px solid; font-size:0.7rem; box-shadow: 4px 4px 0 rgba(0,0,0,0.3); }
+        .flash.success { background: #2a3a1a; border-color: #4CAF50; }
+        .flash.info { background: #1a2a3a; border-color: #2196F3; }
+        .inscription { background: #1a150a; border: 2px solid #5a4a2a; padding: 12px 15px; margin-bottom: 12px; }
+        .ins-name { font-size:0.7rem; color:#f0c850; font-weight:bold; }
+        .ins-message { font-size:0.8rem; color:#d4c9a8; padding:8px 0; }
+        .ins-date { font-size:0.5rem; color:#666; text-align:right; }
+        .progress { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+        .progress-item { padding: 6px 10px; border: 2px solid #5a7a3a; border-radius: 4px; font-size:0.7rem; }
+        .progress-item.solved { background: #2a4a2a; border-color: #4CAF50; }
+        @media (max-width:600px){ .container{ padding:10px; } .panel{ padding:15px; } input, textarea{ width:100%; } }
+        .user-info { float:right; color:#888; font-size:0.8rem; }
+        .user-info a { color:#888; }
+        .note { font-size:0.6rem; color:#666; margin-top:5px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="panel">
+        <div class="user-info">
+            Hunter: {{ username }} | <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+        <h1>🏜️ The Sunken Kingdom of Ashal</h1>
+        <p class="subtitle">Dungeon Rank: <span style="color:#ff9800;">D-Class</span></p>
+        <p style="color:#bbb; font-size:0.8rem;">Leave your inscription on your personal Memorial Wall. Use different XSS techniques to capture all flags.</p>
+        <p class="note">📌 Your wall is private – other hunters cannot see your messages.</p>
+
+        <hr>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, msg in messages %}
+                    <div class="flash {{ category }}">{{ msg }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <h2>🏴 Flag Progress</h2>
+        <div class="progress">
+            {% for area in areas %}
+                <div class="progress-item {% if area.id in solved %}solved{% endif %}">
+                    <strong>{{ area.name }}</strong> {% if area.id in solved %}✅{% else %}❌{% endif %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <hr>
+
+        <h2>📜 Your Memorial Wall</h2>
+        <div id="inscriptions-container">
+            {% for ins in inscriptions %}
+                <div class="inscription">
+                    <div class="ins-name">{{ ins.name }}</div>
+                    <div class="ins-message">{{ ins.message | safe }}</div>
+                    <div class="ins-date">{{ ins.timestamp }}</div>
+                </div>
+            {% else %}
+                <p style="color:#666;">No inscriptions yet. Be the first!</p>
+            {% endfor %}
+        </div>
+
+        <hr>
+
+        <h3>✍️ Leave Your Mark</h3>
+        <form method="post">
+            <div style="margin-bottom:10px;">
+                <label for="name">Your Name</label>
+                <input type="text" name="name" id="name" placeholder="Hunter" required>
+            </div>
+            <div style="margin-bottom:10px;">
+                <label for="message">Your Message</label>
+                <textarea name="message" id="message" rows="3" placeholder="What did you find in the desert?" required></textarea>
+            </div>
+            <button type="submit" class="btn">Carve Inscription</button>
+        </form>
+
+        <p><a href="{{ url_for('reset') }}" style="color:#888;">⟳ Reset Your Wall</a></p>
+    </div>
+</div>
+</body>
+</html>

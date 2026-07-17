@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% block title %}Individuals — CYLVERN SECURITY{% endblock %}
+
+{% block content %}
+
+<!-- ═══ HERO ═══ -->
+<section class="hero" id="individuals">
+  <div class="container" style="position:relative;z-index:1;">
+    <span class="hero-eyebrow"><i class="fas fa-user-shield"></i> For Individuals</span>
+    <h1 class="hero-title">Your <span class="grad">Cybersecurity</span> Journey Starts Here</h1>
+    <p class="hero-sub">
+      Whether you're a complete beginner or an experienced practitioner, CYLSEC offers
+      dedicated programs to grow your skills, build confidence, and connect with a
+      passionate community.
+    </p>
+    <div class="hero-cta">
+      <a href="#programs" class="btn btn-primary"><i class="fas fa-arrow-down"></i> View Programs</a>
+      <a href="#how-to-join" class="btn btn-outline"><i class="fas fa-user-plus"></i> How to Join</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ HOW TO JOIN ═══ -->
+<section class="section" id="how-to-join" style="background:var(--bg2);border-top:1px solid var(--border-soft);border-bottom:1px solid var(--border-soft);">
+  <div class="container">
+    <div style="text-align:center;max-width:640px;margin:0 auto 52px;">
+      <span class="section-label">Getting Started</span>
+      <h2 class="section-title">How to Join CYLSEC</h2>
+      <p class="lead" style="margin:0 auto;">Free to join. No experience required.</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px;position:relative;">
+      <div class="card" style="text-align:center;">
+        <div class="step-num">1</div>
+        <h3>Create an Account</h3>
+        <p>Sign up on the CTF platform at <a href="https://cylsec.com" style="color:var(--purple);">cylsec.com</a>. All you need is an email address — it takes under a minute.</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="step-num">2</div>
+        <h3>Join the Discord</h3>
+        <p>Connect with the community, ask questions, find study partners, and stay updated on workshops and events.</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="step-num">3</div>
+        <h3>Pick a Pathway</h3>
+        <p>Choose CTF challenges, follow Academy learning paths, or apply for Private Mentorship based on your goals.</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="step-num">4</div>
+        <h3>Start Hacking</h3>
+        <p>Earn XP, solve challenges, complete labs, and climb the leaderboard. Your rank reflects your real-world skills.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PROGRAMS ═══ -->
+<section class="section" id="programs">
+  <div class="container">
+    <div style="text-align:center;max-width:640px;margin:0 auto 52px;">
+      <span class="section-label">Individual Programs</span>
+      <h2 class="section-title">Choose Your Path</h2>
+    </div>
+
+    <!-- CTF -->
+    <div class="service-row" style="margin-bottom:72px;" id="ctf">
+      <div>
+        <span class="plan-tag ctf"><i class="fas fa-flag"></i> CTF Platform</span>
+        <h2 class="section-title" style="margin-top:16px;">Prove Your Skills in the Arena</h2>
+        <p style="color:var(--text-muted);line-height:1.8;margin-bottom:20px;">
+          CYLSEC's CTF (Capture The Flag) platform is a live, competitive hacking environment
+          where you solve security challenges modelled on real vulnerabilities. Each solved
+          challenge awards XP and moves you up the global leaderboard.
+        </p>
+        <ul class="benefit-list">
+          <li>Web, Pwn, Forensics, Reverse Engineering, Crypto &amp; OSINT categories</li>
+          <li>Docker-isolated instances — your own private lab environment per challenge</li>
+          <li>XP-based rank system from E-Rank Novice to S+ Mythic</li>
+          <li>Hint system and community write-ups after solving</li>
+          <li>Competitive leaderboard updated in real time</li>
+          <li>New challenges added regularly by our maker community</li>
+        </ul>
+        <div class="mt-32">
+          <a href="{{ url_for('ctf_page') }}" class="btn btn-primary"><i class="fas fa-flag"></i> Go to CTF Platform</a>
+        </div>
+      </div>
+      <div class="service-graphic"><i class="fas fa-terminal"></i></div>
+    </div>
+
+    <hr class="divider" style="margin-bottom:72px;">
+
+    <!-- Academy -->
+    <div class="service-row reverse" style="margin-bottom:72px;" id="academy">
+      <div>
+        <span class="plan-tag academy"><i class="fas fa-graduation-cap"></i> Academy</span>
+        <h2 class="section-title" style="margin-top:16px;">Structured Learning Paths</h2>
+        <p style="color:var(--text-muted);line-height:1.8;margin-bottom:20px;">
+          The Academy provides guided, module-based courses that walk you through cybersecurity
+          fundamentals all the way to advanced topics. Think of it as a structured curriculum
+          designed by practitioners — not a generic MOOC.
+        </p>
+        <ul class="benefit-list">
+          <li>Beginner to advanced tracks across every major domain</li>
+          <li>Interactive labs paired with every theory module</li>
+          <li>Progress tracking and milestone certificates</li>
+          <li>Written by and reviewed by active security professionals</li>
+          <li>Integrates with the CTF platform — labs reinforce challenge skills</li>
+          <li>Self-paced — learn on your schedule</li>
+        </ul>
+        <div class="mt-32">
+          <a href="{{ url_for('academy_page') }}" class="btn btn-primary"><i class="fas fa-graduation-cap"></i> Explore Academy</a>
+        </div>
+      </div>
+      <div class="service-graphic" style="color:var(--blue);"><i class="fas fa-book-open"></i></div>
+    </div>
+
+    <hr class="divider" style="margin-bottom:72px;">
+
+    <!-- Mentorship -->
+    <div class="service-row" id="mentorship">
+      <div>
+        <span class="plan-tag mentorship"><i class="fas fa-handshake"></i> Private Mentorship</span>
+        <h2 class="section-title" style="margin-top:16px;">1-on-1 Expert Guidance</h2>
+        <p style="color:var(--text-muted);line-height:1.8;margin-bottom:20px;">
+          The Mentorship Guide program connects you directly with experienced members of the
+          CYLSEC community for personalised, focused sessions tailored to your goals —
+          whether that's preparing for certifications, landing a job, or mastering a niche area.
+        </p>
+        <ul class="benefit-list">
+          <li>Matched with a mentor based on your goals and skill level</li>
+          <li>Regular 1-on-1 sessions (schedule set between you and your mentor)</li>
+          <li>Custom roadmap built around your specific targets</li>
+          <li>Career guidance: CVs, interview prep, certification strategy</li>
+          <li>Access to mentor's curated resources and notes</li>
+          <li>Ongoing accountability and progress check-ins</li>
+        </ul>
+        <div class="mt-32">
+          <a href="{{ url_for('mentorship_page') }}" class="btn btn-primary"><i class="fas fa-handshake"></i> Apply for Mentorship</a>
+        </div>
+      </div>
+      <div class="service-graphic" style="color:var(--accent);"><i class="fas fa-users"></i></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ MEMBER BENEFITS STRIP ═══ -->
+<section class="section-sm" style="background:var(--bg2);border-top:1px solid var(--border-soft);">
+  <div class="container">
+    <div style="text-align:center;max-width:640px;margin:0 auto 40px;">
+      <span class="section-label">Why Join</span>
+      <h2 class="section-title">Member Benefits</h2>
+    </div>
+    <div class="cards-grid">
+      <div class="card" style="gap:10px;display:flex;flex-direction:column;">
+        <div class="feature-icon"><i class="fas fa-lock-open"></i></div>
+        <h3>Free to Join</h3>
+        <p>All core features — CTF, community, Discord access — are 100% free.</p>
+      </div>
+      <div class="card">
+        <div class="feature-icon" style="background:rgba(0,229,255,.1);color:var(--accent);border-color:rgba(0,229,255,.2);"><i class="fas fa-network-wired"></i></div>
+        <h3>Real Community</h3>
+        <p>Collaborate with peers, share write-ups, and grow alongside like-minded people.</p>
+      </div>
+      <div class="card">
+        <div class="feature-icon" style="background:rgba(0,230,118,.1);color:var(--green);border-color:rgba(0,230,118,.2);"><i class="fas fa-chart-line"></i></div>
+        <h3>Verified Skill Growth</h3>
+        <p>Your XP rank and challenge solves are a verifiable record of real skill development.</p>
+      </div>
+      <div class="card">
+        <div class="feature-icon" style="background:rgba(77,124,255,.15);color:var(--blue);border-color:rgba(77,124,255,.25);"><i class="fas fa-briefcase"></i></div>
+        <h3>Career Support</h3>
+        <p>Mentorship, certification guidance, and a network that can open real doors in security.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

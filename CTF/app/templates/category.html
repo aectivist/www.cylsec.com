@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block hero %}{% endblock %}
+{% block title %}{{ category.name }} – CYLVERN SECURITY{% endblock %}
+
+{% block content %}
+<div class="panel">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:22px;flex-wrap:wrap;">
+        <a href="{{ url_for('challenges.archives') }}" class="launch-back-link">
+            <i class="fas fa-arrow-left"></i> Archives
+        </a>
+        <h2 class="section-title" style="margin-bottom:0;">
+            {% if category.icon %}<i class="{{ category.icon }}"></i> {% endif %}
+            {{ category.name }}
+        </h2>
+    </div>
+
+    {% if category.description %}
+    <p style="color:var(--muted);font-size:.92rem;margin-bottom:20px;">{{ category.description }}</p>
+    {% endif %}
+
+    <div class="vuln-grid">
+        {% for challenge in challenges %}
+        <a href="{{ url_for('challenges.view_challenge', challenge_id=challenge.id) }}" class="vuln-card">
+            <div class="cat-chip">{{ challenge.type | upper }}</div>
+            <div class="vuln-name">{{ challenge.title }}</div>
+            <div class="rank">
+                <i class="fas fa-signal"></i>
+                <span class="diff-{{ challenge.difficulty | lower }}">{{ challenge.difficulty }}</span>
+            </div>
+            <div class="reward"><i class="fas fa-bolt"></i> +{{ challenge.points }} XP</div>
+            {% if challenge.instance_name %}
+            <div style="margin-top:8px;">
+                <span style="font-size:.72rem;color:var(--muted);background:rgba(0,230,118,.08);
+                             border:1px solid rgba(0,230,118,.2);border-radius:4px;padding:2px 7px;">
+                    <i class="fas fa-cube" style="color:var(--green);"></i> Instance
+                </span>
+            </div>
+            {% endif %}
+        </a>
+        {% else %}
+        <p style="color:var(--muted);text-align:center;padding:20px 0;grid-column:1/-1;">
+            No challenges in this category yet.
+        </p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

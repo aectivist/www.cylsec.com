@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}500 — Server Error — CYLVERN SECURITY{% endblock %}
+{% block content %}
+<div class="wip-wrap">
+  <div class="wip-icon">⚠️</div>
+  <h1 class="hero-title" style="font-size:clamp(1.8rem,4vw,2.8rem);">500 — <span class="grad">Server Error</span></h1>
+  <p style="color:var(--text-muted);max-width:440px;text-align:center;">Something went wrong on our end. Please try again in a moment.</p>
+  <a href="{{ url_for('index') }}" class="btn btn-outline"><i class="fas fa-home"></i> Back to Home</a>
+</div>
+{% endblock %}
