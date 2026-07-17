@@ -65,6 +65,40 @@
     </form>
   </div>
 
+  <!-- ── Security Settings ── -->
+  <div class="card" style="margin-bottom:32px;">
+    <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:20px;">
+      <i class="fas fa-shield-alt" style="color:var(--purple);margin-right:8px;"></i>Security Settings
+    </h2>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+      <div>
+        <p style="margin:0;font-weight:600;">Two-Factor Authentication (2FA)</p>
+        <p style="margin:4px 0 0;font-size:.85rem;color:var(--text-muted);">
+          {% if current_user.totp_enabled %}
+            <span style="color:#22c55e;"><i class="fas fa-check-circle"></i> Enabled</span>
+            — your account requires an authenticator code on every login.
+          {% else %}
+            <span style="color:#f59e0b;"><i class="fas fa-exclamation-triangle"></i> Not enabled</span>
+            — add an extra layer of protection with a TOTP authenticator app.
+          {% endif %}
+        </p>
+      </div>
+      {% if current_user.totp_enabled %}
+        <form method="POST" action="{{ url_for('admin_2fa_disable') }}" style="margin:0;"
+              onsubmit="return confirm('Disable 2FA? Your account will only be protected by password.')">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-danger-outline" style="font-size:.85rem;padding:8px 16px;">
+            <i class="fas fa-times-circle"></i> Disable 2FA
+          </button>
+        </form>
+      {% else %}
+        <a href="{{ url_for('admin_2fa_setup') }}" class="btn btn-primary" style="font-size:.85rem;padding:8px 16px;">
+          <i class="fas fa-shield-alt"></i> Enable 2FA
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
   <!-- ── Inquiries ── -->
   <div class="card">
     <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:20px;">
@@ -87,7 +121,6 @@
             <th>Email</th>
             <th>Type</th>
             <th>Received</th>
-            <th>Message (excerpt)</th>
             <th></th>
           </tr>
         </thead>
@@ -98,24 +131,24 @@
             <td class="{% if not inq.read %}unread{% endif %}">{{ inq.name }}</td>
             <td>{{ inq.org or '—' }}</td>
             <td><a href="mailto:{{ inq.email }}" style="color:var(--purple);">{{ inq.email }}</a></td>
-            <td><code style="font-size:.78rem;">{{ inq.inquiry_type }}</code></td>
+            <td><code style="font-size:.78rem;">{{ inq.inquiry_type or '—' }}</code></td>
             <td style="white-space:nowrap;color:var(--text-muted);font-size:.82rem;">
               {{ inq.submitted_at.strftime('%Y-%m-%d %H:%M') }}
             </td>
-            <td style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.85rem;color:var(--text-muted);">
-              {{ inq.message[:120] }}{% if inq.message|length > 120 %}…{% endif %}
-            </td>
-            <td>
-              {% if not inq.read %}
-              <form method="POST" action="{{ url_for('mark_read', inquiry_id=inq.id) }}" style="margin:0;">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button type="submit" class="btn btn-ghost" style="padding:5px 12px;font-size:.78rem;">
-                  Mark read
-                </button>
-              </form>
-              {% else %}
-              <span style="color:var(--text-muted);font-size:.8rem;">Read</span>
-              {% endif %}
+            <td style="white-space:nowrap;">
+              <button class="btn btn-ghost" style="padding:5px 12px;font-size:.78rem;"
+                      onclick="openInquiry(
+                        {{ inq.id }},
+                        {{ inq.name | tojson }},
+                        {{ inq.email | tojson }},
+                        {{ (inq.org or '') | tojson }},
+                        {{ (inq.inquiry_type or '') | tojson }},
+                        {{ inq.message | tojson }},
+                        {{ inq.submitted_at.strftime('%Y-%m-%d %H:%M') | tojson }},
+                        {{ inq.read | tojson }}
+                      )">
+                <i class="fas fa-eye"></i> View
+              </button>
             </td>
           </tr>
           {% endfor %}
@@ -127,6 +160,61 @@
     {% endif %}
   </div>
 
+</div>
+
+<!-- ── Inquiry Detail Modal ── -->
+<div id="inqModal" style="display:none;position:fixed;inset:0;z-index:9000;
+     background:rgba(0,0,0,.6);backdrop-filter:blur(3px);
+     align-items:center;justify-content:center;padding:16px;">
+  <div style="background:var(--card-bg,#0e1117);border:1px solid var(--border,#1e2736);
+              border-radius:12px;width:100%;max-width:560px;max-height:90vh;
+              overflow-y:auto;position:relative;">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;
+                padding:20px 24px 16px;border-bottom:1px solid var(--border,#1e2736);">
+      <div>
+        <p style="font-family:'Orbitron',sans-serif;font-size:.7rem;color:var(--text-muted);
+                   letter-spacing:.08em;margin:0 0 4px;">INQUIRY DETAIL</p>
+        <h2 id="mTitle" style="margin:0;font-size:1.05rem;"></h2>
+      </div>
+      <button onclick="closeInquiry()" style="background:none;border:1px solid var(--border,#1e2736);
+              border-radius:6px;color:var(--text-muted);padding:.35rem .65rem;cursor:pointer;font-size:.9rem;">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div style="padding:24px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+        <div>
+          <p style="font-size:.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin:0 0 4px;">Email</p>
+          <p id="mEmail" style="margin:0;font-size:.9rem;"></p>
+        </div>
+        <div>
+          <p style="font-size:.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin:0 0 4px;">Organisation</p>
+          <p id="mOrg" style="margin:0;font-size:.9rem;"></p>
+        </div>
+        <div>
+          <p style="font-size:.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin:0 0 4px;">Type</p>
+          <p id="mType" style="margin:0;"></p>
+        </div>
+        <div>
+          <p style="font-size:.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin:0 0 4px;">Submitted</p>
+          <p id="mDate" style="margin:0;font-size:.82rem;color:var(--text-muted);"></p>
+        </div>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <p style="font-size:.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin:0 0 8px;">Message</p>
+        <div id="mMessage" style="background:rgba(0,0,0,.25);border:1px solid var(--border,#1e2736);
+             border-radius:8px;padding:16px;font-size:.88rem;white-space:pre-wrap;
+             line-height:1.65;max-height:240px;overflow-y:auto;"></div>
+      </div>
+
+      <div id="mActions" style="display:flex;gap:10px;flex-wrap:wrap;"></div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -159,5 +247,50 @@ function updatePreview() {
 msgInput.addEventListener('input', updatePreview);
 activeChk.addEventListener('change', updatePreview);
 updatePreview();
+
+// Inquiry modal
+const modal = document.getElementById('inqModal');
+
+function openInquiry(id, name, email, org, type, message, date, isRead) {
+  document.getElementById('mTitle').textContent = name;
+  document.getElementById('mEmail').innerHTML   = '<a href="mailto:' + email + '" style="color:var(--purple);">' + email + '</a>';
+  document.getElementById('mOrg').textContent   = org || '—';
+  document.getElementById('mType').innerHTML    = type ? '<code style="font-size:.78rem;">' + type + '</code>' : '—';
+  document.getElementById('mDate').textContent  = date;
+  document.getElementById('mMessage').textContent = message;
+
+  const acts = document.getElementById('mActions');
+  acts.innerHTML = '';
+
+  if (!isRead) {
+    const f = document.createElement('form');
+    f.method = 'POST';
+    f.action = '/admin/inquiry/' + id + '/read';
+    f.style.margin = '0';
+    f.innerHTML = '<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">'
+                + '<button type="submit" class="btn btn-ghost" style="font-size:.85rem;padding:8px 16px;">'
+                + '<i class="fas fa-check"></i> Mark as Read</button>';
+    acts.appendChild(f);
+  }
+
+  const a = document.createElement('a');
+  a.href = 'mailto:' + email + '?subject=Re%3A%20Your%20Enquiry%20to%20Cylvern%20Security';
+  a.className = 'btn btn-primary';
+  a.style.fontSize = '.85rem';
+  a.style.padding = '8px 16px';
+  a.innerHTML = '<i class="fas fa-reply"></i> Reply by Email';
+  acts.appendChild(a);
+
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeInquiry() {
+  modal.style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+modal.addEventListener('click', e => { if (e.target === modal) closeInquiry(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.style.display === 'flex') closeInquiry(); });
 </script>
 {% endblock %}
