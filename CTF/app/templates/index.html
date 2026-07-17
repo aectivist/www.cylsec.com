@@ -22,36 +22,59 @@
   </div>
   {% endif %}
 
-  <!-- Challenge Categories -->
+  <!-- Challenge Categories — single panel -->
   <div>
     <h2 class="section-title" style="margin-bottom:20px;">Challenge Categories</h2>
-    {% if categories %}
-    <div class="vuln-grid">
-      {% for cat in categories %}
-      <a href="{{ url_for('challenges.archives') }}?category={{ cat.id }}" class="vuln-card">
-        <div class="cat-chip cat-chip-alt" style="margin-bottom:12px;">
-          {{ cat.icon or '🔒' }} {{ cat.name }}
-        </div>
-        <div class="vuln-name">{{ cat.name }}</div>
-        <div class="rank" style="margin-top:6px;">
-          <i class="fas fa-layer-group"></i>
-          {{ cat.challenges|selectattr('is_active')|list|length }}
-          challenge{{ 's' if cat.challenges|selectattr('is_active')|list|length != 1 }}
-        </div>
-        <div class="reward" style="margin-top:10px;">
-          <i class="fas fa-arrow-right"></i> Enter
-        </div>
-      </a>
+    <div class="panel" style="padding:0;overflow:hidden;">
+      {% if categories %}
+        {% for cat in categories %}
+        {% set active_chals = cat.challenges|selectattr('is_active')|list %}
+        <details class="cat-section" {% if loop.first %}open{% endif %}>
+          <summary class="cat-summary">
+            <span class="cat-summary-left">
+              <span class="cat-icon">{{ cat.icon or '🔒' }}</span>
+              <span class="cat-summary-name">{{ cat.name }}</span>
+              {% if cat.description %}
+              <span class="cat-summary-desc">{{ cat.description }}</span>
+              {% endif %}
+            </span>
+            <span class="cat-summary-right">
+              <span class="cat-chip" style="margin:0;">{{ active_chals|length }} challenge{{ 's' if active_chals|length != 1 }}</span>
+              <i class="fas fa-chevron-down cat-chevron"></i>
+            </span>
+          </summary>
+          <div class="cat-body">
+            {% if active_chals %}
+            <div class="cat-chal-list">
+              {% for chal in active_chals %}
+              <a href="{{ url_for('challenges.challenge_detail', challenge_id=chal.id) }}" class="cat-chal-row">
+                <span class="cat-chal-name">{{ chal.title }}</span>
+                <span class="cat-chal-meta">
+                  <span class="diff-badge diff-{{ chal.difficulty|lower }}">{{ chal.difficulty }}</span>
+                  <span class="cat-chal-pts"><i class="fas fa-star" style="font-size:.7rem;"></i> {{ chal.points }} pts</span>
+                </span>
+              </a>
+              {% endfor %}
+            </div>
+            {% else %}
+            <p style="padding:16px 24px;color:var(--muted);font-size:.88rem;">No challenges in this category yet.</p>
+            {% endif %}
+            <div style="padding:12px 24px;border-top:1px solid rgba(255,255,255,.05);">
+              <a href="{{ url_for('challenges.archives') }}?category={{ cat.id }}"
+                 style="color:var(--purple);font-size:.85rem;font-weight:600;text-decoration:none;">
+                View all in {{ cat.name }} <i class="fas fa-arrow-right" style="font-size:.75rem;"></i>
+              </a>
+            </div>
+          </div>
+        </details>
+        {% endfor %}
       {% else %}
-      <p style="color:var(--muted);padding:20px 0;grid-column:1/-1;">No categories available yet.</p>
-      {% endfor %}
+        <div style="text-align:center;padding:48px;">
+          <div style="font-size:3rem;margin-bottom:16px;">🚧</div>
+          <p style="color:var(--muted);">No challenges available yet. Check back soon.</p>
+        </div>
+      {% endif %}
     </div>
-    {% else %}
-    <div class="panel" style="text-align:center;padding:48px;">
-      <div style="font-size:3rem;margin-bottom:16px;">🚧</div>
-      <p style="color:var(--muted);">No challenges available yet. Check back soon.</p>
-    </div>
-    {% endif %}
   </div>
 
   <!-- Two-column: leaderboard + FAQ -->
