@@ -165,7 +165,7 @@ def init_db():
         # Seed default admin if none exists
         if not AdminUser.query.first():
             admin = AdminUser(username=os.environ.get('ADMIN_USERNAME', 'admin'))
-            admin.set_password(os.environ.get('ADMIN_PASSWORD', 'changeme123!'))
+            admin.set_password(os.environ.get('ADMIN_PASSWORD', 'changeme123'))
             db.session.add(admin)
             db.session.commit()
         # Seed single alert row if none exists

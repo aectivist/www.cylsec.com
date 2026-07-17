@@ -17,16 +17,16 @@
 <div class="bg-grid"></div>
 
 <!-- Alert banners -->
-{% for alert in active_alerts %}
-<div class="alert-bar alert-bar-{{ alert.level }}">
-    {% if alert.level == 'info' %}<i class="fas fa-info-circle"></i>
-    {% elif alert.level == 'warning' %}<i class="fas fa-exclamation-triangle"></i>
-    {% elif alert.level == 'danger' %}<i class="fas fa-radiation-alt"></i>
-    {% elif alert.level == 'success' %}<i class="fas fa-check-circle"></i>
+{% if site_alert and site_alert.is_active and site_alert.message %}
+<div class="alert-bar alert-bar-{{ site_alert.level }}">
+    {% if site_alert.level == 'info' %}<i class="fas fa-info-circle"></i>
+    {% elif site_alert.level == 'warning' %}<i class="fas fa-exclamation-triangle"></i>
+    {% elif site_alert.level == 'danger' %}<i class="fas fa-radiation-alt"></i>
+    {% elif site_alert.level == 'success' %}<i class="fas fa-check-circle"></i>
     {% endif %}
-    {{ alert.message }}
+    {{ site_alert.message }}
 </div>
-{% endfor %}
+{% endif %}
 
 <!-- Navigation -->
 <nav>

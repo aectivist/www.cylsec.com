@@ -1,21 +1,18 @@
 """
-Run once to reset the admin password:
-  python reset_admin_password.py
+Run once to reset the MAIN admin password to 'changeme123'.
+Usage: python reset_admin_password.py
 """
-import os, sys
+import sys, os
 sys.path.insert(0, os.path.dirname(__file__))
+
 from app import app, db, AdminUser
-from dotenv import load_dotenv
-
-load_dotenv()
-
-NEW_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'changeme123')
 
 with app.app_context():
-    admin = AdminUser.query.first()
+    admin = AdminUser.query.filter_by(username='admin').first()
     if not admin:
-        admin = AdminUser(username=os.environ.get('ADMIN_USERNAME', 'admin'))
+        admin = AdminUser(username='admin')
         db.session.add(admin)
-    admin.set_password(NEW_PASSWORD)
+    admin.set_password('changeme123')
+    admin.totp_enabled = False
     db.session.commit()
-    print(f"Password reset for user '{admin.username}' → '{NEW_PASSWORD}'")
+    print("✓ Admin password reset to: changeme123")
