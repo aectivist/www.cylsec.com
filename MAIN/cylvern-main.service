@@ -1,0 +1,21 @@
+[Unit]
+Description=Cylvern Security Main Site (gunicorn)
+After=network.target
+
+[Service]
+User=root
+WorkingDirectory=/root/www.cylsec.com/MAIN
+Environment="PATH=/root/www.cylsec.com/MAIN/venv/bin"
+EnvironmentFile=/root/www.cylsec.com/MAIN/.env
+ExecStart=/root/www.cylsec.com/MAIN/venv/bin/gunicorn \
+    --bind 127.0.0.1:5001 \
+    --workers 2 \
+    --timeout 120 \
+    --access-logfile /var/log/cylvern-main.access.log \
+    --error-logfile /var/log/cylvern-main.error.log \
+    app:app
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
