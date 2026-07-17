@@ -1,66 +1,87 @@
 {% extends "base.html" %}
 {% block title %}CYLVERN CTF — Dashboard{% endblock %}
-
-{# ── Suppress the default hero section — we have our own compact header ── #}
 {% block hero %}{% endblock %}
 
 {% block content %}
 <div class="dash-wrap">
 
-  {# ════════════════════════════════════════════════
-     TOP WELCOME STRIP
-  ════════════════════════════════════════════════ #}
+  {# ── Top header strip ── #}
   <div class="dash-header">
-    <div class="dash-header-left">
-      <div class="dash-logo-row">
-        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="" class="dash-logo">
-        <div>
-          <h1 class="dash-title">CYLVERN <span style="color:var(--purple);">CTF</span></h1>
-          <p class="dash-sub">Hack. Solve. Climb.</p>
-        </div>
+    <div class="dash-logo-row">
+      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="" class="dash-logo">
+      <div>
+        <h1 class="dash-title">CYLVERN <span style="color:var(--purple);">CTF</span></h1>
+        <p class="dash-sub">Hack. Solve. Climb.</p>
       </div>
     </div>
-    <div class="dash-header-right">
-      {% if current_user.is_authenticated %}
-      <div class="dash-stat-row">
-        <div class="dash-stat">
-          <span class="dash-stat-val">{{ current_user.xp }}</span>
-          <span class="dash-stat-lbl">XP</span>
-        </div>
-        <div class="dash-stat-divider"></div>
-        <div class="dash-stat">
-          <span class="dash-stat-val" style="font-size:.95rem;">{{ current_user.get_rank() }}</span>
-          <span class="dash-stat-lbl">RANK</span>
-        </div>
-        <div class="dash-stat-divider"></div>
-        <div class="dash-stat">
-          <span class="dash-stat-val">{{ current_user.solves|length }}</span>
-          <span class="dash-stat-lbl">SOLVES</span>
-        </div>
+    {% if current_user.is_authenticated %}
+    <div class="dash-stat-row">
+      <div class="dash-stat">
+        <span class="dash-stat-val">{{ current_user.xp }}</span>
+        <span class="dash-stat-lbl">XP</span>
       </div>
-      {% else %}
-      <div style="display:flex;gap:12px;align-items:center;">
-        <a href="{{ url_for('auth.login') }}" class="btn-secondary" style="padding:.5rem 1.4rem;">Login</a>
-        <a href="{{ url_for('auth.register') }}" class="btn-primary" style="padding:.5rem 1.4rem;">Register</a>
+      <div class="dash-stat-divider"></div>
+      <div class="dash-stat">
+        <span class="dash-stat-val rank-color" data-rank="{{ current_user.get_rank() }}" style="font-size:.88rem;">{{ current_user.get_rank() }}</span>
+        <span class="dash-stat-lbl">RANK</span>
       </div>
-      {% endif %}
+      <div class="dash-stat-divider"></div>
+      <div class="dash-stat">
+        <span class="dash-stat-val">{{ current_user.solves|length }}</span>
+        <span class="dash-stat-lbl">SOLVES</span>
+      </div>
     </div>
+    {% else %}
+    <div style="display:flex;gap:12px;align-items:center;">
+      <a href="{{ url_for('auth.login') }}" class="btn-secondary" style="padding:.5rem 1.4rem;">Login</a>
+      <a href="{{ url_for('auth.register') }}" class="btn-primary" style="padding:.5rem 1.4rem;">Register</a>
+    </div>
+    {% endif %}
   </div>
 
-  {# ════════════════════════════════════════════════
-     MAIN GRID: categories (left) + sidebar (right)
-  ════════════════════════════════════════════════ #}
+  {# ── Main 2-col grid ── #}
   <div class="dash-main-grid">
 
-    {# ── LEFT: Categories accordion ── #}
+    {# LEFT: Recent Challenges #}
     <div class="dash-col-main">
       <div class="dash-section-head">
-        <h2 class="section-title" style="margin:0;">Challenge Categories</h2>
+        <h2 class="section-title" style="margin:0;">Recent Challenges</h2>
         <a href="{{ url_for('challenges.archives') }}" class="dash-view-all">
           All Challenges <i class="fas fa-arrow-right" style="font-size:.75rem;"></i>
         </a>
       </div>
+      <div class="panel" style="padding:0;overflow:hidden;">
+        {% if recent_challenges %}
+          {% for chal in recent_challenges %}
+          <a href="{{ url_for('challenges.view_challenge', challenge_id=chal.id) }}"
+             class="chal-row{% if not current_user.is_authenticated %} protected-link{% endif %}">
+            <span class="chal-row-left">
+              <span class="chal-row-name">{{ chal.title }}</span>
+              <span class="chal-row-cat">{{ chal.category.name if chal.category else '' }}</span>
+            </span>
+            <span class="chal-row-right">
+              <span class="diff-badge diff-{{ chal.difficulty|lower }}">{{ chal.difficulty }}</span>
+              <span class="chal-row-pts"><i class="fas fa-star" style="font-size:.68rem;color:var(--warn);"></i> {{ chal.points }}</span>
+            </span>
+          </a>
+          {% endfor %}
+          <div style="padding:12px 20px;border-top:1px solid rgba(255,255,255,.05);text-align:right;">
+            <a href="{{ url_for('challenges.archives') }}" class="dash-view-all">
+              Browse all <i class="fas fa-arrow-right" style="font-size:.72rem;"></i>
+            </a>
+          </div>
+        {% else %}
+        <div style="text-align:center;padding:48px 24px;">
+          <div style="font-size:2.5rem;margin-bottom:12px;">🚧</div>
+          <p style="color:var(--muted);font-size:.9rem;">No challenges yet. Check back soon.</p>
+        </div>
+        {% endif %}
+      </div>
 
+      {# Categories panel below recent challenges #}
+      <div class="dash-section-head" style="margin-top:28px;">
+        <h2 class="section-title" style="margin:0;">Categories</h2>
+      </div>
       <div class="panel" style="padding:0;overflow:hidden;">
         {% if categories %}
           {% for cat in categories %}
@@ -70,37 +91,29 @@
               <span class="cat-summary-left">
                 <span class="cat-icon">{{ cat.icon or '🔒' }}</span>
                 <span class="cat-summary-name">{{ cat.name }}</span>
-                {% if cat.description %}
-                <span class="cat-summary-desc">{{ cat.description }}</span>
-                {% endif %}
+                {% if cat.description %}<span class="cat-summary-desc">{{ cat.description }}</span>{% endif %}
               </span>
               <span class="cat-summary-right">
-                <span class="cat-chip" style="margin:0;">
-                  {{ active_chals|length }} challenge{{ 's' if active_chals|length != 1 }}
-                </span>
+                <span class="cat-chip" style="margin:0;">{{ active_chals|length }} challenge{{ 's' if active_chals|length != 1 }}</span>
                 <i class="fas fa-chevron-down cat-chevron"></i>
               </span>
             </summary>
             <div class="cat-body">
               {% if active_chals %}
               <div class="cat-chal-list">
-                {% for chal in active_chals %}
+                {% for chal in active_chals[:5] %}
                 <a href="{{ url_for('challenges.view_challenge', challenge_id=chal.id) }}"
-                   class="cat-chal-row {% if not current_user.is_authenticated %}protected-link{% endif %}">
+                   class="cat-chal-row{% if not current_user.is_authenticated %} protected-link{% endif %}">
                   <span class="cat-chal-name">{{ chal.title }}</span>
                   <span class="cat-chal-meta">
                     <span class="diff-badge diff-{{ chal.difficulty|lower }}">{{ chal.difficulty }}</span>
-                    <span class="cat-chal-pts">
-                      <i class="fas fa-star" style="font-size:.7rem;"></i> {{ chal.points }} pts
-                    </span>
+                    <span class="cat-chal-pts"><i class="fas fa-star" style="font-size:.68rem;"></i> {{ chal.points }} pts</span>
                   </span>
                 </a>
                 {% endfor %}
               </div>
               {% else %}
-              <p style="padding:14px 24px;color:var(--muted);font-size:.87rem;">
-                No challenges in this category yet.
-              </p>
+              <p style="padding:14px 24px;color:var(--muted);font-size:.87rem;">No challenges yet.</p>
               {% endif %}
               <div class="cat-footer-link">
                 <a href="{{ url_for('challenges.archives') }}?category={{ cat.id }}">
@@ -111,93 +124,62 @@
           </details>
           {% endfor %}
         {% else %}
-        <div style="text-align:center;padding:56px 24px;">
-          <div style="font-size:2.8rem;margin-bottom:14px;">🚧</div>
-          <p style="color:var(--muted);font-size:.93rem;">No challenges available yet. Check back soon.</p>
+        <div style="text-align:center;padding:40px 24px;">
+          <p style="color:var(--muted);font-size:.9rem;">No categories available yet.</p>
         </div>
         {% endif %}
       </div>
     </div>
 
-    {# ── RIGHT: Sidebar ── #}
+    {# RIGHT: Sidebar — top 3 hunters only #}
     <div class="dash-col-side">
-
-      {# Leaderboard mini #}
       <div class="dash-section-head" style="margin-bottom:14px;">
-        <h2 class="section-title" style="margin:0;font-size:1.1rem;">Top Hunters</h2>
+        <h2 class="section-title" style="margin:0;font-size:1.05rem;">Top Hunters</h2>
         <a href="{{ url_for('main.leaderboard') }}" class="dash-view-all">Full board</a>
       </div>
-      <div class="panel" style="padding:0;overflow:hidden;margin-bottom:24px;">
+      <div class="panel" style="padding:20px;margin-bottom:24px;">
         {% if top_users %}
-        <table class="lb-mini-table">
-          <tbody>
-            {% for user in top_users %}
-            <tr>
-              <td class="lb-mini-pos">
-                {% if loop.index == 1 %}🥇
-                {% elif loop.index == 2 %}🥈
-                {% elif loop.index == 3 %}🥉
-                {% else %}<span style="color:var(--muted);">{{ loop.index }}</span>
-                {% endif %}
-              </td>
-              <td class="lb-mini-name">{{ user.username }}</td>
-              <td class="lb-mini-xp">{{ user.xp }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          {% for user in top_users %}
+          {% set medals = ['🥇','🥈','🥉'] %}
+          <div class="lb-card {% if current_user.is_authenticated and user.id == current_user.id %}lb-card-you{% endif %}">
+            <div class="lb-card-left">
+              <span class="lb-medal">{{ medals[loop.index0] }}</span>
+              <div>
+                <div class="lb-card-name">{{ user.username }}</div>
+                <div class="lb-card-rank rank-color" data-rank="{{ user.get_rank() }}">{{ user.get_rank() }}</div>
+              </div>
+            </div>
+            <div class="lb-card-xp">{{ user.xp }}<span class="lb-card-xp-lbl">xp</span></div>
+          </div>
+          {% endfor %}
+        </div>
         {% else %}
-        <p style="text-align:center;color:var(--muted);padding:28px 16px;font-size:.87rem;">
-          No hunters yet — be the first!
-        </p>
+        <p style="color:var(--muted);font-size:.87rem;text-align:center;padding:12px 0;">No hunters yet.</p>
         {% endif %}
       </div>
-
-      {# Quick links #}
-      <div class="dash-section-head" style="margin-bottom:14px;">
-        <h2 class="section-title" style="margin:0;font-size:1.1rem;">Quick Links</h2>
-      </div>
-      <div class="panel" style="padding:14px 18px;display:flex;flex-direction:column;gap:2px;margin-bottom:24px;">
-        <a href="{{ url_for('challenges.archives') }}" class="ql-row">
-          <i class="fas fa-terminal"></i> Challenge Archives
-        </a>
-        <a href="{{ url_for('main.leaderboard') }}" class="ql-row">
-          <i class="fas fa-trophy"></i> Leaderboard
-        </a>
-        <a href="#faq" class="ql-row">
-          <i class="fas fa-circle-question"></i> FAQ
-        </a>
-        <a href="#contacts" class="ql-row">
-          <i class="fas fa-envelope"></i> Contact Us
-        </a>
-      </div>
-
     </div>
+
   </div>{# /dash-main-grid #}
 
-  {# ════════════════════════════════════════════════
-     FAQ — full width
-  ════════════════════════════════════════════════ #}
-  <div id="faq" style="margin-top:8px;">
+  {# ── FAQ full width ── #}
+  <div id="faq">
     <h2 class="section-title" style="margin-bottom:16px;">FAQ</h2>
     <div class="faq-grid">
       {% set faqs = [
-        ('What is CYLVERN CTF?',    'A competitive Capture The Flag platform by Cylvern Security. Solve hacking challenges to earn XP and climb the leaderboard.'),
-        ('How do I submit a flag?', 'Navigate to a challenge, solve it, and submit the flag in the format CTF{...}.'),
+        ('What is CYLVERN CTF?',       'A competitive Capture The Flag platform by Cylvern Security. Solve hacking challenges to earn XP and climb the leaderboard.'),
+        ('How do I submit a flag?',    'Navigate to a challenge, solve it, and submit the flag in the format CTF{...}.'),
         ('What are Docker instances?', 'Some challenges spin up a dedicated container for you. It runs for 60 minutes with up to 3 extensions.'),
-        ('How is XP calculated?',   'Each challenge has a point value. Harder challenges award more XP. First-blood bonuses may apply.'),
+        ('How is XP calculated?',      'Each challenge has a point value. Harder challenges award more XP. First-blood bonuses may apply.'),
       ] %}
       {% for q, a in faqs %}
       <details class="faq-item">
-        <summary class="faq-summary">
-          {{ q }}
-          <i class="fas fa-chevron-down faq-chevron"></i>
-        </summary>
+        <summary class="faq-summary">{{ q }}<i class="fas fa-chevron-down faq-chevron"></i></summary>
         <p class="faq-answer">{{ a }}</p>
       </details>
       {% endfor %}
     </div>
   </div>
 
-</div>{# /dash-wrap #}
+</div>
 {% endblock %}

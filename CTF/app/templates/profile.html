@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}{{ user.username }} — Profile{% endblock %}
+{% block hero %}{% endblock %}
+
+{% block content %}
+<div style="padding:28px 0 80px;">
+
+  {# ── Profile header ── #}
+  <div class="profile-header panel">
+    <div class="profile-avatar">
+      <i class="fas fa-user-astronaut"></i>
+    </div>
+    <div class="profile-info">
+      <h1 class="profile-username">{{ user.username }}</h1>
+      <div class="profile-rank rank-color" data-rank="{{ user.get_rank() }}">{{ user.get_rank() }}</div>
+      <div class="profile-meta">
+        <span><i class="fas fa-calendar-alt"></i> Joined {{ user.created_at.strftime('%b %Y') }}</span>
+        {% if user.role != 'user' %}
+        <span class="profile-role-badge role-{{ user.role }}">{{ user.role|upper }}</span>
+        {% endif %}
+      </div>
+    </div>
+    <div class="profile-stats-row">
+      <div class="profile-stat">
+        <span class="profile-stat-val">{{ user.xp }}</span>
+        <span class="profile-stat-lbl">XP</span>
+      </div>
+      <div class="profile-stat-div"></div>
+      <div class="profile-stat">
+        <span class="profile-stat-val">{{ solved_challenges|length }}</span>
+        <span class="profile-stat-lbl">Solves</span>
+      </div>
+      <div class="profile-stat-div"></div>
+      <div class="profile-stat">
+        <span class="profile-stat-val">
+          #{{ (user.xp // 1 + 1) }}
+        </span>
+        <span class="profile-stat-lbl">Points</span>
+      </div>
+    </div>
+  </div>
+
+  {# ── Solved challenges ── #}
+  <div style="margin-top:28px;">
+    <div class="dash-section-head" style="margin-bottom:16px;">
+      <h2 class="section-title" style="margin:0;">Solved Challenges</h2>
+      <span style="color:var(--muted);font-size:.85rem;">{{ solved_challenges|length }} solved</span>
+    </div>
+
+    {% if solved_challenges %}
+    <div class="panel" style="padding:0;overflow:hidden;">
+      {% for chal in solved_challenges %}
+      <a href="{{ url_for('challenges.view_challenge', challenge_id=chal.id) }}" class="chal-row">
+        <span class="chal-row-left">
+          <span class="chal-row-name">{{ chal.title }}</span>
+          <span class="chal-row-cat">{{ chal.category.name if chal.category else '' }}</span>
+        </span>
+        <span class="chal-row-right">
+          <span class="diff-badge diff-{{ chal.difficulty|lower }}">{{ chal.difficulty }}</span>
+          <span class="chal-row-pts"><i class="fas fa-star" style="font-size:.68rem;color:var(--warn);"></i> {{ chal.points }}</span>
+          <i class="fas fa-check-circle" style="color:var(--green);font-size:.9rem;"></i>
+        </span>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="panel" style="text-align:center;padding:48px 24px;">
+      <div style="font-size:2.5rem;margin-bottom:14px;">🎯</div>
+      <p style="color:var(--muted);">No solves yet — head to
+        <a href="{{ url_for('challenges.archives') }}" style="color:var(--purple);">Challenges</a>
+        to get started.
+      </p>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

@@ -28,14 +28,16 @@
 
     <nav>
         <div class="nav-container">
-            <a href="{{ url_for('main.index') }}#dashboard">Dashboard</a>
-            <a href="{{ url_for('main.index') }}#faq">FAQ</a>
+            <a href="{{ url_for('main.index') }}">Dashboard</a>
             <a href="{{ url_for('challenges.archives') }}" id="challenges-link">Challenges</a>
             <a href="{{ url_for('main.leaderboard') }}">Leaderboard</a>
+            <a href="{{ url_for('main.index') }}#faq">FAQ</a>
             <a href="#contacts">Contacts</a>
             <div class="nav-right">
                 {% if current_user.is_authenticated %}
-                    <span class="hunter-name"><i class="fas fa-user-astronaut"></i> {{ current_user.username }}</span>
+                    <a href="{{ url_for('main.profile') }}" class="hunter-name">
+                        <i class="fas fa-user-astronaut"></i> {{ current_user.username }}
+                    </a>
                     {% if current_user.role == 'admin' %}
                         <a href="{{ url_for('admin.dashboard') }}">Admin</a>
                     {% elif current_user.role == 'maker' %}

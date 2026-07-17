@@ -39,8 +39,8 @@ body{
 .grid{
     position:fixed;inset:0;z-index:-1;
     background:
-    linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+    linear-gradient(rgba(255,255,255,.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px);
     background-size:50px 50px;
 }
 
@@ -585,3 +585,82 @@ input[type="text"]:focus,input[type="password"]:focus,input[type="email"]:focus,
 .my-instances-empty{text-align:center;padding:60px 20px;color:var(--muted);}
 .my-instances-empty-icon{font-size:3rem;margin-bottom:16px;display:block;color:rgba(124,77,255,.35);}
 .my-instances-empty h3{font-family:'Orbitron',sans-serif;font-size:1.1rem;color:var(--text);margin-bottom:8px;}
+
+/* ── Challenge row (index + profile) ── */
+.chal-row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:13px 20px;text-decoration:none;color:var(--text);
+    border-bottom:1px solid rgba(255,255,255,.04);
+    transition:background .18s;gap:12px;
+}
+.chal-row:last-child{border-bottom:none;}
+.chal-row:hover{background:rgba(124,77,255,.07);}
+.chal-row-left{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.chal-row-name{font-size:.92rem;font-weight:600;color:#fff;}
+.chal-row-cat{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
+.chal-row-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.chal-row-pts{font-size:.8rem;color:var(--muted);font-weight:600;}
+
+/* ── Leaderboard full table ── */
+.lb-table{width:100%;border-collapse:collapse;}
+.lb-thead-row{border-bottom:1px solid rgba(255,255,255,.08);}
+.lb-th{padding:11px 16px;color:var(--muted);font-size:.75rem;font-weight:600;text-align:left;}
+.lb-row{border-bottom:1px solid rgba(255,255,255,.03);transition:background .15s;}
+.lb-row:last-child{border-bottom:none;}
+.lb-row:hover{background:rgba(124,77,255,.06);}
+.lb-row-you{background:rgba(124,77,255,.1);}
+.lb-row-you:hover{background:rgba(124,77,255,.14);}
+.lb-pos{padding:12px 16px;font-size:.9rem;width:48px;}
+.lb-name{padding:12px 16px;font-size:.9rem;font-weight:600;color:#fff;}
+.lb-you-badge{display:inline-block;margin-left:8px;padding:1px 7px;background:rgba(124,77,255,.2);border:1px solid rgba(124,77,255,.4);border-radius:20px;font-size:.68rem;color:var(--purple);font-weight:700;vertical-align:middle;}
+.lb-rank-cell{padding:12px 16px;}
+.lb-rank-text{font-size:.82rem;font-weight:600;}
+.lb-solves{padding:12px 16px;font-size:.85rem;color:var(--muted);text-align:center;}
+.lb-xp{padding:12px 16px;text-align:right;font-family:'Orbitron',sans-serif;font-size:.85rem;color:#fff;font-weight:700;}
+
+/* ── Dashboard sidebar hunter cards ── */
+.lb-card{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:12px 14px;
+    background:rgba(255,255,255,.03);
+    border:1px solid rgba(255,255,255,.06);
+    border-radius:12px;transition:border-color .2s;
+}
+.lb-card:hover{border-color:var(--border);}
+.lb-card-you{background:rgba(124,77,255,.08);border-color:rgba(124,77,255,.3);}
+.lb-card-left{display:flex;align-items:center;gap:10px;}
+.lb-medal{font-size:1.3rem;flex-shrink:0;}
+.lb-card-name{font-size:.9rem;font-weight:700;color:#fff;}
+.lb-card-rank{font-size:.75rem;font-weight:600;margin-top:1px;}
+.lb-card-xp{font-family:'Orbitron',sans-serif;font-size:1.1rem;font-weight:700;color:var(--purple);display:flex;align-items:baseline;gap:3px;}
+.lb-card-xp-lbl{font-size:.65rem;color:var(--muted);font-family:'Inter',sans-serif;font-weight:600;}
+
+/* ── Profile page ── */
+.profile-header{
+    display:flex;align-items:center;gap:24px;flex-wrap:wrap;
+    padding:28px 32px;
+}
+.profile-avatar{
+    width:72px;height:72px;flex-shrink:0;
+    background:rgba(124,77,255,.15);border:2px solid rgba(124,77,255,.4);
+    border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:1.8rem;color:var(--purple);
+}
+.profile-info{flex:1 1 auto;}
+.profile-username{font-family:'Orbitron',sans-serif;font-size:1.4rem;font-weight:800;color:#fff;margin-bottom:4px;}
+.profile-rank{font-size:.9rem;font-weight:700;margin-bottom:8px;}
+.profile-meta{display:flex;align-items:center;gap:14px;color:var(--muted);font-size:.82rem;flex-wrap:wrap;}
+.profile-meta i{color:var(--purple);}
+.profile-role-badge{padding:2px 10px;border-radius:20px;font-size:.72rem;font-weight:700;letter-spacing:.05em;}
+.role-admin{background:rgba(124,77,255,.2);border:1px solid rgba(124,77,255,.4);color:var(--purple);}
+.role-maker{background:rgba(255,45,157,.12);border:1px solid rgba(255,45,157,.3);color:#fd2f9d;}
+.profile-stats-row{display:flex;align-items:center;gap:20px;flex-shrink:0;}
+.profile-stat{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.profile-stat-val{font-family:'Orbitron',sans-serif;font-size:1.6rem;font-weight:700;color:var(--purple);line-height:1;}
+.profile-stat-lbl{font-size:.7rem;color:var(--muted);letter-spacing:.08em;font-weight:600;text-transform:uppercase;}
+.profile-stat-div{width:1px;height:40px;background:rgba(255,255,255,.1);}
+@media(max-width:600px){.profile-header{flex-direction:column;align-items:flex-start;}.profile-stats-row{width:100%;justify-content:space-around;}}
+
+/* ── hunter-name as link ── */
+a.hunter-name{text-decoration:none;}
+a.hunter-name:hover{color:var(--purple);}

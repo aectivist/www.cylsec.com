@@ -1,38 +1,59 @@
 {% extends "base.html" %}
 {% block title %}Leaderboard — CYLVERN CTF{% endblock %}
+{% block hero %}{% endblock %}
 
 {% block content %}
-<h2 class="section-title" style="margin-bottom:24px;">Global Leaderboard</h2>
-<div class="panel">
-  {% if users %}
-  <table style="width:100%;border-collapse:collapse;">
-    <thead>
-      <tr style="border-bottom:1px solid #333;">
-        <th style="text-align:left;padding:12px;color:#aaa;font-size:.8rem;font-weight:600;">#</th>
-        <th style="text-align:left;padding:12px;color:#aaa;font-size:.8rem;font-weight:600;">Hunter</th>
-        <th style="text-align:left;padding:12px;color:#aaa;font-size:.8rem;font-weight:600;">Rank</th>
-        <th style="text-align:left;padding:12px;color:#aaa;font-size:.8rem;font-weight:600;">Solves</th>
-        <th style="text-align:right;padding:12px;color:#aaa;font-size:.8rem;font-weight:600;">XP</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for user in users %}
-      <tr style="border-bottom:1px solid #1a1a2e;{% if current_user.is_authenticated and user.id == current_user.id %}background:rgba(124,77,255,.08);{% endif %}">
-        <td style="padding:12px;color:#666;font-size:.85rem;">
-          {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% else %}{{ loop.index }}{% endif %}
-        </td>
-        <td style="padding:12px;font-size:.9rem;font-weight:{% if current_user.is_authenticated and user.id == current_user.id %}700{% else %}400{% endif %};">
-          {{ user.username }}
-        </td>
-        <td style="padding:12px;font-size:.82rem;color:var(--purple);">{{ user.get_rank() }}</td>
-        <td style="padding:12px;font-size:.85rem;color:#aaa;">{{ user.solves|length }}</td>
-        <td style="padding:12px;text-align:right;font-family:'Orbitron',sans-serif;font-size:.85rem;color:#fff;">{{ user.xp }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  {% else %}
-  <p style="text-align:center;color:#aaa;padding:40px;">No hunters yet. Be the first to register!</p>
-  {% endif %}
+<div style="padding:28px 0 80px;">
+
+  <div class="dash-section-head" style="margin-bottom:20px;">
+    <h2 class="section-title" style="margin:0;">Global Leaderboard</h2>
+    <span style="color:var(--muted);font-size:.85rem;">{{ users|length }} hunter{{ 's' if users|length != 1 }}</span>
+  </div>
+
+  <div class="panel" style="padding:0;overflow:hidden;">
+    {% if users %}
+    <table class="lb-table">
+      <thead>
+        <tr class="lb-thead-row">
+          <th class="lb-th" style="width:52px;">#</th>
+          <th class="lb-th">Hunter</th>
+          <th class="lb-th">Rank</th>
+          <th class="lb-th" style="text-align:center;">Solves</th>
+          <th class="lb-th" style="text-align:right;">XP</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+        <tr class="lb-row{% if current_user.is_authenticated and user.id == current_user.id %} lb-row-you{% endif %}">
+          <td class="lb-pos">
+            {% if loop.index == 1 %}🥇
+            {% elif loop.index == 2 %}🥈
+            {% elif loop.index == 3 %}🥉
+            {% else %}<span style="color:var(--muted);">{{ loop.index }}</span>
+            {% endif %}
+          </td>
+          <td class="lb-name">
+            {{ user.username }}
+            {% if current_user.is_authenticated and user.id == current_user.id %}
+            <span class="lb-you-badge">you</span>
+            {% endif %}
+          </td>
+          <td class="lb-rank-cell">
+            <span class="rank-color lb-rank-text" data-rank="{{ user.get_rank() }}">{{ user.get_rank() }}</span>
+          </td>
+          <td class="lb-solves">{{ user.solves|length }}</td>
+          <td class="lb-xp">{{ user.xp }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div style="text-align:center;padding:60px 24px;">
+      <div style="font-size:2.5rem;margin-bottom:14px;">🏆</div>
+      <p style="color:var(--muted);">No hunters yet. Be the first to register!</p>
+    </div>
+    {% endif %}
+  </div>
+
 </div>
 {% endblock %}
