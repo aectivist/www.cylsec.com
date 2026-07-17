@@ -50,13 +50,7 @@
         </div>
     </nav>
 
-    {% block hero %}
-    <section class="hero">
-        <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo" alt="CYLVERN Security">
-        <h1 class="title">CYLVERN SECURITY</h1>
-        <p class="subtitle">{{ subtitle }}</p>
-    </section>
-    {% endblock %}
+    {% block hero %}{% endblock %}
 
     <div class="container">
         {% with messages = get_flashed_messages(with_categories=true) %}
