@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% block title %}Admin Panel — Cylvern Security{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:40px;padding-bottom:80px;">
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:32px;flex-wrap:wrap;gap:12px;">
+        <div>
+            <span class="section-label"><i class="fas fa-cog"></i> Admin</span>
+            <h1 style="font-family:'Orbitron',sans-serif;font-size:1.5rem;color:var(--text);margin-top:8px;">Control Panel</h1>
+        </div>
+        <a href="{{ url_for('admin_logout') }}" class="btn btn-outline btn-sm">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
+
+    <div class="admin-grid">
+
+        <!-- Create Alert -->
+        <div>
+            <h2 style="font-family:'Orbitron',sans-serif;font-size:1rem;color:var(--muted);margin-bottom:18px;letter-spacing:.04em;">CREATE ALERT</h2>
+            <div class="panel">
+                <form method="POST">
+                    {{ alert_form.hidden_tag() }}
+                    <input type="hidden" name="action" value="create_alert">
+                    <div class="form-group">
+                        {{ alert_form.message.label }}
+                        {{ alert_form.message(class="form-control", placeholder="Alert text shown to all visitors…") }}
+                        {% for e in alert_form.message.errors %}<p class="field-error">{{ e }}</p>{% endfor %}
+                    </div>
+                    <div class="form-group">
+                        {{ alert_form.level.label }}
+                        {{ alert_form.level(class="form-control") }}
+                    </div>
+                    <div class="form-group" style="display:flex;align-items:center;gap:10px;">
+                        {{ alert_form.active() }}
+                        <label for="{{ alert_form.active.id }}" style="color:var(--muted);font-size:.9rem;margin-bottom:0;cursor:pointer;">Active immediately</label>
+                    </div>
+
+                    <!-- Live preview -->
+                    <div id="alertPreview" class="alert-bar alert-bar-info" style="border-radius:8px;margin-bottom:16px;display:none;">
+                        <i class="fas fa-info-circle"></i> <span id="alertPreviewText">Preview</span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">
+                        <i class="fas fa-plus"></i> Create Alert
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Existing alerts -->
+        <div>
+            <h2 style="font-family:'Orbitron',sans-serif;font-size:1rem;color:var(--muted);margin-bottom:18px;letter-spacing:.04em;">ACTIVE ALERTS ({{ alerts|length }})</h2>
+            <div class="panel">
+                {% if alerts %}
+                <div class="admin-table-wrap">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Message</th>
+                                <th>Level</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for a in alerts %}
+                        <tr>
+                            <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ a.message }}">{{ a.message }}</td>
+                            <td><span class="alert-level-{{ a.level }}">{{ a.level | capitalize }}</span></td>
+                            <td>
+                                {% if a.active %}
+                                    <span class="tag-active"><i class="fas fa-circle" style="font-size:.55rem;"></i> Active</span>
+                                {% else %}
+                                    <span class="tag-inactive"><i class="fas fa-circle" style="font-size:.55rem;"></i> Off</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <form method="POST" action="{{ url_for('toggle_alert', alert_id=a.id) }}" style="display:inline;">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button class="btn btn-sm btn-outline" title="Toggle" style="padding:.3rem .6rem;">
+                                        <i class="fas fa-toggle-{{ 'on' if a.active else 'off' }}"></i>
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ url_for('delete_alert', alert_id=a.id) }}" style="display:inline;margin-left:4px;"
+                                      onsubmit="return confirm('Delete this alert?')">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button class="btn btn-sm btn-danger" title="Delete" style="padding:.3rem .6rem;">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p style="color:var(--muted);text-align:center;padding:20px 0;font-size:.9rem;">No alerts yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Inquiry Inbox -->
+    <div style="margin-top:40px;">
+        <h2 style="font-family:'Orbitron',sans-serif;font-size:1rem;color:var(--muted);margin-bottom:18px;letter-spacing:.04em;">
+            INQUIRY INBOX ({{ inquiries|length }})
+            {% set unread = inquiries | selectattr('read','equalto', false) | list %}
+            {% if unread %}
+            <span class="badge badge-warn" style="margin-left:8px;">{{ unread|length }} unread</span>
+            {% endif %}
+        </h2>
+        <div class="panel">
+            {% if inquiries %}
+            <div class="admin-table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Company</th>
+                            <th>Service</th>
+                            <th>Message</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for inq in inquiries %}
+                    <tr style="{% if not inq.read %}background:rgba(255,171,64,.04);{% endif %}">
+                        <td style="white-space:nowrap;color:var(--muted);font-size:.82rem;">{{ inq.submitted_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td style="font-weight:{% if not inq.read %}700{% else %}400{% endif %};">{{ inq.name }}</td>
+                        <td><a href="mailto:{{ inq.email }}" style="color:var(--blue);text-decoration:none;font-size:.88rem;">{{ inq.email }}</a></td>
+                        <td style="color:var(--muted);font-size:.88rem;">{{ inq.company or '—' }}</td>
+                        <td><span class="badge badge-blue" style="font-size:.72rem;">{{ inq.service or '—' }}</span></td>
+                        <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font-size:.85rem;" title="{{ inq.message }}">{{ inq.message }}</td>
+                        <td>
+                            {% if inq.read %}
+                            <span class="tag-active" style="font-size:.78rem;"><i class="fas fa-check"></i> Read</span>
+                            {% else %}
+                            <span class="tag-unread" style="font-size:.78rem;"><i class="fas fa-circle" style="font-size:.5rem;"></i> New</span>
+                            {% endif %}
+                        </td>
+                        <td style="white-space:nowrap;">
+                            {% if not inq.read %}
+                            <form method="POST" action="{{ url_for('mark_inquiry_read', inquiry_id=inq.id) }}" style="display:inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button class="btn btn-sm btn-outline" style="padding:.3rem .6rem;" title="Mark read">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                            <form method="POST" action="{{ url_for('delete_inquiry', inquiry_id=inq.id) }}" style="display:inline;margin-left:4px;"
+                                  onsubmit="return confirm('Delete this inquiry?')">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button class="btn btn-sm btn-danger" style="padding:.3rem .6rem;" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p style="color:var(--muted);text-align:center;padding:20px 0;font-size:.9rem;">No inquiries received yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
+<script>
+(function () {
+    const msgInput  = document.querySelector('input[name="message"]');
+    const lvlSelect = document.querySelector('select[name="level"]');
+    const preview   = document.getElementById('alertPreview');
+    const previewTx = document.getElementById('alertPreviewText');
+    const icons = {info:'fa-info-circle', warning:'fa-exclamation-triangle', danger:'fa-radiation-alt', success:'fa-check-circle'};
+
+    function updatePreview() {
+        const msg = msgInput ? msgInput.value.trim() : '';
+        const lvl = lvlSelect ? lvlSelect.value : 'info';
+        if (!preview) return;
+        if (msg) {
+            preview.style.display = '';
+            preview.className = 'alert-bar alert-bar-' + lvl;
+            preview.innerHTML = '<i class="fas ' + (icons[lvl] || 'fa-info-circle') + '"></i> ' + msg.replace(/</g,'&lt;');
+        } else {
+            preview.style.display = 'none';
+        }
+    }
+
+    if (msgInput)  msgInput.addEventListener('input', updatePreview);
+    if (lvlSelect) lvlSelect.addEventListener('change', updatePreview);
+})();
+</script>
+{% endblock %}

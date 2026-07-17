@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Individuals — Cylvern Security{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="hero">
+    <div class="container">
+        <span class="section-label" style="margin-bottom:18px;"><i class="fas fa-user-shield"></i> For Individuals</span>
+        <h1 class="hero-title">Level Up Your<br><span>Hacking Skills</span></h1>
+        <p class="hero-subtitle">
+            Cylvern offers multiple pathways for aspiring and professional security researchers —
+            a competitive CTF platform, structured Academy courses, and expert Mentorship.
+        </p>
+    </div>
+</section>
+
+<div class="container" style="padding-bottom:80px;">
+
+    <!-- CTF Section -->
+    <div id="ctf" style="margin-bottom:64px;">
+        <div class="panel" style="margin-bottom:28px;background:linear-gradient(135deg,rgba(124,77,255,.06),transparent);">
+            <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;">
+                <div style="flex:1;min-width:240px;">
+                    <span class="badge" style="margin-bottom:14px;"><i class="fas fa-flag"></i> CTF Platform</span>
+                    <h2 style="font-family:'Orbitron',sans-serif;font-size:clamp(1.3rem,2.5vw,1.9rem);color:var(--text);margin-bottom:12px;">Capture The Flag</h2>
+                    <p style="color:var(--muted);font-size:.93rem;line-height:1.75;margin-bottom:20px;">
+                        Compete on CYLVERN's CTF platform — a Solo Leveling-inspired hacking arena where every solved
+                        challenge earns XP and pushes you up the Hunter rank ladder. Challenges span multiple categories
+                        with real-world vulnerability scenarios.
+                    </p>
+                    <a href="http://ctf.cylsec.com" class="btn btn-primary">
+                        <i class="fas fa-rocket"></i> Launch CTF
+                    </a>
+                </div>
+                <div style="flex-shrink:0;padding:16px 20px;background:rgba(0,0,0,.25);border:1px solid var(--border-soft);border-radius:var(--radius);min-width:200px;">
+                    <h4 style="color:var(--muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px;">Hunter Ranks</h4>
+                    <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;font-size:.88rem;font-weight:700;">
+                        <li style="color:#e9422c;"><i class="fas fa-crown fa-fw"></i> S+ Mythic</li>
+                        <li style="color:#FFD700;"><i class="fas fa-star fa-fw"></i> S-Rank Hero</li>
+                        <li style="color:#cb6bff;"><i class="fas fa-bolt fa-fw"></i> A-Rank Hunter</li>
+                        <li style="color:#4779f7;"><i class="fas fa-shield-alt fa-fw"></i> B-Rank Defender</li>
+                        <li style="color:#45d15f;"><i class="fas fa-code fa-fw"></i> C-Rank Savant</li>
+                        <li style="color:#AAAAAA;"><i class="fas fa-user fa-fw"></i> E-Rank Novice</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <h3 style="font-family:'Orbitron',sans-serif;font-size:1rem;color:var(--muted);margin-bottom:18px;letter-spacing:.04em;">CHALLENGE CATEGORIES</h3>
+        <div class="grid-4" style="gap:14px;">
+            {% set cats = [
+                ('fa-globe','Web','Exploit HTTP, injections, auth bypasses and web misconfigurations.'),
+                ('fa-terminal','Pwn','Binary exploitation — overflows, ROP chains, heap attacks.'),
+                ('fa-key','Crypto','Break weak ciphers, RSA, hashing and custom protocols.'),
+                ('fa-search','Forensics','Analyse disk images, memory dumps, network captures.'),
+                ('fa-microchip','Rev','Reverse-engineer binaries, obfuscated code and firmware.'),
+                ('fa-brain','OSINT','Gather intelligence from open-source information.'),
+                ('fa-cube','Misc','Puzzles and challenges that don\'t fit elsewhere.'),
+                ('fa-wifi','Wireless','Bluetooth, Wi-Fi and RF signal challenges.'),
+            ] %}
+            {% for icon, name, desc in cats %}
+            <div class="card" style="padding:20px;">
+                <div class="card-icon" style="width:38px;height:38px;font-size:1rem;margin-bottom:14px;"><i class="fas {{ icon }}"></i></div>
+                <h4 class="card-title" style="font-size:.95rem;">{{ name }}</h4>
+                <p class="card-body" style="font-size:.82rem;">{{ desc }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Academy -->
+    <div id="academy" style="margin-bottom:64px;">
+        <span class="badge badge-blue" style="margin-bottom:14px;"><i class="fas fa-graduation-cap"></i> Academy</span>
+        <h2 style="font-family:'Orbitron',sans-serif;font-size:clamp(1.3rem,2.5vw,1.9rem);color:var(--text);margin-bottom:12px;">Security Academy</h2>
+        <p style="color:var(--muted);font-size:.93rem;max-width:680px;line-height:1.75;margin-bottom:28px;">
+            Structured, self-paced courses created by security professionals. Whether you're starting from zero or sharpening advanced skills,
+            the Academy provides a clear learning roadmap — from networking fundamentals to advanced exploit development.
+        </p>
+        <div class="panel" style="display:flex;align-items:center;gap:20px;padding:28px;opacity:.75;">
+            <i class="fas fa-hard-hat" style="font-size:2.2rem;color:var(--blue);flex-shrink:0;"></i>
+            <div>
+                <h4 style="color:var(--text);margin-bottom:4px;">Under Construction</h4>
+                <p style="color:var(--muted);font-size:.9rem;">The Academy is currently being built. Sign up on Discord to be notified when it launches.</p>
+            </div>
+            <a href="{{ url_for('wip') }}" class="btn btn-outline btn-sm" style="margin-left:auto;flex-shrink:0;border-color:var(--blue);color:var(--blue);">
+                <i class="fas fa-bell"></i> Notify Me
+            </a>
+        </div>
+    </div>
+
+    <!-- Mentorship -->
+    <div id="mentorship">
+        <span class="badge" style="background:rgba(0,230,118,.08);border-color:rgba(0,230,118,.28);color:var(--green);margin-bottom:14px;"><i class="fas fa-people-arrows"></i> Mentorship</span>
+        <h2 style="font-family:'Orbitron',sans-serif;font-size:clamp(1.3rem,2.5vw,1.9rem);color:var(--text);margin-bottom:12px;">1-on-1 Mentorship</h2>
+        <p style="color:var(--muted);font-size:.93rem;max-width:680px;line-height:1.75;margin-bottom:28px;">
+            Get paired with an experienced security professional for personalised guidance. Work on your weaknesses,
+            prepare for certifications like OSCP, CEH, or PNPT, and accelerate your career trajectory.
+        </p>
+        <div class="panel" style="display:flex;align-items:center;gap:20px;padding:28px;opacity:.75;">
+            <i class="fas fa-hard-hat" style="font-size:2.2rem;color:var(--green);flex-shrink:0;"></i>
+            <div>
+                <h4 style="color:var(--text);margin-bottom:4px;">Coming Soon</h4>
+                <p style="color:var(--muted);font-size:.9rem;">Mentorship programme is coming. Reach out on Discord or via the business contact form to express interest.</p>
+            </div>
+            <a href="{{ url_for('wip') }}" class="btn btn-outline btn-sm" style="margin-left:auto;flex-shrink:0;border-color:var(--green);color:var(--green);">
+                <i class="fas fa-bell"></i> Notify Me
+            </a>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

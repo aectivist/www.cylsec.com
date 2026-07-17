@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% block title %}Vulnerability Disclosure Programme — Cylvern Security{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="hero" style="padding-bottom:60px;">
+    <div class="container">
+        <span class="section-label" style="margin-bottom:18px;"><i class="fas fa-bug"></i> VDP</span>
+        <h1 class="hero-title">Vulnerability<br><span>Disclosure Programme</span></h1>
+        <p class="hero-subtitle">
+            We believe in working with the security community to protect our users.
+            If you've found a vulnerability in Cylvern's infrastructure, we want to hear from you.
+        </p>
+    </div>
+</section>
+
+<div class="container" style="padding-bottom:80px;">
+
+    <!-- Safe Harbour -->
+    <div class="panel" style="margin-bottom:40px;border-color:rgba(0,230,118,.3);background:rgba(0,230,118,.04);">
+        <h2 style="font-family:'Orbitron',sans-serif;font-size:1.2rem;color:var(--green);margin-bottom:12px;">
+            <i class="fas fa-shield-alt"></i> Safe Harbour
+        </h2>
+        <p style="color:var(--muted);font-size:.93rem;line-height:1.75;">
+            Cylvern Security will not pursue legal action against researchers who discover and report vulnerabilities
+            in good faith in accordance with this policy. We consider security research conducted under this VDP as
+            authorised and will not refer researchers to law enforcement. We ask only that you do not disrupt services,
+            exfiltrate data, or target users.
+        </p>
+    </div>
+
+    <!-- Scope -->
+    <div style="margin-bottom:48px;">
+        <span class="section-label"><i class="fas fa-crosshairs"></i> Scope</span>
+        <h2 class="section-title" style="font-size:1.6rem;">In Scope</h2>
+        <div class="panel" style="margin-bottom:20px;">
+            <div class="admin-table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Asset</th>
+                            <th>Type</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code style="color:var(--purple);">cylsec.com</code></td>
+                            <td><span class="badge">Web</span></td>
+                            <td>Main marketing site</td>
+                        </tr>
+                        <tr>
+                            <td><code style="color:var(--purple);">ctf.cylsec.com</code></td>
+                            <td><span class="badge">Web</span></td>
+                            <td>CTF platform — all user-facing endpoints</td>
+                        </tr>
+                        <tr>
+                            <td><code style="color:var(--purple);">*.cylsec.com</code></td>
+                            <td><span class="badge badge-blue">Subdomain</span></td>
+                            <td>Any subdomain actively serving content</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <h2 class="section-title" style="font-size:1.4rem;margin-top:28px;">Out of Scope</h2>
+        <div class="panel">
+            <ul style="list-style:none;display:flex;flex-direction:column;gap:10px;color:var(--muted);font-size:.9rem;">
+                <li><i class="fas fa-times" style="color:var(--danger);margin-right:8px;"></i>Social engineering or phishing attacks against Cylvern staff</li>
+                <li><i class="fas fa-times" style="color:var(--danger);margin-right:8px;"></i>Physical security attacks</li>
+                <li><i class="fas fa-times" style="color:var(--danger);margin-right:8px;"></i>Denial-of-service (DoS/DDoS) attacks</li>
+                <li><i class="fas fa-times" style="color:var(--danger);margin-right:8px;"></i>Vulnerabilities in third-party services not under our control</li>
+                <li><i class="fas fa-times" style="color:var(--danger);margin-right:8px;"></i>Intentional CTF challenge vulnerabilities (those are features, not bugs)</li>
+                <li><i class="fas fa-times" style="color:var(--danger);margin-right:8px;"></i>Automated scanner noise without proof of exploitability</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Severity SLA -->
+    <div style="margin-bottom:48px;">
+        <span class="section-label"><i class="fas fa-tachometer-alt"></i> Severity SLA</span>
+        <h2 class="section-title" style="font-size:1.6rem;">Response Times</h2>
+        <div class="panel">
+            <div class="admin-table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Severity</th>
+                            <th>Examples</th>
+                            <th>Acknowledgement</th>
+                            <th>Resolution Target</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="badge" style="background:rgba(255,82,82,.12);border-color:rgba(255,82,82,.3);color:var(--danger);">Critical</span></td>
+                            <td>RCE, auth bypass, mass data exfiltration</td>
+                            <td>24 hours</td>
+                            <td>7 days</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-warn">High</span></td>
+                            <td>SSRF, SQLi, privilege escalation</td>
+                            <td>48 hours</td>
+                            <td>14 days</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge" style="background:rgba(255,171,64,.08);border-color:rgba(255,171,64,.25);color:#ffd180;">Medium</span></td>
+                            <td>Stored XSS, IDOR, sensitive info leak</td>
+                            <td>5 days</td>
+                            <td>30 days</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-blue">Low / Info</span></td>
+                            <td>Missing headers, clickjacking, open redirect</td>
+                            <td>7 days</td>
+                            <td>60 days</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Process -->
+    <div style="margin-bottom:48px;">
+        <span class="section-label"><i class="fas fa-route"></i> Process</span>
+        <h2 class="section-title" style="font-size:1.6rem;">Disclosure Process</h2>
+        <div class="panel" style="margin-top:20px;">
+            <div class="timeline">
+                {% set steps = [
+                    ('1','Submit Report','Email security@cylsec.com with a clear title, steps to reproduce, proof-of-concept, and impact assessment.'),
+                    ('2','Acknowledgement','We will acknowledge your report within the SLA window and assign a tracking reference.'),
+                    ('3','Triage & Validation','Our team validates the vulnerability and assesses severity using CVSS 3.1.'),
+                    ('4','Remediation','We patch or mitigate the vulnerability and verify the fix in staging and production.'),
+                    ('5','Disclosure','We coordinate disclosure timing with you. We aim for 90 days from initial report to public disclosure.'),
+                ] %}
+                {% for num, title, desc in steps %}
+                <div class="timeline-item">
+                    <div class="timeline-track">
+                        <div class="timeline-dot">{{ num }}</div>
+                        <div class="timeline-line"></div>
+                    </div>
+                    <div class="timeline-content">
+                        <h4 class="timeline-step-title">{{ title }}</h4>
+                        <p class="timeline-step-desc">{{ desc }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Hall of Fame -->
+    <div style="margin-bottom:48px;">
+        <span class="section-label"><i class="fas fa-trophy"></i> Hall of Fame</span>
+        <h2 class="section-title" style="font-size:1.6rem;">Security Researchers</h2>
+        <p style="color:var(--muted);font-size:.9rem;margin-bottom:20px;">We recognise and thank the researchers who have responsibly disclosed vulnerabilities to us.</p>
+        <div class="panel" style="text-align:center;padding:40px;">
+            <i class="fas fa-user-astronaut" style="font-size:2.5rem;color:rgba(124,77,255,.3);display:block;margin-bottom:14px;"></i>
+            <p style="color:var(--muted);font-size:.9rem;">No submissions yet. Be the first to be listed here!</p>
+        </div>
+    </div>
+
+    <!-- PGP / Contact -->
+    <div>
+        <span class="section-label"><i class="fas fa-envelope-open-text"></i> Contact</span>
+        <h2 class="section-title" style="font-size:1.6rem;">How to Report</h2>
+        <div class="grid-2" style="gap:22px;margin-top:20px;">
+            <div class="panel">
+                <h4 style="color:var(--text);font-weight:700;margin-bottom:12px;"><i class="fas fa-envelope" style="color:var(--purple);margin-right:8px;"></i>Email</h4>
+                <p style="color:var(--muted);font-size:.9rem;margin-bottom:12px;">Send vulnerability reports to:</p>
+                <a href="mailto:security@cylsec.com" style="color:var(--purple);font-weight:600;text-decoration:none;font-family:monospace;">security@cylsec.com</a>
+                <p style="color:var(--muted);font-size:.83rem;margin-top:12px;">Please include: vulnerability description, steps to reproduce, impact, affected asset, and any proof-of-concept.</p>
+            </div>
+            <div class="panel">
+                <h4 style="color:var(--text);font-weight:700;margin-bottom:12px;"><i class="fab fa-discord" style="color:#7289da;margin-right:8px;"></i>Discord</h4>
+                <p style="color:var(--muted);font-size:.9rem;margin-bottom:12px;">For non-sensitive issues, you may also reach us on Discord:</p>
+                <a href="https://discord.gg/gveJetDthV" style="color:var(--blue);font-weight:600;text-decoration:none;">discord.gg/gveJetDthV</a>
+                <p style="color:var(--muted);font-size:.83rem;margin-top:12px;">Do not post vulnerability details publicly in Discord — use private messages to a moderator.</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

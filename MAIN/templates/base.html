@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Cylvern Security{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    {% block head_extra %}{% endblock %}
+</head>
+<body>
+<div class="bg-layer"></div>
+<div class="bg-grid"></div>
+
+<!-- Alert banners -->
+{% for alert in active_alerts %}
+<div class="alert-bar alert-bar-{{ alert.level }}">
+    {% if alert.level == 'info' %}<i class="fas fa-info-circle"></i>
+    {% elif alert.level == 'warning' %}<i class="fas fa-exclamation-triangle"></i>
+    {% elif alert.level == 'danger' %}<i class="fas fa-radiation-alt"></i>
+    {% elif alert.level == 'success' %}<i class="fas fa-check-circle"></i>
+    {% endif %}
+    {{ alert.message }}
+</div>
+{% endfor %}
+
+<!-- Navigation -->
+<nav>
+    <div class="nav-inner">
+        <a href="{{ url_for('index') }}" class="nav-brand">
+            <span>CYLVERN</span>
+        </a>
+
+        <ul class="nav-links" id="navLinks">
+            <li><a href="{{ url_for('index') }}" {% if request.endpoint == 'index' %}class="active"{% endif %}>
+                <i class="fas fa-home"></i> Home
+            </a></li>
+
+            <!-- Individuals dropdown -->
+            <li>
+                <button class="nav-link-btn" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-user-shield"></i> Individuals <i class="fas fa-chevron-down" style="font-size:.65rem;opacity:.7;"></i>
+                </button>
+                <ul class="nav-dropdown">
+                    <li><a href="{{ url_for('individuals') }}#ctf">
+                        <span class="dd-icon"><i class="fas fa-flag"></i></span>
+                        CTF Platform
+                    </a></li>
+                    <li><a href="{{ url_for('wip') }}">
+                        <span class="dd-icon"><i class="fas fa-graduation-cap"></i></span>
+                        Academy
+                    </a></li>
+                    <li><a href="{{ url_for('wip') }}">
+                        <span class="dd-icon"><i class="fas fa-people-arrows"></i></span>
+                        Mentorship
+                    </a></li>
+                </ul>
+            </li>
+
+            <li><a href="{{ url_for('business') }}" {% if request.endpoint == 'business' %}class="active"{% endif %}>
+                <i class="fas fa-building"></i> Business
+            </a></li>
+
+            <li><a href="{{ url_for('vdp') }}" {% if request.endpoint == 'vdp' %}class="active"{% endif %}>
+                <i class="fas fa-bug"></i> VDP
+            </a></li>
+        </ul>
+
+        <div class="nav-right">
+            <button class="theme-toggle" id="themeToggle" title="Toggle dark/light mode">
+                <i class="fas fa-moon" id="themeIcon"></i>
+            </button>
+            <button class="nav-hamburger" id="navHamburger" aria-label="Open menu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- Flash messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="container" style="padding-top:16px;">
+    <ul class="flash-list">
+    {% for cat, msg in messages %}
+        <li class="flash flash-{{ cat }}"><i class="fas fa-info-circle"></i> {{ msg }}</li>
+    {% endfor %}
+    </ul>
+</div>
+{% endif %}
+{% endwith %}
+
+{% block content %}{% endblock %}
+
+<footer>
+    <div class="footer-inner">
+        <div class="footer-brand">
+            <span>CYLVERN SECURITY</span>
+            <p>Empowering the next generation of cybersecurity professionals through hands-on learning, professional services, and community.</p>
+        </div>
+        <div class="footer-col">
+            <h4>Platform</h4>
+            <ul>
+                <li><a href="{{ url_for('individuals') }}#ctf"><i class="fas fa-flag fa-fw"></i> CTF</a></li>
+                <li><a href="{{ url_for('wip') }}"><i class="fas fa-graduation-cap fa-fw"></i> Academy</a></li>
+                <li><a href="{{ url_for('wip') }}"><i class="fas fa-people-arrows fa-fw"></i> Mentorship</a></li>
+                <li><a href="{{ url_for('vdp') }}"><i class="fas fa-bug fa-fw"></i> VDP</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Company</h4>
+            <ul>
+                <li><a href="{{ url_for('business') }}"><i class="fas fa-building fa-fw"></i> Business</a></li>
+                <li><a href="mailto:customer.support@cylsec.com"><i class="fas fa-envelope fa-fw"></i> Support</a></li>
+                <li><a href="https://discord.gg/gveJetDthV"><i class="fab fa-discord fa-fw"></i> Discord</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; {{ now.year if now else 2025 }} Cylvern Security. All rights reserved.</p>
+        <div class="socials">
+            <a href="https://discord.gg/gveJetDthV" title="Discord"><i class="fab fa-discord"></i></a>
+            <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="#" title="YouTube"><i class="fab fa-youtube"></i></a>
+        </div>
+    </div>
+</footer>
+
+<script>
+(function () {
+    /* Theme persistence */
+    const html = document.documentElement;
+    const icon = document.getElementById('themeIcon');
+    const btn  = document.getElementById('themeToggle');
+    const saved = localStorage.getItem('cylvern-theme') || 'dark';
+    html.setAttribute('data-theme', saved);
+    if (icon) icon.className = saved === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+
+    if (btn) {
+        btn.addEventListener('click', function () {
+            const current = html.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', next);
+            localStorage.setItem('cylvern-theme', next);
+            icon.className = next === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+        });
+    }
+
+    /* Mobile hamburger */
+    const ham   = document.getElementById('navHamburger');
+    const links = document.getElementById('navLinks');
+    if (ham && links) {
+        ham.addEventListener('click', function () { links.classList.toggle('open'); });
+    }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block hero %}{% endblock %}
+{% block title %}Archives – CYLVERN SECURITY{% endblock %}
+
+{% block content %}
+<div class="panel">
+    <h2 class="section-title"><i class="fas fa-archive" style="font-size:1rem;"></i> Challenge Archives</h2>
+    {% if categories %}
+    <div class="vuln-grid">
+        {% for category in categories %}
+        <a href="{{ url_for('challenges.category_detail', category_id=category.id) }}" class="vuln-card">
+            <div class="cat-chip cat-chip-alt" style="margin-bottom:12px;">
+                {% if category.icon %}<i class="{{ category.icon }}"></i> {% endif %}
+                {{ category.name }}
+            </div>
+            <div class="vuln-name">{{ category.name }}</div>
+            <div class="rank" style="margin-top:6px;">
+                <i class="fas fa-layer-group"></i>
+                {{ category.challenges | selectattr('is_active') | list | length }}
+                Challenge{{ 's' if (category.challenges | selectattr('is_active') | list | length) != 1 }}
+            </div>
+            <div class="reward" style="margin-top:10px;">
+                <i class="fas fa-arrow-right"></i> Enter
+            </div>
+        </a>
+        {% else %}
+        <p style="color:var(--muted);padding:20px 0;">No categories available yet.</p>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-muted" style="padding:20px 0;text-align:center;">
+        <i class="fas fa-info-circle"></i> No challenge categories available yet.
+    </p>
+    {% endif %}
+</div>
+{% endblock %}

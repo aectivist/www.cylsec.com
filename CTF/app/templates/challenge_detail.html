@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block hero %}{% endblock %}
+{% block title %}{{ chal.title }} – CYLVERN SECURITY{% endblock %}
+
+{% block content %}
+<div class="chal-detail-wrap">
+
+    <div class="chal-header panel">
+        <div class="chal-header-top">
+            <span class="cat-chip">{{ chal.type | upper }}</span>
+            {% if chal.category %}
+            <span class="cat-chip cat-chip-alt">{{ chal.category.name }}</span>
+            {% endif %}
+        </div>
+        <h2 class="chal-title">{{ chal.title }}</h2>
+        <div class="chal-meta-row">
+            <span class="chal-meta-item diff-{{ chal.difficulty | lower }}">
+                <i class="fas fa-signal"></i> {{ chal.difficulty }}
+            </span>
+            <span class="chal-meta-item" style="color:var(--blue);">
+                <i class="fas fa-bolt"></i> {{ chal.points }} XP
+            </span>
+            {% set solve_count = chal.solves | length %}
+            <span class="chal-meta-item" style="color:var(--muted);">
+                <i class="fas fa-users"></i> {{ solve_count }} solve{{ 's' if solve_count != 1 }}
+            </span>
+        </div>
+    </div>
+
+    <div class="chal-body-grid">
+
+        <div class="panel chal-desc-panel">
+            <h3 class="section-title" style="font-size:1.1rem;margin-bottom:14px;">Description</h3>
+            <p class="chal-description">{{ chal.description }}</p>
+
+            <div class="chal-action-area">
+                {% if chal.instance_name %}
+                    {% if active_instance %}
+                    <a href="{{ url_for('docker.instance_detail', instance_id=active_instance.id) }}"
+                       class="btn-primary chal-launch-btn">
+                        <i class="fas fa-desktop"></i> View Running Instance
+                    </a>
+                    <p class="chal-instance-hint">
+                        <i class="fas fa-circle" style="color:var(--green);font-size:.55rem;vertical-align:middle;"></i>
+                        Instance is live — expires in ~{{ (active_instance.time_remaining() // 60) }}m
+                    </p>
+                    {% else %}
+                    <a href="{{ url_for('docker.launch_instance', challenge_id=chal.id) }}"
+                       class="btn-primary chal-launch-btn">
+                        <i class="fas fa-rocket"></i> Launch Instance
+                    </a>
+                    <p class="chal-instance-hint">Runs for 60 min · up to 3 extensions</p>
+                    {% endif %}
+
+                {% elif chal.type == 'web' and chal.challenge_url %}
+                    <a href="{{ chal.challenge_url }}" target="_blank" rel="noopener noreferrer"
+                       class="btn-primary chal-launch-btn">
+                        <i class="fas fa-globe"></i> Open Web App
+                    </a>
+
+                {% elif chal.type == 'pwn' %}
+                    {% if chal.challenge_url %}
+                    <div class="netcat-box">
+                        <p style="color:var(--muted);font-size:.85rem;margin-bottom:6px;">Connect via netcat:</p>
+                        <code>{{ chal.challenge_url }}</code>
+                    </div>
+                    {% endif %}
+                    {% if chal.file_url %}
+                    <a href="{{ chal.file_url }}" class="btn-secondary chal-launch-btn">
+                        <i class="fas fa-download"></i> Download Binary
+                    </a>
+                    {% endif %}
+
+                {% elif chal.file_url %}
+                    <a href="{{ chal.file_url }}" class="btn-primary chal-launch-btn">
+                        <i class="fas fa-file-download"></i> Download File(s)
+                    </a>
+
+                {% else %}
+                    <p class="text-muted" style="font-size:.9rem;"><i class="fas fa-info-circle"></i> No external resources for this challenge.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="panel chal-flag-panel">
+            <h3 class="section-title" style="font-size:1.1rem;margin-bottom:14px;">
+                <i class="fas fa-flag" style="color:var(--purple);"></i> Submit Flag
+            </h3>
+            <form method="POST" action="{{ url_for('challenges.submit_flag', challenge_id=chal.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="form-group">
+                    <label for="flag" style="color:var(--muted);font-size:.88rem;">Flag</label>
+                    <input type="text" id="flag" name="flag" class="form-control"
+                           placeholder="FLAG{...}" autocomplete="off" required>
+                </div>
+                <button type="submit" class="btn-primary" style="width:100%;">
+                    <i class="fas fa-paper-plane"></i> Submit
+                </button>
+            </form>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

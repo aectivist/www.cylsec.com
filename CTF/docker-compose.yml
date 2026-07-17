@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:8000"
+      - "9000-10000:9000-10000"
+    environment:
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key}
+      - DATABASE_URL=postgresql://cylvern:cylvernpass@db:5432/cylvern
+      - MAIL_SERVER=${MAIL_SERVER:-smtp.gmail.com}
+      - MAIL_PORT=${MAIL_PORT:-587}
+      - MAIL_USE_TLS=${MAIL_USE_TLS:-true}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - ADMIN_ALERT_EMAIL=${ADMIN_ALERT_EMAIL}
+      - FLASK_APP=run.py
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - INSTANCE_HOST=${INSTANCE_HOST:-localhost}
+    depends_on:
+      - db
+    volumes:
+      - ./app:/app/app
+      - ./migrations:/app/migrations
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  db:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=cylvern
+      - POSTGRES_PASSWORD=cylvernpass
+      - POSTGRES_DB=cylvern
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+
+volumes:
+  postgres_data:

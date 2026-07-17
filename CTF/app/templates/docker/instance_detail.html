@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block hero %}{% endblock %}
+{% block title %}Instance – {{ instance.challenge.title }} – CYLVERN SECURITY{% endblock %}
+
+{% block content %}
+<div class="instance-wrap">
+
+    <div class="panel instance-header">
+        <div class="instance-header-left">
+            <a href="{{ url_for('challenges.view_challenge', challenge_id=instance.challenge_id) }}"
+               class="launch-back-link" style="margin-bottom:10px;display:inline-flex;">
+                <i class="fas fa-arrow-left"></i> Back to challenge
+            </a>
+            <h2 class="chal-title" style="margin-bottom:4px;">{{ instance.challenge.title }}</h2>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                {% if info and info.container_status == 'running' %}
+                <span class="inst-status-badge inst-status-running">
+                    <i class="fas fa-circle" style="font-size:.5rem;"></i> Running
+                </span>
+                {% elif info %}
+                <span class="inst-status-badge inst-status-warn">
+                    <i class="fas fa-circle" style="font-size:.5rem;"></i> {{ info.container_status | capitalize }}
+                </span>
+                {% endif %}
+                <span class="cat-chip">{{ instance.challenge.type | upper }}</span>
+            </div>
+        </div>
+        <div class="instance-header-right">
+            <a href="{{ instance.url }}" target="_blank" rel="noopener noreferrer"
+               class="instance-url-btn">
+                <i class="fas fa-external-link-alt"></i> {{ instance.url }}
+            </a>
+        </div>
+    </div>
+
+    <div class="instance-body-grid">
+
+        <div class="panel instance-timer-card">
+            <h3 class="instance-card-title"><i class="fas fa-hourglass-half"></i> Time Remaining</h3>
+            {% if info %}
+                {% set secs = info.time_remaining_seconds %}
+                {% set hours = secs // 3600 %}
+                {% set mins  = (secs % 3600) // 60 %}
+                {% set pct   = [[((secs / 3600) * 100) | int, 0] | max, 100] | min %}
+                <div class="instance-timer-display">
+                    {{ "%d:%02d" % (hours, mins) }}
+                    <span class="instance-timer-unit">h:mm</span>
+                </div>
+                <div class="instance-progress-track">
+                    <div class="instance-progress-fill
+                         {% if pct < 20 %}timer-bar-low{% elif pct < 50 %}timer-bar-medium{% else %}timer-bar-high{% endif %}"
+                         style="width:{{ pct }}%;">
+                    </div>
+                </div>
+                <p class="instance-expire-note">
+                    Expires: <strong>{{ info.expires_at }}</strong>
+                </p>
+            {% else %}
+                <p class="text-muted" style="font-size:.9rem;">Timer unavailable — container may still be starting.</p>
+            {% endif %}
+        </div>
+
+        <div class="panel instance-actions-card">
+            <h3 class="instance-card-title"><i class="fas fa-sliders-h"></i> Controls</h3>
+            <div class="instance-controls">
+                {% if info and info.can_extend %}
+                <button class="btn-primary instance-extend-btn" id="extend-btn" onclick="extendInstance()">
+                    <i class="fas fa-clock"></i> Extend +30 min
+                </button>
+                <p class="instance-ext-note">Extensions used: <strong>{{ instance.extensions_used }} / 3</strong></p>
+                {% elif info %}
+                <button class="btn-primary instance-extend-btn" disabled style="opacity:.45;cursor:not-allowed;">
+                    <i class="fas fa-lock"></i> Max Extensions Reached
+                </button>
+                {% endif %}
+                <form method="POST"
+                      action="{{ url_for('docker.stop_instance', instance_id=instance.id) }}"
+                      style="margin-top:10px;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn-danger instance-stop-btn"
+                            onclick="return confirm('Stop this instance? This cannot be undone.')">
+                        <i class="fas fa-stop-circle"></i> Stop Instance
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="panel instance-info-card">
+            <h3 class="instance-card-title"><i class="fas fa-info-circle"></i> Details</h3>
+            <table class="instance-detail-table">
+                <tr><td>Port</td><td><code>{{ instance.port }}</code></td></tr>
+                <tr><td>Container ID</td><td><code>{{ instance.container_id[:12] }}</code></td></tr>
+                <tr><td>Launched</td><td>{{ instance.created_at.strftime('%Y-%m-%d %H:%M UTC') }}</td></tr>
+            </table>
+            <div class="instance-links">
+                <a href="{{ url_for('docker.my_instances') }}" class="instance-link-item">
+                    <i class="fas fa-th-list"></i> My instances
+                </a>
+                <a href="{{ instance.url }}" target="_blank" rel="noopener noreferrer" class="instance-link-item">
+                    <i class="fas fa-external-link-alt"></i> Open in new tab
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    {% if not info %}
+    <div class="panel" style="margin-top:16px;border-color:rgba(255,171,64,.3);background:rgba(255,171,64,.06);">
+        <i class="fas fa-exclamation-triangle" style="color:var(--warn);"></i>
+        <span style="margin-left:8px;color:var(--muted);">Could not retrieve live container status — the instance may still be starting up.</span>
+        <a href="{{ url_for('docker.instance_detail', instance_id=instance.id) }}"
+           class="btn-secondary" style="margin-left:16px;padding:.4rem 1rem;font-size:.85rem;">
+            <i class="fas fa-sync"></i> Refresh
+        </a>
+    </div>
+    {% endif %}
+
+</div>
+
+<script>
+function extendInstance() {
+    const btn = document.getElementById('extend-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Extending…';
+    const csrfToken = (document.querySelector('meta[name="csrf-token"]') || {}).content || '{{ csrf_token() }}';
+    fetch('{{ url_for("docker.extend_instance", instance_id=instance.id) }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) { location.reload(); }
+        else {
+            alert('Error: ' + data.error);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-clock"></i> Extend +30 min';
+        }
+    })
+    .catch(err => {
+        alert('Network error: ' + err);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-clock"></i> Extend +30 min';
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}500 Server Error — Cylvern Security{% endblock %}
+{% block content %}
+<div class="wip-wrap">
+    <div style="text-align:center;">
+        <i class="fas fa-server" style="font-size:3.5rem;color:rgba(255,171,64,.45);display:block;margin-bottom:20px;"></i>
+        <h1 style="font-family:'Orbitron',sans-serif;font-size:clamp(2rem,5vw,3.5rem);color:var(--warn);margin-bottom:8px;">500</h1>
+        <h2 style="color:var(--text);margin-bottom:12px;">Internal Server Error</h2>
+        <p style="color:var(--muted);max-width:380px;margin:0 auto 28px;font-size:.93rem;">Something went wrong on our end. We've been notified and are looking into it.</p>
+        <a href="{{ url_for('index') }}" class="btn btn-primary"><i class="fas fa-home"></i> Back to Home</a>
+    </div>
+</div>
+{% endblock %}

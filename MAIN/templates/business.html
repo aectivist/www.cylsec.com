@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Business Services — Cylvern Security{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="hero" style="padding-bottom:60px;">
+    <div class="container">
+        <span class="section-label" style="margin-bottom:18px;"><i class="fas fa-building"></i> Business</span>
+        <h1 class="hero-title">Professional Security<br><span>Services</span></h1>
+        <p class="hero-subtitle">
+            We help organisations identify vulnerabilities before attackers do — through expert penetration testing,
+            red team exercises, and security consultancy.
+        </p>
+    </div>
+</section>
+
+<div class="container" style="padding-bottom:80px;">
+
+    <!-- Services grid -->
+    <div style="margin-bottom:64px;">
+        <span class="section-label"><i class="fas fa-tools"></i> Services</span>
+        <h2 class="section-title">What We Do</h2>
+        <div class="grid-3" style="margin-top:32px;">
+            {% set services = [
+                ('fa-crosshairs','Penetration Testing','Comprehensive black/grey/white-box tests against your web applications, internal networks, APIs and cloud infrastructure.','var(--purple)'),
+                ('fa-search-plus','Vulnerability Assessment','Systematic scanning and manual review to identify, classify and prioritise security weaknesses across your attack surface.','var(--blue)'),
+                ('fa-chess-knight','Red Team Exercises','Realistic adversary simulation — test your detection and response capabilities against multi-stage attack chains.','var(--warn)'),
+                ('fa-fire-extinguisher','Incident Response','Rapid-response investigation and containment when a breach occurs, with post-incident reporting and remediation roadmap.','var(--danger)'),
+                ('fa-file-contract','Security Compliance','Gap analysis and advisory for ISO 27001, SOC 2, GDPR, PCI-DSS and NIST frameworks.','var(--green)'),
+                ('fa-chalkboard-teacher','Security Training','Customised workshops and awareness programmes for technical teams and executive stakeholders.','#a0b8ff'),
+            ] %}
+            {% for icon, name, desc, colour in services %}
+            <div class="card">
+                <div class="card-icon" style="background:rgba(0,0,0,.2);border-color:{{ colour }}22;color:{{ colour }};">
+                    <i class="fas {{ icon }}"></i>
+                </div>
+                <h3 class="card-title">{{ name }}</h3>
+                <p class="card-body">{{ desc }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Why choose us -->
+    <div style="margin-bottom:64px;">
+        <span class="section-label"><i class="fas fa-award"></i> Why Us</span>
+        <h2 class="section-title">Why choose Cylvern</h2>
+        <div class="grid-2" style="gap:28px;margin-top:32px;">
+            {% set points = [
+                ('fa-user-secret','Practitioner-Led','Every engagement is led by hands-on security professionals — not automated tool output alone.'),
+                ('fa-file-alt','Actionable Reports','Clear, risk-rated findings with step-by-step remediation guidance understandable to both technical and non-technical stakeholders.'),
+                ('fa-redo','Retest Included','We retest all critical findings after remediation at no extra cost so you know the fix actually works.'),
+                ('fa-lock','Confidential by Design','All engagements operate under strict NDAs. Your data and findings are never shared.'),
+            ] %}
+            {% for icon, title, desc in points %}
+            <div class="card" style="display:flex;gap:16px;align-items:flex-start;flex-direction:row;padding:22px;">
+                <div class="card-icon" style="flex-shrink:0;margin-bottom:0;"><i class="fas {{ icon }}"></i></div>
+                <div>
+                    <h4 class="card-title">{{ title }}</h4>
+                    <p class="card-body">{{ desc }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Inquiry form -->
+    <div id="enquiry">
+        <span class="section-label"><i class="fas fa-envelope"></i> Contact</span>
+        <h2 class="section-title">Get in Touch</h2>
+        <p class="section-subtitle">
+            Tell us about your project and we'll get back to you within one business day.
+        </p>
+        <div class="panel" style="max-width:680px;">
+            <form method="POST" action="{{ url_for('business') }}">
+                {{ form.hidden_tag() }}
+                <div class="grid-2" style="gap:16px;">
+                    <div class="form-group">
+                        {{ form.name.label }}
+                        {{ form.name(class="form-control", placeholder="Your name") }}
+                        {% for e in form.name.errors %}<p class="field-error">{{ e }}</p>{% endfor %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.email.label }}
+                        {{ form.email(class="form-control", placeholder="you@company.com") }}
+                        {% for e in form.email.errors %}<p class="field-error">{{ e }}</p>{% endfor %}
+                    </div>
+                </div>
+                <div class="grid-2" style="gap:16px;">
+                    <div class="form-group">
+                        {{ form.company.label }}
+                        {{ form.company(class="form-control", placeholder="Acme Corp (optional)") }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.service.label }}
+                        {{ form.service(class="form-control") }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    {{ form.message.label }}
+                    {{ form.message(class="form-control", placeholder="Describe your requirements, scope, timeline…", rows="5") }}
+                    {% for e in form.message.errors %}<p class="field-error">{{ e }}</p>{% endfor %}
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;">
+                    <i class="fas fa-paper-plane"></i> Send Enquiry
+                </button>
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
