@@ -165,6 +165,7 @@ def create_app():
 
     with app.app_context():
         db.create_all()
+        _migrate_db()
         _seed_admin()
 
     # ── Public routes ──────────────────────────────────────────────────────────
@@ -354,6 +355,30 @@ def create_app():
         return render_template('errors/500.html'), 500
 
     return app
+
+
+def _migrate_db():
+    """Apply incremental schema changes that db.create_all() won't handle."""
+    engine = db.engine
+    migrations = [
+        # alerts table
+        "ALTER TABLE alerts ADD COLUMN active INTEGER NOT NULL DEFAULT 1",
+        "ALTER TABLE alerts ADD COLUMN created_at TEXT",
+        # inquiries table
+        "ALTER TABLE inquiries ADD COLUMN company TEXT",
+        "ALTER TABLE inquiries ADD COLUMN service TEXT",
+        # admin_users table
+        "ALTER TABLE admin_users ADD COLUMN totp_secret TEXT",
+        "ALTER TABLE admin_users ADD COLUMN totp_enabled INTEGER NOT NULL DEFAULT 0",
+    ]
+    with engine.connect() as conn:
+        for sql in migrations:
+            try:
+                conn.execute(db.text(sql))
+                conn.commit()
+            except Exception:
+                # Column already exists — safe to ignore
+                pass
 
 
 def _seed_admin():
