@@ -47,7 +47,7 @@
             {% if active_chals %}
             <div class="cat-chal-list">
               {% for chal in active_chals %}
-              <a href="{{ url_for('challenges.challenge_detail', challenge_id=chal.id) }}" class="cat-chal-row">
+              <a href="{{ url_for('challenges.view_challenge', challenge_id=chal.id) }}" class="cat-chal-row">
                 <span class="cat-chal-name">{{ chal.title }}</span>
                 <span class="cat-chal-meta">
                   <span class="diff-badge diff-{{ chal.difficulty|lower }}">{{ chal.difficulty }}</span>
