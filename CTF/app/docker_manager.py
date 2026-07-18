@@ -105,13 +105,19 @@ class DockerInstanceManager:
         if not instance:
             return {}
         client = _get_client()
-        if not client:
-            return {'status': 'unknown'}
-        try:
-            container = client.containers.get(instance.container_id)
-            return {'status': container.status}
-        except Exception:
-            return {'status': 'not found'}
+        container_status = 'unknown'
+        if client:
+            try:
+                container = client.containers.get(instance.container_id)
+                container_status = container.status
+            except Exception:
+                container_status = 'not found'
+        return {
+            'container_status': container_status,
+            'time_remaining_seconds': instance.time_remaining(),
+            'expires_at': instance.expires_at.strftime('%Y-%m-%d %H:%M UTC'),
+            'can_extend': instance.can_extend(),
+        }
 
     def cleanup_expired(self):
         expired = (DockerInstance.query
