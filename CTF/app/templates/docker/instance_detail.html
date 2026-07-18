@@ -37,10 +37,9 @@
 
         <div class="panel instance-timer-card">
             <h3 class="instance-card-title"><i class="fas fa-hourglass-half"></i> Time Remaining</h3>
-            {% set secs = instance.time_remaining() %}
-            {% set hours = secs // 3600 %}
-            {% set mins  = (secs % 3600) // 60 %}
-            {% set pct   = [[((secs / 3600) * 100) | int, 0] | max, 100] | min %}
+            {% set mins = secs // 60 %}
+{% set secs_remaining = secs % 60 %}
+{% set pct = [[((secs / 900) * 100) | int, 0] | max, 100] | min %}
             <div class="instance-timer-display">
                 {{ "%d:%02d" % (hours, mins) }}
                 <span class="instance-timer-unit">h:mm</span>

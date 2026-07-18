@@ -38,14 +38,39 @@ class DockerInstanceManager:
     def is_available(self):
         return _get_client() is not None
 
-    def spawn_instance(self, user_id, challenge_id, duration_minutes=60, image_name=None):
+    def spawn_instance(self, user_id, challenge_id, duration_minutes=15, image_name=None):
         client = _get_client()
         if not client or not image_name:
             return None
+
+        # Allow only one launch per challenge per user per day
+        start_of_day = datetime.utcnow().replace(
+            hour=0, minute=0, second=0, microsecond=0
+        )
+        end_of_day = start_of_day + timedelta(days=1)
+
+        existing = (
+            DockerInstance.query
+            .filter(
+                DockerInstance.user_id == user_id,
+                DockerInstance.challenge_id == challenge_id,
+                DockerInstance.created_at >= start_of_day,
+                DockerInstance.created_at < end_of_day,
+            )
+            .first()
+        )
+
+        if existing:
+            logger.info(
+                f"User {user_id} already launched challenge {challenge_id} today."
+            )
+            return None
+
         port = _next_free_port()
         if port is None:
             logger.error('No free ports available for Docker instance')
             return None
+
         try:
             container = client.containers.run(
                 image_name,
