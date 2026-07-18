@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ashal's Wall</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #0d0d0d; color: #e0e0e0; font-family: 'Courier New', monospace; padding: 24px 16px; }
+        .wrap { max-width: 860px; margin: 0 auto; }
+        header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
+        h1 { font-size: 1.1rem; color: #7fff7f; }
+        .user-info { font-size: .82rem; color: #555; }
+        .user-info a { color: #7fff7f; text-decoration: none; margin-left: 14px; }
+        .user-info a:hover { text-decoration: underline; }
+
+        /* Progress */
+        .progress-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; margin-bottom: 28px; }
+        .area-card { background: #141414; border: 1px solid #2a2a2a; border-radius: 6px; padding: 12px; font-size: .78rem; }
+        .area-card.solved { border-color: #7fff7f44; background: rgba(127,255,127,.05); }
+        .area-name { color: #ccc; margin-bottom: 4px; }
+        .area-status { color: #444; }
+        .area-card.solved .area-status { color: #7fff7f; }
+
+        /* Flash */
+        .flashes { margin-bottom: 18px; }
+        .flash { padding: 8px 12px; border-radius: 4px; font-size: .82rem; margin-bottom: 6px; word-break: break-all; }
+        .flash-success { background: rgba(127,255,127,.1); border: 1px solid rgba(127,255,127,.3); color: #7fff7f; }
+        .flash-warning { background: rgba(255,193,7,.1); border: 1px solid rgba(255,193,7,.3); color: #ffc107; }
+        .flash-info    { background: rgba(100,180,255,.1); border: 1px solid rgba(100,180,255,.3); color: #64b4ff; }
+        .flash-danger  { background: rgba(255,80,80,.1);  border: 1px solid rgba(255,80,80,.3);  color: #ff5050; }
+
+        /* Form */
+        .post-form { background: #141414; border: 1px solid #2a2a2a; border-radius: 8px; padding: 20px; margin-bottom: 28px; }
+        .post-form h2 { font-size: .9rem; color: #888; margin-bottom: 16px; }
+        .form-row { display: grid; grid-template-columns: 1fr 2fr auto; gap: 10px; align-items: flex-start; }
+        input[type=text], textarea { background: #0d0d0d; border: 1px solid #2a2a2a; border-radius: 4px; color: #e0e0e0; padding: 9px 11px; font-family: inherit; font-size: .85rem; outline: none; width: 100%; }
+        input[type=text]:focus, textarea:focus { border-color: #7fff7f; }
+        textarea { resize: vertical; min-height: 60px; }
+        button.post-btn { background: #7fff7f; color: #0d0d0d; border: none; border-radius: 4px; padding: 9px 18px; font-family: inherit; font-size: .85rem; font-weight: bold; cursor: pointer; white-space: nowrap; }
+        button.post-btn:hover { background: #5fdf5f; }
+
+        /* Wall */
+        .wall-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+        .wall-header h2 { font-size: .9rem; color: #888; }
+        .reset-link { font-size: .78rem; color: #444; text-decoration: none; }
+        .reset-link:hover { color: #ff5050; }
+        .inscription { background: #141414; border: 1px solid #2a2a2a; border-radius: 6px; padding: 14px; margin-bottom: 10px; }
+        .insc-meta { font-size: .75rem; color: #444; margin-bottom: 6px; }
+        .insc-name { color: #7fff7f; }
+        .insc-msg { font-size: .88rem; color: #ccc; word-break: break-word; }
+        .empty { color: #333; font-size: .85rem; padding: 20px 0; }
+
+        @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <header>
+        <h1>📜 Ashal's Inscription Wall</h1>
+        <div class="user-info">
+            Logged in as <strong style="color:#e0e0e0;">{{ username }}</strong>
+            <a href="/logout">Logout</a>
+        </div>
+    </header>
+
+    <!-- XSS Challenge Progress -->
+    <div class="progress-grid">
+        {% for area in areas %}
+        <div class="area-card {% if area.id in solved %}solved{% endif %}">
+            <div class="area-name">{{ area.name }}</div>
+            <div class="area-status">{% if area.id in solved %}✓ Captured{% else %}○ Unsolved{% endif %}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flashes">
+        {% for cat, msg in messages %}
+        <div class="flash flash-{{ cat }}">{{ msg }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- Post form -->
+    <div class="post-form">
+        <h2>Leave an inscription</h2>
+        <form method="POST">
+            <div class="form-row">
+                <input type="text" name="name" placeholder="Your name" autocomplete="off" required>
+                <textarea name="message" placeholder="Your message (try your XSS payload here…)" required></textarea>
+                <button type="submit" class="post-btn">Post</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Inscriptions wall -->
+    <div class="wall-header">
+        <h2>Wall</h2>
+        <a href="/reset" class="reset-link" onclick="return confirm('Clear your wall?')">Clear my wall</a>
+    </div>
+
+    <div id="inscriptions-container">
+        {% if inscriptions %}
+            {% for insc in inscriptions %}
+            <div class="inscription">
+                <div class="insc-meta">
+                    <span class="insc-name">{{ insc.name }}</span> · {{ insc.timestamp }}
+                </div>
+                <div class="insc-msg">{{ insc.message | safe }}</div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="empty">No inscriptions yet. Be the first to leave a mark.</p>
+        {% endif %}
+    </div>
+</div>
+</body>
+</html>

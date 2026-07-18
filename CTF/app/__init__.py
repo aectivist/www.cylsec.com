@@ -6,6 +6,7 @@ from flask_wtf.csrf import CSRFProtect
 from flask_mail import Mail, Message
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from werkzeug.middleware.proxy_fix import ProxyFix
 from config import Config
 import random
 import traceback
@@ -31,6 +32,9 @@ limiter = Limiter(
 def create_app(config_class=Config):
     app = Flask(__name__, template_folder='templates')
     app.config.from_object(config_class)
+
+    # Trust the X-Forwarded-Proto / X-Forwarded-For headers set by Nginx
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1, x_for=1)
 
     @app.after_request
     def set_security_headers(response):
@@ -133,7 +137,8 @@ Traceback:
                     recipients=[admin.email for admin in admins]
                 )
                 msg.body = body
-                mail.send(msg)
+                from app.utils import _send_mail
+                _send_mail(msg)
         except Exception as mail_error:
             app.logger.error(f"Failed to send admin alert email: {mail_error}")
         return render_template('errors/500.html'), 500

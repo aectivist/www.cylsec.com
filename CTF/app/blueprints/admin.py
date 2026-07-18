@@ -167,8 +167,16 @@ def edit_challenge(challenge_id):
 @admin_bp.route('/challenges/delete/<int:challenge_id>', methods=['POST'])
 @admin_required
 def delete_challenge(challenge_id):
+    from app.models import DockerInstance
     challenge = Challenge.query.get_or_404(challenge_id)
     title = challenge.title
+    # Stop and remove any active docker instances for this challenge first
+    from app.docker_manager import DockerInstanceManager
+    dm = DockerInstanceManager()
+    for inst in DockerInstance.query.filter_by(challenge_id=challenge_id).all():
+        dm.stop_instance(inst.id)
+    # Solves cascade via the relationship; docker_instances need explicit delete
+    DockerInstance.query.filter_by(challenge_id=challenge_id).delete()
     db.session.delete(challenge)
     db.session.commit()
     _log(f'Deleted challenge: {title}')
@@ -215,10 +223,16 @@ def edit_category(category_id):
 @admin_bp.route('/categories/delete/<int:category_id>', methods=['POST'])
 @admin_required
 def delete_category(category_id):
+    from app.models import DockerInstance
     cat = Category.query.get_or_404(category_id)
     name = cat.name
+    # Refuse deletion if category has challenges — safer UX
+    if cat.challenges:
+        flash(f'Cannot delete "{name}" — it still has {len(cat.challenges)} challenge(s). Delete or reassign them first.', 'danger')
+        return redirect(url_for('admin.list_categories'))
     db.session.delete(cat)
     db.session.commit()
+    _log(f'Deleted category: {name}')
     flash(f'Category "{name}" deleted.', 'success')
     return redirect(url_for('admin.list_categories'))
 

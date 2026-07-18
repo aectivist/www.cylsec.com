@@ -74,7 +74,7 @@ class Category(db.Model):
 class Challenge(db.Model):
     __tablename__ = 'challenges'
     id = db.Column(db.Integer, primary_key=True)
-    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id', ondelete='CASCADE'), nullable=False)
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
     difficulty = db.Column(db.String(20), default='Medium')
@@ -91,11 +91,11 @@ class Challenge(db.Model):
 class Solve(db.Model):
     __tablename__ = 'solves'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    challenge_id = db.Column(db.Integer, db.ForeignKey('challenges.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    challenge_id = db.Column(db.Integer, db.ForeignKey('challenges.id', ondelete='CASCADE'), nullable=False)
     solved_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    challenge = db.relationship('Challenge', backref='solves')
+    challenge = db.relationship('Challenge', backref=db.backref('solves', cascade='all, delete-orphan', passive_deletes=True))
 
 
 class AdminLog(db.Model):

@@ -2,7 +2,9 @@ import os
 import secrets
 from dotenv import load_dotenv
 
-load_dotenv()
+# load_dotenv MUST run before the Config class body is evaluated,
+# otherwise os.environ.get() calls in the class use the pre-env-file state.
+load_dotenv(override=False)  # override=False: real env vars (from systemd EnvironmentFile) win
 
 
 class Config:
@@ -29,4 +31,5 @@ class Config:
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER') or MAIL_USERNAME or 'noreply@cylsec.com'
     ADMIN_ALERT_EMAIL = os.environ.get('ADMIN_ALERT_EMAIL') or MAIL_USERNAME
 
+    # Evaluated after load_dotenv() so credentials are visible
     MAIL_SUPPRESS_SEND = not (MAIL_USERNAME and MAIL_PASSWORD)
