@@ -14,7 +14,11 @@ from app.utils import (
     send_password_reset_email, verify_reset_token,
     generate_otp, send_otp_email, is_safe_url,
     generate_reset_token, is_strong_password,
-    send_admin_new_signup_alert, send_account_approved_email
+    send_admin_new_signup_alert, send_account_approved_email,
+    generate_email_change_token, verify_email_change_token,
+    send_email_change_confirmation,
+    generate_delete_account_token, verify_delete_account_token,
+    send_delete_account_confirmation
 )
 
 auth_bp = Blueprint('auth', __name__)
@@ -223,6 +227,7 @@ def verify_otp():
 
 @auth_bp.route('/change-email', methods=['GET', 'POST'])
 @login_required
+@limiter.limit("5 per hour")
 def change_email():
     if request.method == 'POST':
         new_email = request.form.get('email', '').strip()[:120]
@@ -230,34 +235,78 @@ def change_email():
             flash('Please enter a valid email address.', 'danger')
         elif is_disposable_email(new_email):
             flash('Disposable/throwaway email addresses are not allowed.', 'danger')
-        elif User.query.filter_by(email=new_email).first():
+        elif new_email.lower() == current_user.email.lower():
+            flash('That is already your current email address.', 'info')
+        elif User.query.filter(func.lower(User.email) == new_email.lower()).first():
             flash('Email already in use.', 'danger')
         else:
-            current_user.email = new_email
-            db.session.commit()
-            flash('Email updated.', 'success')
-            return redirect(url_for('main.index'))
+            token = generate_email_change_token(current_user.id, new_email)
+            if send_email_change_confirmation(new_email, token):
+                flash(f'Confirmation link sent to {new_email}. Click it to finish updating your email.', 'success')
+            else:
+                flash('Failed to send confirmation email. Please try again later.', 'danger')
+        return redirect(url_for('main.profile'))
     return render_template('auth/change_email.html')
+
+
+@auth_bp.route('/confirm-email-change/<token>')
+@login_required
+def confirm_email_change(token):
+    data = verify_email_change_token(token)
+    if not data:
+        flash('Invalid or expired confirmation link.', 'danger')
+        return redirect(url_for('main.profile'))
+    user_id, new_email = data
+    if user_id != current_user.id:
+        flash('This confirmation link does not belong to your account.', 'danger')
+        return redirect(url_for('main.profile'))
+    if User.query.filter(func.lower(User.email) == new_email.lower()).first():
+        flash('That email is already in use.', 'danger')
+        return redirect(url_for('main.profile'))
+    current_user.email = new_email
+    db.session.commit()
+    flash('Email address updated successfully.', 'success')
+    return redirect(url_for('main.profile'))
 
 
 @auth_bp.route('/delete-account', methods=['GET', 'POST'])
 @login_required
+@limiter.limit("3 per hour")
 def delete_account():
     if request.method == 'POST':
         password = request.form.get('password', '')
         if check_password_hash(current_user.password_hash, password):
-            user = current_user._get_current_object()
-            logout_user()
-            db.session.delete(user)
-            db.session.commit()
-            flash('Account deleted.', 'info')
-            return redirect(url_for('main.index'))
+            token = generate_delete_account_token(current_user.id)
+            if send_delete_account_confirmation(current_user, token):
+                flash('Confirm the deletion via the link sent to your email. The link expires in 1 hour.', 'warning')
+            else:
+                flash('Failed to send confirmation email. Please try again later.', 'danger')
+            return redirect(url_for('main.profile'))
         flash('Incorrect password.', 'danger')
     return render_template('auth/delete_account.html')
 
 
+@auth_bp.route('/confirm-delete-account/<token>')
+@login_required
+def confirm_delete_account(token):
+    user_id = verify_delete_account_token(token)
+    if not user_id:
+        flash('Invalid or expired confirmation link.', 'danger')
+        return redirect(url_for('main.profile'))
+    if user_id != current_user.id:
+        flash('This confirmation link does not belong to your account.', 'danger')
+        return redirect(url_for('main.profile'))
+    user = current_user._get_current_object()
+    logout_user()
+    db.session.delete(user)
+    db.session.commit()
+    flash('Your account has been permanently deleted.', 'info')
+    return redirect(url_for('main.index'))
+
+
 @auth_bp.route('/update_username', methods=['POST'])
 @login_required
+@limiter.limit("10 per hour")
 def update_username():
     new_username = request.form.get('new_username', '').strip()
     error = validate_username_value(new_username)
@@ -274,6 +323,7 @@ def update_username():
 
 @auth_bp.route('/send-password-reset', methods=['POST'])
 @login_required
+@limiter.limit("5 per hour")
 def send_password_reset():
     try:
         token = generate_reset_token(current_user.email)

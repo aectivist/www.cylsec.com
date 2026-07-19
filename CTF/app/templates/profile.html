@@ -66,5 +66,60 @@
   </div>
   {% endif %}
 
+  {# ── Account Settings ── #}
+  <div class="dash-section-head" style="margin:32px 0 12px;">
+    <h2 class="section-title" style="margin:0;font-size:1.05rem;">Account Settings</h2>
+  </div>
+
+  <div class="panel" style="padding:24px 28px;margin-bottom:16px;">
+    <h3 style="font-size:.9rem;color:#fff;margin-bottom:4px;">Username</h3>
+    <p style="color:var(--muted);font-size:.78rem;margin-bottom:14px;">Takes effect immediately — no email confirmation needed.</p>
+    <form method="POST" action="{{ url_for('auth.update_username') }}" style="display:flex;gap:10px;flex-wrap:wrap;">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="text" name="new_username" class="form-control" style="max-width:240px;"
+             value="{{ user.username }}" minlength="3" maxlength="20" required>
+      <button type="submit" class="btn btn-secondary">Save Username</button>
+    </form>
+  </div>
+
+  <div class="panel" style="padding:24px 28px;margin-bottom:16px;">
+    <h3 style="font-size:.9rem;color:#fff;margin-bottom:4px;">Email Address</h3>
+    <p style="color:var(--muted);font-size:.78rem;margin-bottom:14px;">
+      Current: {{ user.email }} — a confirmation link is sent to the new address before the change takes effect.
+    </p>
+    <form method="POST" action="{{ url_for('auth.change_email') }}" style="display:flex;gap:10px;flex-wrap:wrap;">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="email" name="email" class="form-control" style="max-width:280px;"
+             placeholder="new-email@example.com" required>
+      <button type="submit" class="btn btn-secondary">Send Confirmation</button>
+    </form>
+  </div>
+
+  <div class="panel" style="padding:24px 28px;margin-bottom:16px;">
+    <h3 style="font-size:.9rem;color:#fff;margin-bottom:4px;">Password</h3>
+    <p style="color:var(--muted);font-size:.78rem;margin-bottom:14px;">
+      We'll email a password reset link to {{ user.email }}; nothing changes until you click it.
+    </p>
+    <form method="POST" action="{{ url_for('auth.send_password_reset') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-secondary">Email Me a Reset Link</button>
+    </form>
+  </div>
+
+  <div class="panel" style="padding:24px 28px;border-color:rgba(255,82,82,.35);">
+    <h3 style="font-size:.9rem;color:#ff5252;margin-bottom:4px;">Danger Zone</h3>
+    <p style="color:var(--muted);font-size:.78rem;margin-bottom:14px;">
+      Enter your password to receive a deletion confirmation link by email. This is permanent and cannot be undone.
+    </p>
+    <form method="POST" action="{{ url_for('auth.delete_account') }}"
+          style="display:flex;gap:10px;flex-wrap:wrap;"
+          onsubmit="return confirm('This will email you a link to permanently delete your account. Continue?')">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="password" name="password" class="form-control" style="max-width:240px;"
+             placeholder="Current password" required>
+      <button type="submit" class="btn btn-danger">Delete Account</button>
+    </form>
+  </div>
+
 </div>
 {% endblock %}

@@ -102,6 +102,64 @@ def send_registration_confirmation_email(user_email, token):
     return _send_mail(msg)
 
 
+def generate_email_change_token(user_id, new_email):
+    s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+    return s.dumps({'user_id': user_id, 'new_email': new_email}, salt='email-change')
+
+
+def verify_email_change_token(token, expiration=3600):
+    s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+    try:
+        data = s.loads(token, salt='email-change', max_age=expiration)
+        return data['user_id'], data['new_email']
+    except (BadSignature, SignatureExpired, KeyError, TypeError):
+        return None
+
+
+def send_email_change_confirmation(new_email, token):
+    confirm_url = url_for('auth.confirm_email_change', token=token, _external=True)
+    msg = Message(
+        'Confirm Your New Email – CYLVERN Security',
+        sender=current_app.config.get('MAIL_DEFAULT_SENDER'),
+        recipients=[new_email]
+    )
+    msg.body = (
+        f'Confirm your new email address for CYLVERN by visiting: {confirm_url}\n\n'
+        f'This link expires in 1 hour. If you did not request this change, ignore this email.'
+    )
+    return _send_mail(msg)
+
+
+def generate_delete_account_token(user_id):
+    s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+    return s.dumps({'user_id': user_id}, salt='delete-account')
+
+
+def verify_delete_account_token(token, expiration=3600):
+    s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+    try:
+        data = s.loads(token, salt='delete-account', max_age=expiration)
+        return data['user_id']
+    except (BadSignature, SignatureExpired, KeyError, TypeError):
+        return None
+
+
+def send_delete_account_confirmation(user, token):
+    confirm_url = url_for('auth.confirm_delete_account', token=token, _external=True)
+    msg = Message(
+        'Confirm Account Deletion – CYLVERN Security',
+        sender=current_app.config.get('MAIL_DEFAULT_SENDER'),
+        recipients=[user.email]
+    )
+    msg.body = (
+        f'A request was made to permanently delete your CYLVERN account "{user.username}".\n\n'
+        f'This action cannot be undone. To proceed, confirm here: {confirm_url}\n\n'
+        f'This link expires in 1 hour. If you did not request this, ignore this email '
+        f'and your account will remain active.'
+    )
+    return _send_mail(msg)
+
+
 def send_admin_new_signup_alert(user):
     """Notify admins that a new account is pending approval. Best-effort."""
     admin_email = current_app.config.get('ADMIN_ALERT_EMAIL')
