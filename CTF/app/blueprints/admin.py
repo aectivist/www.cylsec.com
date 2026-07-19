@@ -10,6 +10,11 @@ from app import db, mail
 from app.models import User, Category, Challenge, AdminLog, Solve, Setting
 from app.admin_forms import ChallengeForm, CategoryForm, SystemSettingsForm
 from app.instance_manager import get_available_instances
+from app.utils import send_account_approved_email
+from datetime import datetime
+import re
+
+HEX_COLOR_RE = re.compile(r'^#[0-9a-fA-F]{6}$')
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 logger = logging.getLogger(__name__)
@@ -246,6 +251,41 @@ def list_users():
     return render_template('admin/users.html', users=users)
 
 
+@admin_bp.route('/users/pending')
+@admin_required
+def pending_users():
+    users = User.query.filter_by(is_approved=False).order_by(User.created_at.desc()).all()
+    return render_template('admin/pending_users.html', users=users)
+
+
+@admin_bp.route('/users/approve/<int:user_id>', methods=['POST'])
+@admin_required
+def approve_user(user_id):
+    user = User.query.get_or_404(user_id)
+    user.is_approved = True
+    user.approved_at = datetime.utcnow()
+    db.session.commit()
+    _log(f'Approved user: {user.username}')
+    send_account_approved_email(user)
+    flash(f'{user.username} approved.', 'success')
+    return redirect(url_for('admin.pending_users'))
+
+
+@admin_bp.route('/users/reject/<int:user_id>', methods=['POST'])
+@admin_required
+def reject_user(user_id):
+    user = User.query.get_or_404(user_id)
+    if user.is_approved:
+        flash('User is already approved; use "Delete" instead.', 'danger')
+        return redirect(url_for('admin.pending_users'))
+    username = user.username
+    db.session.delete(user)
+    db.session.commit()
+    _log(f'Rejected pending signup: {username}')
+    flash(f'{username} rejected and removed.', 'success')
+    return redirect(url_for('admin.pending_users'))
+
+
 @admin_bp.route('/users/toggle_admin/<int:user_id>', methods=['POST'])
 @admin_required
 def toggle_admin(user_id):
@@ -264,7 +304,10 @@ def toggle_admin(user_id):
 def update_xp(user_id):
     user = User.query.get_or_404(user_id)
     try:
-        user.xp = int(request.form.get('xp', user.xp))
+        new_xp = int(request.form.get('xp', user.xp))
+        if not (0 <= new_xp <= 10_000_000):
+            raise ValueError
+        user.xp = new_xp
         db.session.commit()
         flash(f'XP updated for {user.username}.', 'success')
     except ValueError:
@@ -276,8 +319,18 @@ def update_xp(user_id):
 @admin_required
 def update_rank(user_id):
     user = User.query.get_or_404(user_id)
-    user.custom_rank = request.form.get('rank', '').strip() or None
-    user.rank_color = request.form.get('rank_color', '').strip() or None
+    rank = request.form.get('rank', '').strip()
+    rank_color = request.form.get('rank_color', '').strip()
+
+    if rank and len(rank) > 50:
+        flash('Rank name must be 50 characters or fewer.', 'danger')
+        return redirect(url_for('admin.list_users'))
+    if rank_color and not HEX_COLOR_RE.match(rank_color):
+        flash('Rank color must be a valid hex color (e.g. #ff0000).', 'danger')
+        return redirect(url_for('admin.list_users'))
+
+    user.custom_rank = rank or None
+    user.rank_color = rank_color or None
     db.session.commit()
     flash(f'Rank updated for {user.username}.', 'success')
     return redirect(url_for('admin.list_users'))

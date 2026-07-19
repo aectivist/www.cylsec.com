@@ -31,7 +31,8 @@ with app.app_context():
                 password_hash=generate_password_hash(admin_password),
                 xp=0,
                 role='admin',
-                confirmed=True
+                confirmed=True,
+                is_approved=True
             )
             db.session.add(admin)
             db.session.commit()
@@ -48,7 +49,8 @@ with app.app_context():
                 password_hash=generate_password_hash(maker_password),
                 xp=0,
                 role='maker',
-                confirmed=True
+                confirmed=True,
+                is_approved=True
             )
             db.session.add(maker)
             db.session.commit()
@@ -65,7 +67,8 @@ with app.app_context():
                 password_hash=generate_password_hash(hunter_password),
                 xp=350,
                 role='user',
-                confirmed=True
+                confirmed=True,
+                is_approved=True
             )
             db.session.add(hunter)
             db.session.commit()

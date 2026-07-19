@@ -1,3 +1,4 @@
+import re
 from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app, session
 from flask_login import login_required, login_user, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -5,16 +6,20 @@ from datetime import datetime
 from sqlalchemy import func
 from app import db, limiter
 from app.models import User
-from app.forms import LoginForm, RegistrationForm, ForgotPasswordForm, ResetPasswordForm
+from app.forms import LoginForm, RegistrationForm, ForgotPasswordForm, ResetPasswordForm, validate_username_value
+from app.disposable_emails import is_disposable_email
 from app.utils import (
     generate_registration_token, verify_registration_token,
     send_registration_confirmation_email, confirm_token,
     send_password_reset_email, verify_reset_token,
     generate_otp, send_otp_email, is_safe_url,
-    generate_reset_token, is_strong_password
+    generate_reset_token, is_strong_password,
+    send_admin_new_signup_alert, send_account_approved_email
 )
 
 auth_bp = Blueprint('auth', __name__)
+
+EMAIL_RE = re.compile(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
 
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
@@ -30,6 +35,9 @@ def login():
         if user and check_password_hash(user.password_hash, form.password.data):
             if not user.confirmed:
                 flash('Please confirm your email before logging in.', 'warning')
+                return render_template('login.html', form=form)
+            if not user.is_approved:
+                flash('Your account is pending admin approval. You will be notified by email once approved.', 'warning')
                 return render_template('login.html', form=form)
             if user.two_factor_enabled:
                 session['2fa_user_id'] = user.id
@@ -89,18 +97,21 @@ def register():
             username=form.username.data,
             email=form.email.data,
             password_hash=generate_password_hash(form.password.data),
-            confirmed=False
+            confirmed=False,
+            is_approved=False,
         )
         db.session.add(user)
         db.session.commit()
         token = generate_registration_token(user.email)
         sent = send_registration_confirmation_email(user.email, token)
+        send_admin_new_signup_alert(user)
         if sent:
-            flash('Registration successful! Check your email to confirm your account.', 'success')
+            flash('Registration successful! Check your email to confirm your account. '
+                  'An admin also needs to approve your account before you can log in.', 'success')
         else:
             user.confirmed = True
             db.session.commit()
-            flash('Registration successful! You can now log in.', 'success')
+            flash('Registration successful! Your account is pending admin approval before you can log in.', 'success')
         return redirect(url_for('auth.login'))
     return render_template('register.html', form=form)
 
@@ -214,9 +225,11 @@ def verify_otp():
 @login_required
 def change_email():
     if request.method == 'POST':
-        new_email = request.form.get('email', '').strip()
-        if not new_email:
-            flash('Email cannot be empty.', 'danger')
+        new_email = request.form.get('email', '').strip()[:120]
+        if not new_email or not EMAIL_RE.match(new_email):
+            flash('Please enter a valid email address.', 'danger')
+        elif is_disposable_email(new_email):
+            flash('Disposable/throwaway email addresses are not allowed.', 'danger')
         elif User.query.filter_by(email=new_email).first():
             flash('Email already in use.', 'danger')
         else:
@@ -247,8 +260,9 @@ def delete_account():
 @login_required
 def update_username():
     new_username = request.form.get('new_username', '').strip()
-    if not new_username:
-        flash('Username cannot be empty.', 'danger')
+    error = validate_username_value(new_username)
+    if error:
+        flash(error, 'danger')
     elif User.is_username_taken(new_username, exclude_id=current_user.id):
         flash('Username already taken.', 'danger')
     else:

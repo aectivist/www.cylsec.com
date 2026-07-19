@@ -102,6 +102,40 @@ def send_registration_confirmation_email(user_email, token):
     return _send_mail(msg)
 
 
+def send_admin_new_signup_alert(user):
+    """Notify admins that a new account is pending approval. Best-effort."""
+    admin_email = current_app.config.get('ADMIN_ALERT_EMAIL')
+    if not admin_email:
+        return False
+    msg = Message(
+        f'[CYLVERN] New signup pending approval: {user.username}',
+        sender=current_app.config.get('MAIL_DEFAULT_SENDER'),
+        recipients=[admin_email]
+    )
+    msg.body = (
+        f'A new user has registered and is awaiting admin approval.\n\n'
+        f'Username: {user.username}\n'
+        f'Email: {user.email}\n'
+        f'Registered at: {user.created_at}\n\n'
+        f'Review pending accounts: {url_for("admin.pending_users", _external=True)}'
+    )
+    return _send_mail(msg)
+
+
+def send_account_approved_email(user):
+    msg = Message(
+        'Your CYLVERN account has been approved',
+        sender=current_app.config.get('MAIL_DEFAULT_SENDER'),
+        recipients=[user.email]
+    )
+    msg.body = (
+        f'Hi {user.username},\n\n'
+        f'Your account has been approved by an admin. You can now log in: '
+        f'{url_for("auth.login", _external=True)}'
+    )
+    return _send_mail(msg)
+
+
 def generate_otp():
     return str(random.randint(100000, 999999))
 

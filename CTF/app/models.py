@@ -15,6 +15,8 @@ class User(UserMixin, db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     confirmed = db.Column(db.Boolean, default=False)
     confirmed_at = db.Column(db.DateTime, nullable=True)
+    is_approved = db.Column(db.Boolean, default=False, nullable=False)
+    approved_at = db.Column(db.DateTime, nullable=True)
     custom_rank = db.Column(db.String(50), nullable=True)
     rank_color = db.Column(db.String(7), nullable=True)
     two_factor_enabled = db.Column(db.Boolean, default=False)

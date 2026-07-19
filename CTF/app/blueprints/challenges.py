@@ -40,7 +40,7 @@ def view_challenge(challenge_id):
 @limiter.limit("10 per minute")
 def submit_flag(challenge_id):
     chal = Challenge.query.get_or_404(challenge_id)
-    user_flag = request.form.get('flag', '').strip()
+    user_flag = request.form.get('flag', '').strip()[:200]
     if user_flag == chal.flag:
         solve = Solve.query.filter_by(user_id=current_user.id, challenge_id=chal.id).first()
         if not solve:
