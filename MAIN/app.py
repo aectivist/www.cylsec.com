@@ -2,6 +2,7 @@ import os
 import io
 import base64
 import secrets
+import time
 from datetime import datetime
 from flask import (Flask, render_template, redirect, url_for,
                    request, flash, session, abort)
@@ -11,6 +12,7 @@ from flask_wtf.csrf import CSRFProtect
 from flask_login import (LoginManager, UserMixin,
                          login_user, logout_user,
                          login_required, current_user)
+from flask_mail import Mail, Message
 from wtforms import StringField, PasswordField, TextAreaField, BooleanField, SubmitField, SelectField
 from wtforms.validators import DataRequired, Length, Email, Optional
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -35,11 +37,27 @@ app.config['SESSION_COOKIE_SECURE'] = (
 )
 app.config['WTF_CSRF_TIME_LIMIT'] = 3600
 
+# ── Mail config (used for mandatory admin login OTP) ──────────────────────────
+app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.zoho.com')
+app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
+app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS', 'true').lower() in ('true', '1')
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = (
+    os.environ.get('MAIL_DEFAULT_SENDER') or app.config['MAIL_USERNAME'] or 'noreply@cylsec.com'
+)
+MAIL_CONFIGURED = bool(app.config['MAIL_USERNAME'] and app.config['MAIL_PASSWORD'])
+
 db = SQLAlchemy(app)
 csrf = CSRFProtect(app)
+mail = Mail(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'admin_login'
 login_manager.login_message_category = 'danger'
+
+EMAIL_OTP_TTL_SECONDS = 600      # 10 minutes
+EMAIL_OTP_MAX_ATTEMPTS = 5
+EMAIL_OTP_RESEND_COOLDOWN = 30   # seconds
 
 # ── Security headers ──────────────────────────────────────────────────────────
 @app.after_request
@@ -59,6 +77,7 @@ class AdminUser(UserMixin, db.Model):
     __tablename__ = 'admin_users'
     id            = db.Column(db.Integer, primary_key=True)
     username      = db.Column(db.String(80), unique=True, nullable=False)
+    email         = db.Column(db.String(120), nullable=True)
     password_hash = db.Column(db.String(256), nullable=False)
     totp_secret   = db.Column(db.String(64), nullable=True)
     totp_enabled  = db.Column(db.Boolean, default=False, nullable=False)
@@ -114,6 +133,10 @@ class TotpForm(FlaskForm):
     code = StringField('Authenticator Code', validators=[DataRequired(), Length(min=6, max=6)])
 
 
+class EmailOtpForm(FlaskForm):
+    code = StringField('Verification Code', validators=[DataRequired(), Length(min=6, max=6)])
+
+
 class TotpSetupForm(FlaskForm):
     code = StringField('Verify Code', validators=[DataRequired(), Length(min=6, max=6)])
 
@@ -148,6 +171,7 @@ def _migrate_db():
     migrations = [
         "ALTER TABLE admin_users ADD COLUMN totp_secret TEXT",
         "ALTER TABLE admin_users ADD COLUMN totp_enabled INTEGER NOT NULL DEFAULT 0",
+        "ALTER TABLE admin_users ADD COLUMN email TEXT",
     ]
     with db.engine.connect() as conn:
         for sql in migrations:
@@ -164,9 +188,19 @@ def init_db():
         _migrate_db()
         # Seed default admin if none exists
         if not AdminUser.query.first():
-            admin = AdminUser(username=os.environ.get('ADMIN_USERNAME', 'admin'))
+            admin = AdminUser(
+                username=os.environ.get('ADMIN_USERNAME', 'admin'),
+                email=os.environ.get('ADMIN_EMAIL', 'admin@cylsec.com'),
+            )
             admin.set_password(os.environ.get('ADMIN_PASSWORD', 'changeme123'))
             db.session.add(admin)
+            db.session.commit()
+        else:
+            # Backfill email for admins created before login-OTP was added
+            for u in AdminUser.query.filter(
+                (AdminUser.email.is_(None)) | (AdminUser.email == '')
+            ).all():
+                u.email = os.environ.get('ADMIN_EMAIL', 'admin@cylsec.com')
             db.session.commit()
         # Seed single alert row if none exists
         if not Alert.query.first():
@@ -222,6 +256,43 @@ def business():
     return render_template('business.html', form=form, success=success)
 
 # ── Admin routes ──────────────────────────────────────────────────────────────
+def _send_admin_login_otp(user, code):
+    if not MAIL_CONFIGURED:
+        app.logger.error(f'[mail not configured] admin login OTP for {user.username}: {code}')
+        return False
+    try:
+        msg = Message('Your CYLVERN Admin Login Code',
+                      sender=app.config['MAIL_DEFAULT_SENDER'],
+                      recipients=[user.email])
+        msg.body = (
+            f'Your one-time admin login code is: {code}\n\n'
+            f'This code expires in 10 minutes. If you did not attempt to log in to '
+            f'the CYLVERN Security admin panel, ignore this email and consider '
+            f'rotating the admin password.'
+        )
+        mail.send(msg)
+        return True
+    except Exception as e:
+        app.logger.error(f'Failed to send admin login OTP: {e}')
+        return False
+
+
+def _start_email_otp_challenge(user):
+    code = f'{secrets.randbelow(1000000):06d}'
+    session['_email_otp_user_id'] = user.id
+    session['_email_otp_code'] = code
+    session['_email_otp_expires'] = time.time() + EMAIL_OTP_TTL_SECONDS
+    session['_email_otp_attempts'] = 0
+    session['_email_otp_sent_at'] = time.time()
+    return _send_admin_login_otp(user, code)
+
+
+def _clear_email_otp_session():
+    for k in ('_email_otp_user_id', '_email_otp_code', '_email_otp_expires',
+              '_email_otp_attempts', '_email_otp_sent_at'):
+        session.pop(k, None)
+
+
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
     if current_user.is_authenticated:
@@ -230,13 +301,69 @@ def admin_login():
     if form.validate_on_submit():
         user = AdminUser.query.filter_by(username=form.username.data).first()
         if user and user.check_password(form.password.data):
+            if not user.email:
+                flash('This admin account has no email on file. Contact the system administrator.', 'danger')
+                return render_template('admin/login.html', form=form)
+            if _start_email_otp_challenge(user):
+                flash(f'A verification code was sent to {user.email}.', 'info')
+                return redirect(url_for('admin_email_otp_verify'))
+            flash('Failed to send the verification email. Please try again later.', 'danger')
+            return render_template('admin/login.html', form=form)
+        flash('Invalid credentials.', 'danger')
+    return render_template('admin/login.html', form=form)
+
+
+@app.route('/admin/email-otp/verify', methods=['GET', 'POST'])
+def admin_email_otp_verify():
+    user_id = session.get('_email_otp_user_id')
+    if not user_id:
+        return redirect(url_for('admin_login'))
+    user = AdminUser.query.get(user_id)
+    if not user:
+        _clear_email_otp_session()
+        return redirect(url_for('admin_login'))
+
+    form = EmailOtpForm()
+    if form.validate_on_submit():
+        expires = session.get('_email_otp_expires', 0)
+        attempts = session.get('_email_otp_attempts', 0)
+        if time.time() > expires:
+            _clear_email_otp_session()
+            flash('That code has expired. Please log in again.', 'danger')
+            return redirect(url_for('admin_login'))
+        if attempts >= EMAIL_OTP_MAX_ATTEMPTS:
+            _clear_email_otp_session()
+            flash('Too many incorrect attempts. Please log in again.', 'danger')
+            return redirect(url_for('admin_login'))
+        if secrets.compare_digest(form.code.data.strip(), session.get('_email_otp_code', '')):
+            _clear_email_otp_session()
             if user.totp_enabled:
                 session['_2fa_user_id'] = user.id
                 return redirect(url_for('admin_2fa_verify'))
             login_user(user)
             return redirect(url_for('admin_panel'))
-        flash('Invalid credentials.', 'danger')
-    return render_template('admin/login.html', form=form)
+        session['_email_otp_attempts'] = attempts + 1
+        flash('Invalid verification code.', 'danger')
+    return render_template('admin/email_otp_verify.html', form=form, email=user.email)
+
+
+@app.route('/admin/email-otp/resend', methods=['POST'])
+def admin_email_otp_resend():
+    user_id = session.get('_email_otp_user_id')
+    if not user_id:
+        return redirect(url_for('admin_login'))
+    user = AdminUser.query.get(user_id)
+    if not user:
+        _clear_email_otp_session()
+        return redirect(url_for('admin_login'))
+    last_sent = session.get('_email_otp_sent_at', 0)
+    if time.time() - last_sent < EMAIL_OTP_RESEND_COOLDOWN:
+        flash('Please wait before requesting another code.', 'warning')
+    elif _start_email_otp_challenge(user):
+        flash(f'A new verification code was sent to {user.email}.', 'info')
+    else:
+        flash('Failed to send the verification email. Please try again later.', 'danger')
+    return redirect(url_for('admin_email_otp_verify'))
 
 
 @app.route('/admin/logout', methods=['POST'])

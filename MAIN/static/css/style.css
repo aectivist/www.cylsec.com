@@ -24,6 +24,11 @@
     --muted: #8888aa;
     --nav-bg: rgba(6, 6, 8, .78);
     --glass: rgba(20, 20, 28, .82);
+
+    /* aliases used by the admin panel templates */
+    --text-muted: var(--muted);
+    --card-bg: var(--surface-solid);
+    --radius-sm: 10px;
 }
 
 [data-theme="light"] {
@@ -483,4 +488,47 @@ footer {
 @media (max-width: 480px) {
     .grid-3 { grid-template-columns: 1fr; }
     .hero-title { font-size: 2rem; }
+}
+
+/* ── Admin panel ─────────────────────────────────────── */
+.admin-wrap { max-width: 1000px; margin: 0 auto; padding: 40px 24px 80px; }
+
+.btn-ghost {
+    background: transparent; border: 1px solid var(--border-soft); color: var(--text);
+}
+.btn-ghost:hover { border-color: var(--purple); color: var(--purple); }
+
+.btn-danger-outline { border-color: var(--danger); color: var(--danger); background: transparent; }
+.btn-danger-outline:hover { background: var(--danger); color: #fff; }
+
+/* Level selector (Alert Management) */
+.level-select-row { display: flex; gap: 8px; }
+.level-opt {
+    flex: 1; padding: .6rem 1rem; border-radius: 8px; cursor: pointer;
+    font-size: .85rem; font-weight: 600; font-family: inherit;
+    background: rgba(0,0,0,.35); border: 1px solid var(--border-soft); color: var(--muted);
+    transition: all var(--transition);
+}
+[data-theme="light"] .level-opt { background: rgba(255,255,255,.8); border-color: rgba(0,0,0,.15); }
+.level-opt:hover { color: var(--text); }
+.level-opt.info.active    { background: rgba(77,124,255,.18);  border-color: var(--blue);   color: #a0b8ff; }
+.level-opt.warning.active { background: rgba(255,171,64,.18);  border-color: var(--warn);   color: #ffd180; }
+.level-opt.danger.active  { background: rgba(255,82,82,.18);   border-color: var(--danger); color: #ff8a80; }
+
+/* Business inquiries table */
+.inquiry-table { width: 100%; border-collapse: collapse; }
+.inquiry-table th {
+    text-align: left; padding: 10px 14px; font-size: .72rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
+    border-bottom: 1px solid var(--border-soft); white-space: nowrap;
+}
+.inquiry-table td {
+    padding: 12px 14px; font-size: .86rem; color: var(--text);
+    border-bottom: 1px solid var(--border-soft);
+}
+.inquiry-table tbody tr:hover { background: rgba(124,77,255,.06); }
+.inquiry-table td.unread { font-weight: 700; }
+.inquiry-table td.unread::before {
+    content: ''; display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--danger); margin-right: 8px;
 }
