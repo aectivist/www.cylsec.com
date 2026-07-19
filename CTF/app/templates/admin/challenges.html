@@ -33,10 +33,12 @@
         </td>
         <td style="padding:11px 16px;text-align:right;">
           <a href="{{ url_for('admin.edit_challenge', challenge_id=chal.id) }}" style="color:var(--blue);font-size:.82rem;text-decoration:none;margin-right:12px;"><i class="fas fa-pen"></i> Edit</a>
+          {% if current_user.is_admin %}
           <form method="POST" action="{{ url_for('admin.delete_challenge', challenge_id=chal.id) }}" style="display:inline;" onsubmit="return confirm('Delete {{ chal.title }}?')">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <button type="submit" style="background:none;border:none;color:var(--danger);font-size:.82rem;cursor:pointer;"><i class="fas fa-trash"></i> Delete</button>
           </form>
+          {% endif %}
         </td>
       </tr>
       {% endfor %}

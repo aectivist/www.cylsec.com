@@ -28,6 +28,10 @@ class User(UserMixin, db.Model):
     def is_admin(self):
         return self.role == 'admin'
 
+    @property
+    def is_maker(self):
+        return self.role in ('admin', 'maker')
+
     def get_rank(self):
         if self.custom_rank:
             return self.custom_rank

@@ -31,6 +31,19 @@ def admin_required(f):
     return decorated
 
 
+def maker_required(f):
+    """Allows admins and makers. Use for challenge-authoring routes only —
+    makers must not get access to user/category/settings management."""
+    from functools import wraps
+    @wraps(f)
+    @login_required
+    def decorated(*args, **kwargs):
+        if not current_user.is_maker:
+            abort(403)
+        return f(*args, **kwargs)
+    return decorated
+
+
 # ── 2FA ──────────────────────────────────────────────────────────────────────
 
 @admin_bp.route('/enable-2fa', methods=['GET', 'POST'])
@@ -105,14 +118,14 @@ def dashboard():
 # ── Challenges ────────────────────────────────────────────────────────────────
 
 @admin_bp.route('/challenges')
-@admin_required
+@maker_required
 def list_challenges():
     challenges = Challenge.query.order_by(Challenge.id.desc()).all()
     return render_template('admin/challenges.html', challenges=challenges)
 
 
 @admin_bp.route('/challenges/add', methods=['GET', 'POST'])
-@admin_required
+@maker_required
 def add_challenge():
     form = ChallengeForm()
     form.category_id.choices = [(c.id, c.name) for c in Category.query.all()]
@@ -142,7 +155,7 @@ def add_challenge():
 
 
 @admin_bp.route('/challenges/edit/<int:challenge_id>', methods=['GET', 'POST'])
-@admin_required
+@maker_required
 def edit_challenge(challenge_id):
     challenge = Challenge.query.get_or_404(challenge_id)
     form = ChallengeForm(obj=challenge)
@@ -365,7 +378,7 @@ def delete_user(user_id):
 # ── API ───────────────────────────────────────────────────────────────────────
 
 @admin_bp.route('/api/instances/<challenge_type>')
-@admin_required
+@maker_required
 def api_instances(challenge_type):
     from flask import jsonify
     instances = get_available_instances(challenge_type)
