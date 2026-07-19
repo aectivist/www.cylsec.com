@@ -4,11 +4,18 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user
 from datetime import datetime, timedelta
 from app import db, csrf
-from app.models import DockerInstance, Challenge
+from app.models import DockerInstance, Challenge, ShutdownVote, User
 from app.docker_manager import DockerInstanceManager
 
 docker_bp = Blueprint('docker', __name__, url_prefix='/docker')
 docker_manager = DockerInstanceManager()
+
+# Number of votes required to force-stop an instance
+SHUTDOWN_VOTES_REQUIRED = 5
+# Default instance lifetime (minutes)
+INSTANCE_DURATION_MINUTES = 30
+# Extension amount (minutes)
+EXTENSION_MINUTES = 5
 
 
 @docker_bp.route('/launch/<int:challenge_id>', methods=['GET', 'POST'])
@@ -40,7 +47,7 @@ def launch_instance(challenge_id):
         instance = docker_manager.spawn_instance(
             user_id=current_user.id,
             challenge_id=challenge_id,
-            duration_minutes=60,
+            duration_minutes=INSTANCE_DURATION_MINUTES,
             image_name=image_name,
         )
 
@@ -54,7 +61,9 @@ def launch_instance(challenge_id):
             )
             return redirect(url_for('challenges.view_challenge', challenge_id=challenge_id))
 
-    return render_template('docker/launch.html', challenge=challenge)
+    return render_template('docker/launch.html', challenge=challenge,
+                           duration=INSTANCE_DURATION_MINUTES,
+                           extension=EXTENSION_MINUTES)
 
 
 @docker_bp.route('/instance/<int:instance_id>')
@@ -73,8 +82,33 @@ def instance_detail(instance_id):
         flash('This instance has expired.', 'warning')
         return redirect(url_for('challenges.view_challenge', challenge_id=instance.challenge_id))
 
+    # Gather all users currently working on the same challenge (active instances)
+    active_peers = (
+        DockerInstance.query
+        .filter(
+            DockerInstance.challenge_id == instance.challenge_id,
+            DockerInstance.is_active == True,
+            DockerInstance.expires_at > datetime.utcnow(),
+        )
+        .all()
+    )
+    participants = [
+        {'username': peer.user.username, 'is_me': peer.user_id == current_user.id}
+        for peer in active_peers
+    ]
+
     info = docker_manager.get_instance_info(instance_id)
-    return render_template('docker/instance_detail.html', instance=instance, info=info)
+    user_has_voted = instance.has_voted(current_user.id)
+
+    return render_template(
+        'docker/instance_detail.html',
+        instance=instance,
+        info=info,
+        participants=participants,
+        user_has_voted=user_has_voted,
+        votes_required=SHUTDOWN_VOTES_REQUIRED,
+        extension_minutes=EXTENSION_MINUTES,
+    )
 
 
 @docker_bp.route('/instance/<int:instance_id>/extend', methods=['POST'])
@@ -88,7 +122,7 @@ def extend_instance(instance_id):
     if not instance.can_extend():
         return jsonify({'error': 'Max extensions reached'}), 400
 
-    extended = docker_manager.extend_instance(instance_id, duration_minutes=30)
+    extended = docker_manager.extend_instance(instance_id, duration_minutes=EXTENSION_MINUTES)
     if extended:
         return jsonify({
             'success': True,
@@ -117,6 +151,45 @@ def stop_instance(instance_id):
     return redirect(url_for('challenges.view_challenge', challenge_id=challenge_id))
 
 
+@docker_bp.route('/instance/<int:instance_id>/vote_shutdown', methods=['POST'])
+@login_required
+def vote_shutdown(instance_id):
+    """Cast a vote to shut down a running instance. Requires SHUTDOWN_VOTES_REQUIRED votes."""
+    instance = DockerInstance.query.get_or_404(instance_id)
+
+    if not instance.is_active or instance.is_expired():
+        return jsonify({'error': 'Instance is not active'}), 400
+
+    if instance.has_voted(current_user.id):
+        return jsonify({'error': 'Already voted'}), 400
+
+    vote = ShutdownVote(instance_id=instance_id, user_id=current_user.id)
+    db.session.add(vote)
+    db.session.flush()  # get updated count without committing yet
+
+    new_count = instance.vote_count()
+
+    if new_count >= SHUTDOWN_VOTES_REQUIRED:
+        db.session.commit()
+        docker_manager.stop_instance(instance_id)
+        return jsonify({
+            'success': True,
+            'shutdown': True,
+            'votes': new_count,
+            'votes_required': SHUTDOWN_VOTES_REQUIRED,
+            'message': f'Vote threshold reached — instance shut down.',
+        })
+
+    db.session.commit()
+    return jsonify({
+        'success': True,
+        'shutdown': False,
+        'votes': new_count,
+        'votes_required': SHUTDOWN_VOTES_REQUIRED,
+        'message': f'{new_count}/{SHUTDOWN_VOTES_REQUIRED} votes to shut down.',
+    })
+
+
 @docker_bp.route('/instances')
 @login_required
 def my_instances():
@@ -133,7 +206,26 @@ def my_instances():
     for exp in expired:
         docker_manager.stop_instance(exp.id)
 
-    return render_template('docker/my_instances.html', instances=instances)
+    # For each instance, compute active participants on the same challenge
+    instance_participants = {}
+    for inst in instances:
+        peers = (
+            DockerInstance.query
+            .filter(
+                DockerInstance.challenge_id == inst.challenge_id,
+                DockerInstance.is_active == True,
+                DockerInstance.expires_at > datetime.utcnow(),
+            )
+            .all()
+        )
+        instance_participants[inst.id] = [
+            {'username': p.user.username, 'is_me': p.user_id == current_user.id}
+            for p in peers
+        ]
+
+    return render_template('docker/my_instances.html', instances=instances,
+                           instance_participants=instance_participants,
+                           duration=INSTANCE_DURATION_MINUTES)
 
 
 @docker_bp.route('/api/cleanup', methods=['POST'])

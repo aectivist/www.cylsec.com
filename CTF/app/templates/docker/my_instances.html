@@ -18,6 +18,8 @@
         {% for instance in instances %}
         {% set secs = instance.time_remaining() %}
         {% set mins = secs // 60 %}
+        {% set pct = [[((secs / (duration * 60)) * 100)|int, 0]|max, 100]|min %}
+        {% set peers = instance_participants.get(instance.id, []) %}
         <div class="my-instance-card">
             <div class="my-instance-card-top">
                 <span class="cat-chip" style="font-size:.7rem;">{{ instance.challenge.type | upper }}</span>
@@ -27,16 +29,23 @@
             </div>
             <h4 class="my-instance-title">{{ instance.challenge.title }}</h4>
             <div class="my-instance-timer">
-                <span class="my-instance-time {% if mins < 10 %}my-time-low{% elif mins < 20 %}my-time-mid{% else %}my-time-ok{% endif %}">
+                <span class="my-instance-time {% if mins < 5 %}my-time-low{% elif mins < 15 %}my-time-mid{% else %}my-time-ok{% endif %}">
                     {{ mins }}m {{ secs % 60 }}s
                 </span>
                 <span style="color:var(--muted);font-size:.8rem;">remaining</span>
             </div>
-            {% set pct = [[((secs / 3600) * 100)|int, 0]|max, 100]|min %}
-            <div class="instance-progress-track" style="margin-bottom:16px;">
+            <div class="instance-progress-track" style="margin-bottom:10px;">
                 <div class="instance-progress-fill {% if pct < 20 %}timer-bar-low{% elif pct < 50 %}timer-bar-medium{% else %}timer-bar-high{% endif %}"
                      style="width:{{ pct }}%;"></div>
             </div>
+            {% if peers %}
+            <div class="my-instance-participants">
+                <i class="fas fa-users" style="font-size:.75rem;"></i>
+                {% for p in peers %}
+                <span class="participant-chip-sm {% if p.is_me %}participant-chip-me{% endif %}">{{ p.username }}{% if p.is_me %} (you){% endif %}</span>{% if not loop.last %},{% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
             <div class="my-instance-meta">
                 <span><i class="fas fa-plug"></i> Port <code>{{ instance.port }}</code></span>
                 <span><i class="fas fa-redo"></i> {{ instance.extensions_used }}/3 ext</span>

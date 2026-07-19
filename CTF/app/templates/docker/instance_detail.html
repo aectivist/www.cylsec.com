@@ -38,12 +38,12 @@
         <div class="panel instance-timer-card">
             <h3 class="instance-card-title"><i class="fas fa-hourglass-half"></i> Time Remaining</h3>
             {% set secs = instance.time_remaining() %}
-            {% set hours = secs // 3600 %}
-            {% set mins  = (secs % 3600) // 60 %}
-            {% set pct   = [[((secs / 3600) * 100) | int, 0] | max, 100] | min %}
+            {% set mins  = secs // 60 %}
+            {% set rsecs = secs % 60 %}
+            {% set pct   = [[(( secs / (extension_minutes * 60 * 3 + 30 * 60)) * 100) | int, 0] | max, 100] | min %}
             <div class="instance-timer-display">
-                {{ "%d:%02d" % (hours, mins) }}
-                <span class="instance-timer-unit">h:mm</span>
+                {{ "%d:%02d" % (mins, rsecs) }}
+                <span class="instance-timer-unit">m:ss</span>
             </div>
             <div class="instance-progress-track">
                 <div class="instance-progress-fill
@@ -61,7 +61,7 @@
             <div class="instance-controls">
                 {% if instance.can_extend() %}
                 <button class="btn-primary instance-extend-btn" id="extend-btn" onclick="extendInstance()">
-                    <i class="fas fa-clock"></i> Extend +30 min
+                    <i class="fas fa-clock"></i> Extend +{{ extension_minutes }} min
                 </button>
                 <p class="instance-ext-note">Extensions used: <strong>{{ instance.extensions_used }} / 3</strong></p>
                 {% else %}
@@ -100,6 +100,57 @@
 
     </div>
 
+    {# ── Active participants panel ── #}
+    {% if participants %}
+    <div class="panel instance-participants-panel">
+        <h3 class="instance-card-title" style="margin-bottom:12px;">
+            <i class="fas fa-users"></i> Active Participants
+            <span class="participant-count-badge">{{ participants | length }}</span>
+        </h3>
+        <div class="participant-list">
+            {% for p in participants %}
+            <span class="participant-chip {% if p.is_me %}participant-me{% endif %}">
+                <i class="fas fa-circle" style="font-size:.45rem;margin-right:4px;opacity:.6;"></i>
+                {{ p.username }}{% if p.is_me %} <em style="font-style:normal;opacity:.6;">(you)</em>{% endif %}
+            </span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {# ── Community vote-to-shutdown panel ── #}
+    <div class="panel instance-vote-panel" id="vote-panel">
+        <div class="vote-panel-left">
+            <h3 class="instance-card-title" style="margin-bottom:6px;">
+                <i class="fas fa-vote-yea"></i> Community Shutdown Vote
+            </h3>
+            <p class="vote-desc">
+                If this instance is misbehaving or wasting resources, the community can vote to shut it down.
+                <strong>{{ votes_required }} votes</strong> are required.
+            </p>
+            <div class="vote-progress-row" id="vote-progress-row">
+                <div class="vote-progress-track">
+                    {% set vpct = [[(instance.vote_count() / votes_required * 100)|int, 0]|max, 100]|min %}
+                    <div class="vote-progress-fill" id="vote-fill" style="width:{{ vpct }}%;"></div>
+                </div>
+                <span class="vote-tally" id="vote-tally">
+                    {{ instance.vote_count() }} / {{ votes_required }}
+                </span>
+            </div>
+        </div>
+        <div class="vote-panel-right">
+            {% if user_has_voted %}
+            <button class="btn-secondary vote-btn" disabled style="opacity:.5;cursor:not-allowed;">
+                <i class="fas fa-check"></i> Voted
+            </button>
+            {% else %}
+            <button class="btn-secondary vote-btn" id="vote-btn" onclick="voteShutdown()">
+                <i class="fas fa-power-off"></i> Vote to Shut Down
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
     {% if info and info.container_status not in ('running', 'unknown') %}
     <div class="panel" style="margin-top:16px;border-color:rgba(255,171,64,.3);background:rgba(255,171,64,.06);">
         <i class="fas fa-exclamation-triangle" style="color:var(--warn);"></i>
@@ -129,13 +180,51 @@ function extendInstance() {
         else {
             alert('Error: ' + data.error);
             btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-clock"></i> Extend +30 min';
+            btn.innerHTML = '<i class="fas fa-clock"></i> Extend +{{ extension_minutes }} min';
         }
     })
     .catch(err => {
         alert('Network error: ' + err);
         btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-clock"></i> Extend +30 min';
+        btn.innerHTML = '<i class="fas fa-clock"></i> Extend +{{ extension_minutes }} min';
+    });
+}
+
+function voteShutdown() {
+    const btn = document.getElementById('vote-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Voting…';
+    const csrfToken = (document.querySelector('meta[name="csrf-token"]') || {}).content || '{{ csrf_token() }}';
+    fetch('{{ url_for("docker.vote_shutdown", instance_id=instance.id) }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (!data.success) {
+            alert('Error: ' + data.error);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-power-off"></i> Vote to Shut Down';
+            return;
+        }
+        // Update tally + progress bar
+        const tally = document.getElementById('vote-tally');
+        const fill  = document.getElementById('vote-fill');
+        if (tally) tally.textContent = data.votes + ' / ' + data.votes_required;
+        if (fill)  fill.style.width = Math.min(100, Math.round(data.votes / data.votes_required * 100)) + '%';
+
+        btn.innerHTML = '<i class="fas fa-check"></i> Voted';
+
+        if (data.shutdown) {
+            document.getElementById('vote-panel').innerHTML =
+                '<div style="color:var(--danger);font-weight:600;"><i class="fas fa-power-off"></i> Vote threshold reached — instance has been shut down.</div>';
+            setTimeout(() => { location.href = '{{ url_for("challenges.view_challenge", challenge_id=instance.challenge_id) }}'; }, 2500);
+        }
+    })
+    .catch(err => {
+        alert('Network error: ' + err);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-power-off"></i> Vote to Shut Down';
     });
 }
 </script>

@@ -150,6 +150,7 @@ class DockerInstance(db.Model):
 
     user = db.relationship('User', backref=db.backref('docker_instances', cascade='all, delete-orphan'), lazy=True)
     challenge = db.relationship('Challenge', backref='docker_instances', lazy=True)
+    shutdown_votes = db.relationship('ShutdownVote', backref='instance', cascade='all, delete-orphan', lazy=True)
 
     def is_expired(self):
         return datetime.utcnow() > self.expires_at
@@ -160,3 +161,22 @@ class DockerInstance(db.Model):
 
     def can_extend(self, max_extensions=3):
         return self.extensions_used < max_extensions
+
+    def vote_count(self):
+        return len(self.shutdown_votes)
+
+    def has_voted(self, user_id):
+        return any(v.user_id == user_id for v in self.shutdown_votes)
+
+
+class ShutdownVote(db.Model):
+    """A single user's vote to shut down a shared Docker instance early."""
+    __tablename__ = 'shutdown_votes'
+    id = db.Column(db.Integer, primary_key=True)
+    instance_id = db.Column(db.Integer, db.ForeignKey('docker_instances.id', ondelete='CASCADE'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    voted_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        db.UniqueConstraint('instance_id', 'user_id', name='uq_shutdown_vote'),
+    )

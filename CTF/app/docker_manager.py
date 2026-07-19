@@ -75,7 +75,7 @@ class DockerInstanceManager:
             container = client.containers.run(
                 image_name,
                 detach=True,
-                ports={'80/tcp': port},
+                ports={'5000/tcp': port},
                 labels={
                     'cylvern.user_id': str(user_id),
                     'cylvern.challenge_id': str(challenge_id),
