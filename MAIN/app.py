@@ -213,6 +213,24 @@ def inject_alert():
     alert = Alert.query.first()
     return {'site_alert': alert}
 
+
+_STATIC_DIR = os.path.join(app.root_path, 'static')
+
+
+@app.context_processor
+def inject_asset_version():
+    """Cache-busting query param for static assets, based on file mtime.
+    nginx serves /static/ with a 30-day Cache-Control, so without this,
+    a CSS/JS change wouldn't reach already-cached browsers until then."""
+    def asset_url(filename):
+        path = os.path.join(_STATIC_DIR, filename)
+        try:
+            v = int(os.path.getmtime(path))
+        except OSError:
+            v = 0
+        return f"{url_for('static', filename=filename)}?v={v}"
+    return {'asset_url': asset_url}
+
 # ── Public routes ─────────────────────────────────────────────────────────────
 @app.route('/')
 def index():
