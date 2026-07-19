@@ -140,17 +140,15 @@
               {{ inq.submitted_at.strftime('%Y-%m-%d %H:%M') }}
             </td>
             <td style="white-space:nowrap;">
-              <button class="btn btn-ghost" style="padding:5px 12px;font-size:.78rem;"
-                      onclick="openInquiry(
-                        {{ inq.id }},
-                        {{ inq.name | tojson }},
-                        {{ inq.email | tojson }},
-                        {{ (inq.org or '') | tojson }},
-                        {{ (inq.inquiry_type or '') | tojson }},
-                        {{ inq.message | tojson }},
-                        {{ inq.submitted_at.strftime('%Y-%m-%d %H:%M') | tojson }},
-                        {{ inq.read | tojson }}
-                      )">
+              <button class="btn btn-ghost view-inquiry-btn" style="padding:5px 12px;font-size:.78rem;"
+                      data-id="{{ inq.id }}"
+                      data-name="{{ inq.name }}"
+                      data-email="{{ inq.email }}"
+                      data-org="{{ inq.org or '' }}"
+                      data-type="{{ inq.inquiry_type or '' }}"
+                      data-message="{{ inq.message }}"
+                      data-date="{{ inq.submitted_at.strftime('%Y-%m-%d %H:%M') }}"
+                      data-read="{{ 1 if inq.read else 0 }}">
                 <i class="fas fa-eye"></i> View
               </button>
             </td>
@@ -254,13 +252,33 @@ updatePreview();
 
 // Inquiry modal
 const modal = document.getElementById('inqModal');
+const CSRF_TOKEN = "{{ csrf_token() }}";
 
 function openInquiry(id, name, email, org, type, message, date, isRead) {
   document.getElementById('mTitle').textContent = name;
-  document.getElementById('mEmail').innerHTML   = '<a href="mailto:' + email + '" style="color:var(--purple);">' + email + '</a>';
-  document.getElementById('mOrg').textContent   = org || '—';
-  document.getElementById('mType').innerHTML    = type ? '<code style="font-size:.78rem;">' + type + '</code>' : '—';
-  document.getElementById('mDate').textContent  = date;
+
+  const emailEl = document.getElementById('mEmail');
+  emailEl.textContent = '';
+  const emailLink = document.createElement('a');
+  emailLink.href = 'mailto:' + encodeURIComponent(email);
+  emailLink.style.color = 'var(--purple)';
+  emailLink.textContent = email;
+  emailEl.appendChild(emailLink);
+
+  document.getElementById('mOrg').textContent = org || '—';
+
+  const typeEl = document.getElementById('mType');
+  typeEl.textContent = '';
+  if (type) {
+    const code = document.createElement('code');
+    code.style.fontSize = '.78rem';
+    code.textContent = type;
+    typeEl.appendChild(code);
+  } else {
+    typeEl.textContent = '—';
+  }
+
+  document.getElementById('mDate').textContent = date;
   document.getElementById('mMessage').textContent = message;
 
   const acts = document.getElementById('mActions');
@@ -269,16 +287,25 @@ function openInquiry(id, name, email, org, type, message, date, isRead) {
   if (!isRead) {
     const f = document.createElement('form');
     f.method = 'POST';
-    f.action = '/admin/inquiry/' + id + '/read';
+    f.action = '/admin/inquiry/' + encodeURIComponent(id) + '/read';
     f.style.margin = '0';
-    f.innerHTML = '<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">'
-                + '<button type="submit" class="btn btn-ghost" style="font-size:.85rem;padding:8px 16px;">'
-                + '<i class="fas fa-check"></i> Mark as Read</button>';
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrf_token';
+    csrfInput.value = CSRF_TOKEN;
+    f.appendChild(csrfInput);
+    const readBtn = document.createElement('button');
+    readBtn.type = 'submit';
+    readBtn.className = 'btn btn-ghost';
+    readBtn.style.fontSize = '.85rem';
+    readBtn.style.padding = '8px 16px';
+    readBtn.innerHTML = '<i class="fas fa-check"></i> Mark as Read';
+    f.appendChild(readBtn);
     acts.appendChild(f);
   }
 
   const a = document.createElement('a');
-  a.href = 'mailto:' + email + '?subject=Re%3A%20Your%20Enquiry%20to%20Cylvern%20Security';
+  a.href = 'mailto:' + encodeURIComponent(email) + '?subject=Re%3A%20Your%20Enquiry%20to%20Cylvern%20Security';
   a.className = 'btn btn-primary';
   a.style.fontSize = '.85rem';
   a.style.padding = '8px 16px';
@@ -293,6 +320,13 @@ function closeInquiry() {
   modal.style.display = 'none';
   document.body.style.overflow = '';
 }
+
+document.querySelectorAll('.view-inquiry-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const d = btn.dataset;
+    openInquiry(d.id, d.name, d.email, d.org, d.type, d.message, d.date, d.read === '1');
+  });
+});
 
 modal.addEventListener('click', e => { if (e.target === modal) closeInquiry(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.style.display === 'flex') closeInquiry(); });
